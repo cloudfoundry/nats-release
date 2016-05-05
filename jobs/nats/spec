@@ -11,6 +11,14 @@ packages:
   - nats-common
   - gnatsd
 
+provides:
+- name: nats
+  type: nats
+
+consumes:
+- name: nats
+  type: nats
+
 properties:
   nats.user:
     description: "Username for server authentication."
@@ -21,8 +29,6 @@ properties:
   nats.authorization_timeout:
     description: "After accepting a connection, wait up to this many seconds for credentials."
     default: 15
-  nats.machines:
-    description: "IP of each NATS cluster member."
   nats.debug:
     description: "Enable debug logging output."
     default: false
