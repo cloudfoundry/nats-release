@@ -1,0 +1,6 @@
+{
+  "Hosts": [ <%= link("nats").instances.map(&:address).map{|ip| "\"#{ip}\""}.join(', ') %> ],
+  "User": "<%= link("nats").p("nats.user") %>",
+  "Password": "<%= link("nats").p("nats.password") %>",
+  "Port": <%= link("nats").p("nats.port") %>
+}
