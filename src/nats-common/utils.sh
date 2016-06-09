@@ -1,8 +1,11 @@
+redirect_logs() {
+  local LOG_DIRECTORY="$1"
+  local CTL_FILE="$2"
 
-mkdir -p /var/vcap/sys/log
-
-exec > >(tee -a >(logger -p user.info -t vcap.$(basename $0).stdout) | awk -W interactive '{lineWithDate="echo [`date +\"%Y-%m-%d %H:%M:%S%z\"`] \"" $0 "\""; system(lineWithDate)  }' >>/var/vcap/sys/log/$(basename $0).log)
-exec 2> >(tee -a >(logger -p user.error -t vcap.$(basename $0).stderr) | awk -W interactive '{lineWithDate="echo [`date +\"%Y-%m-%d %H:%M:%S%z\"`] \"" $0 "\""; system(lineWithDate)  }' >>/var/vcap/sys/log/$(basename $0).err.log)
+  mkdir -p $LOG_DIRECTORY
+  exec > >(tee -a >(logger -p user.info -t vcap.$CTL_FILE.stdout) | awk -W interactive '{lineWithDate="echo [`date +\"%Y-%m-%d %H:%M:%S%z\"`] \"" $0 "\""; system(lineWithDate)  }' >>$LOG_DIRECTORY/$CTL_FILE.log)
+  exec 2> >(tee -a >(logger -p user.error -t vcap.$CTL_FILE.stderr) | awk -W interactive '{lineWithDate="echo [`date +\"%Y-%m-%d %H:%M:%S%z\"`] \"" $0 "\""; system(lineWithDate)  }' >>$LOG_DIRECTORY/$CTL_FILE.err.log)
+}
 
 pid_guard() {
   echo "------------ STARTING `basename $0` at `date` --------------" | tee /dev/stderr
