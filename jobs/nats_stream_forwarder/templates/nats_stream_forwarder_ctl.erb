@@ -20,6 +20,7 @@
 %>
 
 RUN_DIR=/var/vcap/sys/run/nats_stream_forwarder
+LOG_DIR=/var/vcap/sys/log/nats_stream_forwarder
 JOB_DIR=/var/vcap/jobs/nats_stream_forwarder
 BIN_DIR=$JOB_DIR/bin
 PIDFILE=$RUN_DIR/nats_stream_forwarder.pid
@@ -27,24 +28,20 @@ export BUNDLE_GEMFILE=/var/vcap/packages/nats/nats/Gemfile
 export CONFIG_DIR=$JOB_DIR/config
 
 source /var/vcap/packages/nats-common/utils.sh
+redirect_logs $LOG_DIR nats_stream_forwarder_ctl
 
 case $1 in
   start)
-    pid_guard $PIDFILE "NATS Stream Forwarder"
-
-    mkdir -p $RUN_DIR
-    chown vcap:vcap $RUN_DIR
-
     PATH=/var/vcap/packages/ruby-2.2.5/bin:$PATH
 
+    pid_guard $PIDFILE "NATS Stream Forwarder"
+    mkdir -p $RUN_DIR
     echo $$ > $PIDFILE
-    chown vcap:vcap $PIDFILE
-
 
     <% my_ip = discover_external_ip %>
     <% connect_ip = p("nats.machines").include?(my_ip) ? my_ip : p("nats.machines").sample %>
 
-    exec chpst -u vcap:vcap bundle exec $BIN_DIR/nats_stream_forwarder.rb 'nats://<%= p("nats.user") %>:<%= p("nats.password") %>@<%= connect_ip %>:<%= p("nats.port") %>'
+    exec bundle exec $BIN_DIR/nats_stream_forwarder.rb 'nats://<%= p("nats.user") %>:<%= p("nats.password") %>@<%= connect_ip %>:<%= p("nats.port") %>'
 
     ;;
 

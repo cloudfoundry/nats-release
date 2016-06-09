@@ -6,6 +6,7 @@ description: "The NATS Stream Forwarder listens to a configured NATS server and 
 templates:
   nats_stream_forwarder.rb: bin/nats_stream_forwarder.rb
   nats_stream_forwarder_ctl.erb: bin/nats_stream_forwarder_ctl
+  pre-start.erb: bin/pre-start
 
 packages:
   - nats-common
