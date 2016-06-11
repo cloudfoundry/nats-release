@@ -1,7 +1,6 @@
 check process nats
   with pidfile /var/vcap/sys/run/nats/nats.pid
   start program "/var/vcap/jobs/nats/bin/nats_ctl start"
-    as uid vcap and gid vcap
   stop program "/var/vcap/jobs/nats/bin/nats_ctl stop"
   group vcap
   if totalmem > 500 Mb for 2 cycles then alert

@@ -1,10 +1,11 @@
+#!/bin/bash
+
 redirect_logs() {
   local LOG_DIRECTORY="$1"
   local CTL_FILE="$2"
 
   mkdir -p $LOG_DIRECTORY
-  exec > >(tee -a >(logger -p user.info -t vcap.$CTL_FILE.stdout) | awk -W interactive '{lineWithDate="echo [`date +\"%Y-%m-%d %H:%M:%S%z\"`] \"" $0 "\""; system(lineWithDate)  }' >>$LOG_DIRECTORY/$CTL_FILE.log)
-  exec 2> >(tee -a >(logger -p user.error -t vcap.$CTL_FILE.stderr) | awk -W interactive '{lineWithDate="echo [`date +\"%Y-%m-%d %H:%M:%S%z\"`] \"" $0 "\""; system(lineWithDate)  }' >>$LOG_DIRECTORY/$CTL_FILE.err.log)
+  exec 2>&1 > >(exec chpst -u vcap:vcap logger -p user.info -t vcap.$CTL_FILE -s 2>$LOG_DIRECTORY/$CTL_FILE.log)
 }
 
 pid_guard() {

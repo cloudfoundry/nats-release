@@ -1,4 +1,5 @@
 #!/bin/bash
+
 <%
    def discover_external_ip
      networks = spec.networks.marshal_dump
@@ -36,12 +37,14 @@ case $1 in
 
     pid_guard $PIDFILE "NATS Stream Forwarder"
     mkdir -p $RUN_DIR
+    chown -R vcap:vcap $RUN_DIR
     echo $$ > $PIDFILE
+    chown vcap:vcap $PIDFILE
 
     <% my_ip = discover_external_ip %>
     <% connect_ip = p("nats.machines").include?(my_ip) ? my_ip : p("nats.machines").sample %>
 
-    exec bundle exec $BIN_DIR/nats_stream_forwarder.rb 'nats://<%= p("nats.user") %>:<%= p("nats.password") %>@<%= connect_ip %>:<%= p("nats.port") %>'
+    exec chpst -u vcap:vcap bundle exec $BIN_DIR/nats_stream_forwarder.rb 'nats://<%= p("nats.user") %>:<%= p("nats.password") %>@<%= connect_ip %>:<%= p("nats.port") %>'
 
     ;;
 

@@ -18,9 +18,11 @@ case $1 in
     pid_guard $PIDFILE "NATS"
 
     mkdir -p $RUN_DIR
+    chown -R vcap:vcap $RUN_DIR
     echo $$ > $PIDFILE
+    chown vcap:vcap $PIDFILE
 
-    exec /var/vcap/packages/gnatsd/bin/gnatsd \
+    exec chpst -u vcap:vcap /var/vcap/packages/gnatsd/bin/gnatsd \
          -l $LOG_DIR/nats.log \
          -c /var/vcap/jobs/nats/config/nats.conf
     ;;
