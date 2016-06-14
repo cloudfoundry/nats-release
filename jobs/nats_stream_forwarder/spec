@@ -13,6 +13,10 @@ packages:
   - ruby-2.2.5
   - nats
 
+consumes:
+- name: nats
+  type: nats
+
 properties:
   nats.user:
     description: "Username for server authentication."
