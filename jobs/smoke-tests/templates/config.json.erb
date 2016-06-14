@@ -1,6 +1,6 @@
 {
-  "Hosts": [ <%= link("nats").instances.map(&:address).map{|ip| "\"#{ip}\""}.join(', ') %> ],
-  "User": "<%= link("nats").p("nats.user") %>",
-  "Password": "<%= link("nats").p("nats.password") %>",
-  "Port": <%= link("nats").p("nats.port") %>
+  "Hosts": [ <%= p("nats.machines").map{|ip| "\"#{ip}\""}.join(', ') %> ],
+  "User": "<%= p("nats.user") %>",
+  "Password": "<%= p("nats.password") %>",
+  "Port": <%= p("nats.port") %>
 }

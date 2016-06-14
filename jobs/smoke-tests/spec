@@ -12,8 +12,12 @@ templates:
   config.json.erb: bin/config.json
   smoke-tests.rb: bin/smoke-tests.rb
 
-consumes:
-- name: nats
-  type: nats
-
 properties: {}
+  nats.user:
+    description: "Username for server authentication."
+  nats.password:
+    description: "Password for server authentication."
+  nats.port:
+    description: "The port for the NATS server to listen on."
+  nats.machines:
+    description: "IP of each NATS cluster member."
