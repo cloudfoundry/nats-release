@@ -12,18 +12,6 @@ packages:
   - nats-common
   - gnatsd
 
-provides:
-- name: nats
-  type: nats
-  properties:
-  - nats.user
-  - nats.password
-  - nats.port
-
-consumes:
-- name: nats
-  type: nats
-
 properties:
   nats.user:
     description: "Username for server authentication."

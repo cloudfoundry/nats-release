@@ -24,18 +24,8 @@
      network_config.dns_record_name
    end
 %>
-<% self_host = discover_external_hostname %>
 <% self_ip = discover_external_ip %>
-
-<%
-    nats_ips = nil
-     if_p("nats.machines") { |ips| nats_ips = ips }
-
-    unless nats_ips
-      nats_ips = link("nats").instances.map(&:address)
-    end
-%>
-
+<% self_host = discover_external_hostname %>
 net: "<%= self_ip %>"
 port: <%= p("nats.port") %>
 prof_port: <%= p("nats.prof_port") %>
@@ -64,7 +54,7 @@ cluster {
   }
 
   routes = [
-    <% (nats_ips - [self_ip] - [self_host]).each do |address| %>
+    <% (p("nats.machines") - [self_ip] - [self_host]).each do |address| %>
     nats-route://<%= p("nats.user") %>:<%= p("nats.password") %>@<%= address %>:<%= p("nats.port") + 1 %>
     <% end %>
   ]

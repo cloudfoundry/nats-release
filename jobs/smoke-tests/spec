@@ -12,10 +12,6 @@ templates:
   config.json.erb: bin/config.json
   smoke-tests.rb: bin/smoke-tests.rb
 
-consumes:
-- name: nats
-  type: nats
-
 properties:
   nats.user:
     description: "Username for server authentication."
