@@ -12,7 +12,7 @@ templates:
   config.json.erb: bin/config.json
   smoke-tests.rb: bin/smoke-tests.rb
 
-properties: {}
+properties:
   nats.user:
     description: "Username for server authentication."
   nats.password:
