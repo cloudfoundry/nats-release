@@ -1,8 +1,4 @@
 ---
-golang/go1.6.1.linux-amd64.tar.gz:
-  object_id: 7f14db44-83dd-42f8-9acb-36ef398ca902
-  sha: c73492474dcc7a233772d27e948b74468d9f1849
-  size: 84824395
 ruby-2.2.5/bundler-1.11.2.gem:
   object_id: fce765ae-6866-4fe6-afa3-c711113217e6
   sha: 8eb956dec72da753d3d2a2126c78508b17af434e
@@ -15,3 +11,7 @@ ruby-2.2.5/ruby-2.2.5.tar.gz:
   object_id: ec312325-de67-49ce-b107-cd658935199c
   sha: 457707459827bd527347a5cee7b4dc509b486713
   size: 16654395
+golang/go1.6.3.linux-amd64.tar.gz:
+  object_id: 873cf3db-9e86-473f-8db3-d42e4219ef38
+  sha: 5e916ba4dd8c2fc43beafca4c08b334c4d0686f3
+  size: 84856920
