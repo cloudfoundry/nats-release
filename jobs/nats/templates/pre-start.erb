@@ -2,6 +2,8 @@
 set -exu
 
 LOG_DIR=/var/vcap/sys/log/nats
+mkdir -p $LOG_DIR
+chown -R vcap:vcap $LOG_DIR
 
 # Avoid Neighbour table overflow
 # gc_thresh2 and gc_thresh3 are the soft and hard limits for arp table gc
@@ -19,6 +21,3 @@ fi
 if [ -f /var/vcap/sys/log/nats_ctl.err.log ]; then
   mv /var/vcap/sys/log/nats_ctl.err.log $LOG_DIR/nats_ctl.err.log
 fi
-
-mkdir -p $LOG_DIR
-chown -R vcap:vcap $LOG_DIR
