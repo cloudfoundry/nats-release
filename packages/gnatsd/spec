@@ -2,5 +2,5 @@ name: gnatsd
 dependencies:
   - golang1.6
 files:
-  - nats-release/src/github.com/nats-io/gnatsd/**/*.go
-  - nats-release/src/github.com/nats-io/gnatsd/LICENSE
+  - github.com/nats-io/gnatsd/**/*.go
+  - github.com/nats-io/gnatsd/LICENSE
