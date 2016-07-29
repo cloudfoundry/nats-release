@@ -5,6 +5,6 @@ export GOPATH=$BOSH_INSTALL_TARGET
 export PATH=$GOROOT/bin:$PATH
 
 mkdir -p $GOPATH/src/github.com/nats-io/
-mv $PWD/nats-release/src/github.com/nats-io/gnatsd/ $GOPATH/src/github.com/nats-io/gnatsd
+mv github.com/nats-io/gnatsd/ $GOPATH/src/github.com/nats-io/gnatsd
 
 go install github.com/nats-io/gnatsd
