@@ -5,6 +5,9 @@ set -exu
 # the migration from root user to vcap user
 LOG_DIR=/var/vcap/sys/log/nats_stream_forwarder
 
+mkdir -p $LOG_DIR
+chown -R vcap:vcap $LOG_DIR
+
 if [ -f /var/vcap/sys/log/nats_stream_forwarder_ctl.log ]; then
   mv /var/vcap/sys/log/nats_stream_forwarder_ctl.log $LOG_DIR/nats_stream_forwarder_ctl.log
 fi
@@ -12,6 +15,3 @@ fi
 if [ -f /var/vcap/sys/log/nats_stream_forwarder_ctl.err.log ]; then
   mv /var/vcap/sys/log/nats_stream_forwarder_ctl.err.log $LOG_DIR/nats_stream_forwarder_ctl.err.log
 fi
-
-mkdir -p $LOG_DIR
-chown -R vcap:vcap $LOG_DIR
