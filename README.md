@@ -6,5 +6,3 @@ This repository contains the nats-release source code. This is NATS deployed as 
 ## File a Bug
 
 Bugs can be filed using [GitHub Issues](http://github.com/cloudfoundry/nats-release/issues/new).
-
-
