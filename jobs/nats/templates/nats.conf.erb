@@ -26,6 +26,9 @@
 %>
 <% self_ip = discover_external_ip %>
 <% self_host = discover_external_hostname %>
+
+<% nats_ips = link("nats").instances.map(&:address) %>
+
 net: "<%= self_ip %>"
 port: <%= p("nats.port") %>
 prof_port: <%= p("nats.prof_port") %>
@@ -54,7 +57,7 @@ cluster {
   }
 
   routes = [
-    <% (p("nats.machines") - [self_ip] - [self_host]).each do |address| %>
+    <% (nats_ips - [self_ip] - [self_host]).each do |address| %>
     nats-route://<%= p("nats.user") %>:<%= p("nats.password") %>@<%= address %>:<%= p("nats.port") + 1 %>
     <% end %>
   ]
