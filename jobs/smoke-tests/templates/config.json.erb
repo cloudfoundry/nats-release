@@ -10,7 +10,7 @@
 
 {
   "Hosts": [ <%= nats_ips.map{|ip| "\"#{ip}\""}.join(', ') %> ],
-  "User": "<%= nats.user %>",
-  "Password": "<%= nats.password %>",
-  "Port": <%= nats.port %>
+  "User": "<%= p("nats.user") %>",
+  "Password": "<%= p("nats.password") %>",
+  "Port": <%= p("nats.port") %>
 }
