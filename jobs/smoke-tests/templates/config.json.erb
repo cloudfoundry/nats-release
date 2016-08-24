@@ -16,11 +16,17 @@
   unless nats_password
     nats_password = link("nats").password
   end
+
+  nats_port = nil
+  if_p("nats.port") { |port| nats_port = port }
+  unless nats_port
+    nats_port = link("nats").port
+  end
 %>
 
 {
   "Hosts": [ <%= nats_ips.map{|ip| "\"#{ip}\""}.join(', ') %> ],
   "User": "<%= nats_user %>",
   "Password": "<%= nats_password %>",
-  "Port": <%= p("nats.port") %>
+  "Port": <%= nats_port %>
 }
