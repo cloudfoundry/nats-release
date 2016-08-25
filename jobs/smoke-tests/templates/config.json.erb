@@ -1,4 +1,6 @@
 <%
+  require 'json'
+
   nats_ips = nil
   if_p("nats.machines") { |ips| nats_ips = ips }
   unless nats_ips
@@ -22,11 +24,14 @@
   unless nats_port
     nats_port = link("nats").p("nats.port")
   end
+
+  JSON.dump(
+    {
+      "Hosts":    nats_ips
+      "User":     nats_user
+      "Password": nats_password
+      "Port":     nats_port
+    }
+  )
 %>
 
-{
-  "Hosts": [ <%= nats_ips.map{|ip| "\"#{ip}\""}.join(', ') %> ],
-  "User": "<%= nats_user %>",
-  "Password": "<%= nats_password %>",
-  "Port": <%= nats_port %>
-}
