@@ -15,6 +15,10 @@ packages:
 provides:
 - name: nats
   type: nats
+  properties:
+  - nats.user
+  - nats.password
+  - nats.port
 
 consumes:
 - name: nats
