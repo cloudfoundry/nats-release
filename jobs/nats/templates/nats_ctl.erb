@@ -23,9 +23,14 @@ case $1 in
     echo $$ > $PIDFILE
     chown vcap:vcap $PIDFILE
 
+    exec > >(chpst -u vcap:vcap sh -c "
+        tee -a ${LOG_DIR}/nats.log | \
+        sed 's/^[0-9][0-9][0-9][0-9]\/[0-9][0-9]\/[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9] //' | \
+          logger -p user.info -t vcap.nats
+      ") 2>&1
+
     exec chpst -u vcap:vcap /var/vcap/packages/gnatsd/bin/gnatsd \
-         -l $LOG_DIR/nats.log \
-         -c /var/vcap/jobs/nats/config/nats.conf
+      -c /var/vcap/jobs/nats/config/nats.conf
     ;;
 
   stop)
