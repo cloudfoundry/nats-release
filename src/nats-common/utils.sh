@@ -5,7 +5,7 @@ redirect_logs() {
   local CTL_FILE="$2"
 
   mkdir -p $LOG_DIRECTORY
-  exec > >(exec chpst -u vcap:vcap logger -p user.info -t vcap.$CTL_FILE -s 2>$LOG_DIRECTORY/$CTL_FILE.log) 2>&1
+  exec 2>&1 > >(exec chpst -u vcap:vcap logger -p user.info -t vcap.$CTL_FILE -s 2>$LOG_DIRECTORY/$CTL_FILE.log)
 }
 
 pid_guard() {
