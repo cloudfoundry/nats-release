@@ -11,7 +11,7 @@ ruby-2.2.5/ruby-2.2.5.tar.gz:
   object_id: ec312325-de67-49ce-b107-cd658935199c
   sha: 457707459827bd527347a5cee7b4dc509b486713
   size: 16654395
-golang/go1.6.3.linux-amd64.tar.gz:
-  object_id: 873cf3db-9e86-473f-8db3-d42e4219ef38
-  sha: 5e916ba4dd8c2fc43beafca4c08b334c4d0686f3
-  size: 84856920
+golang/go1.7.linux-amd64.tar.gz:
+  object_id: a826cf02-b8a4-4c2a-b0da-67e50b537ad7
+  sha: a744e29da97fc3aadad1ee0d7d89b0d899645e50
+  size: 81573766
