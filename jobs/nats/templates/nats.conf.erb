@@ -1,4 +1,6 @@
 <%
+   require 'uri'
+   
    def network_config
      networks = spec.networks.marshal_dump
 
@@ -47,9 +49,14 @@ debug: <%= p("nats.debug") %>
 trace: <%= p("nats.trace") %>
 logtime: true
 
+<%= 
+password = p("nats.password")
+string_escaped_password = password.gsub("\\", "\\\\").gsub("\"", "\\\"") %>
+%>
+
 authorization {
   user: "<%= p("nats.user") %>"
-  password: "<%= p("nats.password") %>"
+  password: "<%= string_escaped_password %>"
   timeout: <%= p("nats.authorization_timeout") %>
 }
 
@@ -59,13 +66,13 @@ cluster {
 
   authorization {
     user: "<%= p("nats.user") %>"
-    password: "<%= p("nats.password") %>"
+    password: "<%= string_escaped_password %>"
     timeout: <%= p("nats.authorization_timeout") %>
   }
 
   routes = [
     <% (nats_ips - [self_ip] - [self_host]).each do |address| %>
-    nats-route://<%= p("nats.user") %>:<%= p("nats.password") %>@<%= address %>:<%= p("nats.port") + 1 %>
+    nats-route://<%= p("nats.user") %>:<%= URI.escape(password) %>@<%= address %>:<%= p("nats.port") + 1 %>
     <% end %>
   ]
 }
