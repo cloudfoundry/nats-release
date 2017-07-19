@@ -1,7 +1,6 @@
-golang/go1.7.linux-amd64.tar.gz:
-  size: 81573766
-  object_id: a826cf02-b8a4-4c2a-b0da-67e50b537ad7
-  sha: a744e29da97fc3aadad1ee0d7d89b0d899645e50
+golang/go1.8.3.linux-amd64.tar.gz:
+  size: 90029041
+  sha: 838c415896ef5ecd395dfabde5e7e6f8ac943c8e
 ruby-2.2.5/bundler-1.15.0.gem:
   size: 338432
   object_id: c3212ef4-d17a-4812-64ad-ae2480072444
