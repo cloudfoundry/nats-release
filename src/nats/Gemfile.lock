@@ -14,14 +14,12 @@ GEM
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0, >= 1.0.4)
       rack (~> 1.0)
-    yajl-ruby (1.2.1)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   nats (~> 0.6)
-  yajl-ruby
 
 BUNDLED WITH
-   1.11.2
+   1.15.4
