@@ -1,6 +1,6 @@
 ---
 final_name: nats
 blobstore:
-  provider: s3
+  provider: gcs
   options:
     bucket_name: nats-release-blobs
