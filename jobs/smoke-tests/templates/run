@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -eu
+
+export CONFIG="$(cat /var/vcap/jobs/smoke-tests/bin/config.json)"
+
+/var/vcap/packages/nats-smoke/bin/nats-smoke --config "${CONFIG}"

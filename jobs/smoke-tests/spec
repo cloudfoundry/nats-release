@@ -3,14 +3,12 @@ name: smoke-tests
 
 description: "The smoke tests errand run a simple check that NATs is accessible and relaying messages properly"
 
-packages:
-  - ruby-2.2.5
-  - nats
-
 templates:
-  run.erb: bin/run
   config.json.erb: bin/config.json
-  smoke-tests.rb: bin/smoke-tests.rb
+  run: bin/run
+
+packages:
+  - nats-smoke
 
 consumes:
 - name: nats
