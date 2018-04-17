@@ -1,10 +1,15 @@
-set -e
+#!/usr/bin/env bash
 
-export GOROOT=$(readlink -nf /var/vcap/packages/golang1.8.3)
-export GOPATH=$BOSH_INSTALL_TARGET
-export PATH=$GOROOT/bin:$PATH
+set -ex
 
-mkdir -p $GOPATH/src/github.com/nats-io/
-mv github.com/nats-io/gnatsd/ $GOPATH/src/github.com/nats-io/gnatsd
+mkdir -p "${BOSH_INSTALL_TARGET}/bin"
 
-go install github.com/nats-io/gnatsd
+source /var/vcap/packages/golang-1.10-linux/bosh/compile.env
+
+mkdir -p "${GOPATH}/src/github.com/nats-io"
+
+mv github.com/nats-io/gnatsd/ "${GOPATH}/src/github.com/nats-io/gnatsd"
+
+pushd "${GOPATH}/src/github.com/nats-io/gnatsd"
+  go build -o "${BOSH_INSTALL_TARGET}/bin/gnatsd" .
+popd

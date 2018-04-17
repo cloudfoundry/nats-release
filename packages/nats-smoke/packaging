@@ -1,17 +1,16 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -eu
+set -ex
 
-export GOROOT="$(readlink -nf /var/vcap/packages/golang1.8.3)"
-export GOPATH="${BOSH_INSTALL_TARGET}"
-export PATH="${GOROOT}/bin:${PATH}"
+mkdir -p "${BOSH_INSTALL_TARGET}/bin"
+
+source /var/vcap/packages/golang-1.10-linux/bosh/compile.env
+
 export NATS_SMOKE_PATH="${GOPATH}/src/github.com/nats-smoke"
 
 mkdir -p "${NATS_SMOKE_PATH}"
 cp -R github.com/nats-smoke/* "${NATS_SMOKE_PATH}"
 
 pushd "${NATS_SMOKE_PATH}"
-  go build .
-  mkdir "${GOPATH}/bin"
-  mv ./nats-smoke "${GOPATH}/bin/"
+  go build -o "${BOSH_INSTALL_TARGET}/bin/nats-smoke" .
 popd
