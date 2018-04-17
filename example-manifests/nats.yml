@@ -24,12 +24,12 @@ instance_groups:
         user: nats
         password: "((nats_password))"
   networks:
-  - name: private
-  vm_type: m3.medium
+  - name: default
+  vm_type: default
   stemcell: default
 - name: smoke-tests
   azs: [z1]
-  vm_type: m3.medium
+  vm_type: default
   stemcell: default
   instances: 1
   lifecycle: errand
@@ -37,7 +37,7 @@ instance_groups:
   - name: smoke-tests
     release: nats
   networks:
-  - name: private
+  - name: default
 
 variables:
 - name: nats_password
