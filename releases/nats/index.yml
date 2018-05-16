@@ -45,4 +45,6 @@ builds:
     version: "11"
   cf431865-05fa-4569-8b73-3ffcf110ba65:
     version: "4"
+  eed9780d-46bf-43a4-5a0a-b35914a81dac:
+    version: "24"
 format-version: "2"
