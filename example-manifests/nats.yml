@@ -27,14 +27,14 @@ instance_groups:
   - name: default
   vm_type: default
   stemcell: default
-- name: smoke-tests
+- name: nats-smoke-tests
   azs: [z1]
   vm_type: default
   stemcell: default
   instances: 1
   lifecycle: errand
   jobs:
-  - name: nats-smoke-tests
+  - name: smoke-tests
     release: nats
   networks:
   - name: default
