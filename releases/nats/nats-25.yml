@@ -1,0 +1,45 @@
+name: nats
+version: "25"
+commit_hash: 6b4d7a4
+uncommitted_changes: false
+jobs:
+- name: nats
+  version: ab4d5587789da45bb0eb81f1bfd57f6077e0dbdb
+  fingerprint: ab4d5587789da45bb0eb81f1bfd57f6077e0dbdb
+  sha1: dde8a6480cd175cd199fe68b41f7381391f57989
+- name: smoke-tests
+  version: 37d3d137bc9eb58eee40e971ad72a0aa1644428f
+  fingerprint: 37d3d137bc9eb58eee40e971ad72a0aa1644428f
+  sha1: 9b5900fe95afe71fbc679d0d70bbb73d6e4d4375
+packages:
+- name: gnatsd
+  version: 9b75b0f42352f739d8352f00e5867263afadbcf4
+  fingerprint: 9b75b0f42352f739d8352f00e5867263afadbcf4
+  sha1: b0cd9ab7ae1e6258574aa4ab5960136b865941ce
+  dependencies:
+  - golang-1-linux
+- name: golang-1-linux
+  version: d55c618ac63dfdf4ac457346fb325fb2b04884af
+  fingerprint: d55c618ac63dfdf4ac457346fb325fb2b04884af
+  sha1: a41d085750f5cd6f785d02efe752f3708174224e
+  dependencies: []
+- name: golang-1.10-linux
+  version: 1baefde79e99ed3d1df72084315333032a294e59
+  fingerprint: 1baefde79e99ed3d1df72084315333032a294e59
+  sha1: 212148ae3c30da937bea9403c857069c4530c4e3
+  dependencies: []
+- name: nats-common
+  version: b8bd70d9e4b9a186667e2658af74568e7ea3d564
+  fingerprint: b8bd70d9e4b9a186667e2658af74568e7ea3d564
+  sha1: d9a23ce513638dd84bf23f6b70741a21527b2d95
+  dependencies: []
+- name: nats-smoke
+  version: ee0d8118f30cdf09587a18a348d21e615f261f6e
+  fingerprint: ee0d8118f30cdf09587a18a348d21e615f261f6e
+  sha1: 04612cce165c758ed05759885ea49061e33f29f3
+  dependencies:
+  - golang-1-linux
+license:
+  version: ebf79de8fe7497c551e4ee178b992f6b8fc20251
+  fingerprint: ebf79de8fe7497c551e4ee178b992f6b8fc20251
+  sha1: eaec9d7358a4eabccd6a572931b1d99ea4757d4f
