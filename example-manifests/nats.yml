@@ -1,4 +1,6 @@
 ---
+name: nats
+
 addons:
 - name: bpm
   include:
@@ -13,11 +15,9 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=0.12.2
   version: 0.12.2
   sha1: f2edbf3d1417a253205338c9941ca989cd2f8331
-
-name: nats
-releases:
 - name: nats
   version: latest
+
 stemcells:
 - alias: default
   os: ubuntu-trusty
@@ -27,6 +27,7 @@ update:
   max_in_flight: 1
   canary_watch_time: 1000-30000
   update_watch_time: 1000-30000
+
 instance_groups:
 - name: nats-server
   azs: [z1, z2, z3]
