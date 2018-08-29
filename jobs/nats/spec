@@ -4,9 +4,9 @@ name: nats
 description: "The NATS server provides publish-subscribe messaging system for the Cloud Controller, the DEA , HM9000, and other Cloud Foundry components."
 
 templates:
-  nats_ctl.erb: bin/nats_ctl
   nats.conf.erb: config/nats.conf
   pre-start.erb: bin/pre-start
+  bpm.erb.yml: config/bpm.yml
 
 packages:
   - nats-common
