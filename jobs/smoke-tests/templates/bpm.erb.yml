@@ -1,6 +1,6 @@
 ---
 processes:
-- name: nats-smoke
+- name: smoke-tests
   executable: /var/vcap/packages/nats-smoke/bin/nats-smoke
   args:
   - --config
