@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"strings"
 	"time"
@@ -25,8 +26,13 @@ func main() {
 	rawConfig := flag.String("config", "", "")
 	flag.Parse()
 
+	readBytes, err := ioutil.ReadFile(*rawConfig)
+	if err != nil {
+		log.Fatalf("failed to load file: %v\n", err)
+	}
+
 	var c config
-	err := json.NewDecoder(bytes.NewBufferString(*rawConfig)).Decode(&c)
+	err = json.NewDecoder(bytes.NewBuffer(readBytes)).Decode(&c)
 	if err != nil {
 		log.Fatalf("failed to decode json configuration: %v\n", err)
 	}
