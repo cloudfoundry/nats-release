@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-set -e -x
-
-cp -a nats-common/* ${BOSH_INSTALL_TARGET}
