@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -eu
+set -euo pipefail
 
-export CONFIG="$(cat /var/vcap/jobs/smoke-tests/bin/config.json)"
-
-/var/vcap/packages/nats-smoke/bin/nats-smoke --config "${CONFIG}"
+/var/vcap/jobs/bpm/bin/bpm run nats -p nats-smoke

@@ -6,6 +6,7 @@ description: "The smoke tests errand run a simple check that NATs is accessible 
 templates:
   config.json.erb: bin/config.json
   run: bin/run
+  bpm.erb.yml: config/bpm.yml
 
 packages:
   - nats-smoke

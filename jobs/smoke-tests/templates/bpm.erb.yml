@@ -1,0 +1,7 @@
+---
+processes:
+- name: nats-smoke
+  executable: /var/vcap/packages/nats-smoke/bin/nats-smoke
+  args:
+  - --config
+  - "/var/vcap/jobs/smoke-tests/bin/config.json"
