@@ -9,7 +9,6 @@ templates:
   bpm.erb.yml: config/bpm.yml
 
 packages:
-  - nats-common
   - gnatsd
 
 provides:
