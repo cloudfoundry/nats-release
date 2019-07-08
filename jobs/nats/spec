@@ -18,6 +18,7 @@ provides:
   - nats.user
   - nats.password
   - nats.port
+  - nats.monitor_port
 
 consumes:
 - name: nats
