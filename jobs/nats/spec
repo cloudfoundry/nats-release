@@ -6,7 +6,7 @@ description: "The NATS server provides publish-subscribe messaging system for th
 templates:
   nats.conf.erb: config/nats.conf
   pre-start.erb: bin/pre-start
-  bpm.erb.yml: config/bpm.yml
+  bpm.yml.erb: config/bpm.yml
 
 packages:
   - gnatsd
