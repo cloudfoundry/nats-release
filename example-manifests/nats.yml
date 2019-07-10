@@ -12,9 +12,9 @@ addons:
 
 releases:
 - name: bpm
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=0.12.2
-  version: 0.12.2
-  sha1: f2edbf3d1417a253205338c9941ca989cd2f8331
+  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.1.1
+  version: 1.1.1
+  sha1: a7ea57aaf44a8217bae2a3df72a1afc51334e930
 - name: nats
   version: latest
 
