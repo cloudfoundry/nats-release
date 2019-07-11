@@ -1,0 +1,44 @@
+# We need to ensure that we're using BOSH DNS so that our certificates can have
+# dependable hostnames.
+- type: replace
+  path: /features?/use_dns_addresses?
+  value: true
+
+- type: replace
+  path: /variables?/name=nats_internal_ca?
+  value:
+    name: nats_internal_ca
+    type: certificate
+    options:
+      is_ca: true
+      common_name: nats_internal
+
+- type: replace
+  path: /variables?/name=nats_internal_cert?
+  value:
+    name: nats_internal_cert
+    type: certificate
+    options:
+      ca: nats_internal_ca
+      common_name: "*.nats-server.default.nats.bosh"
+      alternative_names:
+      - "*.nats-server.default.nats.bosh"
+      extended_key_usage:
+      - client_auth
+      - server_auth
+
+- type: replace
+  path: /instance_groups/name=nats-server/jobs/name=nats/properties/nats?/cluster_tls?/enabled
+  value: true
+
+- type: replace
+  path: /instance_groups/name=nats-server/jobs/name=nats/properties/nats?/cluster_tls?/pki?/ca
+  value: "((nats_internal_cert.ca))"
+
+- type: replace
+  path: /instance_groups/name=nats-server/jobs/name=nats/properties/nats?/cluster_tls?/pki?/certificate
+  value: "((nats_internal_cert.certificate))"
+
+- type: replace
+  path: /instance_groups/name=nats-server/jobs/name=nats/properties/nats?/cluster_tls?/pki?/private_key
+  value: "((nats_internal_cert.private_key))"

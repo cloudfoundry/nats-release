@@ -61,6 +61,23 @@ cluster {
     timeout: <%= p("nats.authorization_timeout") %>
   }
 
+  <% if p("nats.cluster_tls.enabled") -%>
+  tls {
+    ca_file: "/var/vcap/jobs/nats/config/internal_tls/ca.pem"
+    cert_file: "/var/vcap/jobs/nats/config/internal_tls/certificate.pem"
+    key_file: "/var/vcap/jobs/nats/config/internal_tls/private_key.pem"
+    cipher_suites: [
+      "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+      "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+    ]
+    curve_preferences: [
+      "CurveP384"
+    ]
+    timeout: 5 # seconds
+    verify: true
+  }
+  <% end -%>
+
   routes = [
     <% (nats_ips - [self_ip] - [self_host]).each do |address| %>
     nats-route://<%= p("nats.user") %>:<%= p("nats.password") %>@<%= address %>:<%= p("nats.port") + 1 %>
