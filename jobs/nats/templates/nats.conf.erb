@@ -53,7 +53,7 @@ authorization {
 
 cluster {
   host: "<%= spec.address %>"
-  port: <%= p("nats.port") + 1 %>
+  port: <%= p("nats.cluster_port") %>
 
   authorization {
     user: "<%= p("nats.user") %>"
@@ -80,7 +80,7 @@ cluster {
 
   routes = [
     <% (nats_ips - [self_ip] - [self_host]).each do |address| %>
-    nats-route://<%= p("nats.user") %>:<%= p("nats.password") %>@<%= address %>:<%= p("nats.port") + 1 %>
+    nats-route://<%= p("nats.user") %>:<%= p("nats.password") %>@<%= address %>:<%= p("nats.cluster_port") %>
     <% end %>
   ]
 }

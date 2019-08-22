@@ -37,6 +37,9 @@ properties:
   nats.port:
     description: "The port for the NATS server to listen on."
     default: 4222
+  nats.cluster_port:
+    description: "The port for the NATS servers to communicate with other servers in the cluster."
+    default: 4223
   nats.authorization_timeout:
     description: "After accepting a connection, wait up to this many seconds for credentials."
     default: 15
