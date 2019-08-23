@@ -8,6 +8,10 @@ templates:
   pre-start.erb: bin/pre-start
   bpm.yml.erb: config/bpm.yml
 
+  internal_tls/ca.pem.erb: config/internal_tls/ca.pem
+  internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
+  internal_tls/private_key.pem.erb: config/internal_tls/private_key.pem
+
 packages:
   - gnatsd
 
@@ -18,6 +22,7 @@ provides:
   - nats.user
   - nats.password
   - nats.port
+  - nats.monitor_port
 
 consumes:
 - name: nats
@@ -32,6 +37,9 @@ properties:
   nats.port:
     description: "The port for the NATS server to listen on."
     default: 4222
+  nats.cluster_port:
+    description: "The port for the NATS servers to communicate with other servers in the cluster."
+    default: 4223
   nats.authorization_timeout:
     description: "After accepting a connection, wait up to this many seconds for credentials."
     default: 15
@@ -49,3 +57,13 @@ properties:
   nats.prof_port:
     description: "Port for pprof. 0 means disabled."
     default: 0
+
+  nats.internal.tls.enabled:
+    description: "Enable mTLS for the cluster-internal network traffic between NATS servers."
+    default: false
+  nats.internal.tls.ca:
+    description: "The PEM-encoded certificate of the certificate authority to use for verifying the TLS connections of cluster-internal traffic."
+  nats.internal.tls.certificate:
+    description: "The PEM-encoded certificate to use for verifying the TLS connections of cluster-internal traffic."
+  nats.internal.tls.private_key:
+    description: "The PEM-encoded private key to use for verifying the TLS connections of cluster-internal traffic."
