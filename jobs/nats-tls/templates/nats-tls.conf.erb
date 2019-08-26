@@ -50,6 +50,21 @@ authorization {
   timeout: <%= p("nats.authorization_timeout") %>
 }
 
+tls {
+  ca_file: "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem"
+  cert_file: "/var/vcap/jobs/nats-tls/config/external_tls/certificate.pem"
+  key_file: "/var/vcap/jobs/nats-tls/config/external_tls/private_key.pem"
+  cipher_suites: [
+    "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+    "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+  ]
+  curve_preferences: [
+    "CurveP384"
+  ]
+  timeout: 5 # seconds
+  verify: true
+}
+
 cluster {
   host: "<%= spec.address %>"
   port: <%= p("nats.cluster_port") %>
@@ -62,9 +77,9 @@ cluster {
 
   <% if p("nats.internal.tls.enabled") -%>
   tls {
-    ca_file: "/var/vcap/jobs/nats/config/internal_tls/ca.pem"
-    cert_file: "/var/vcap/jobs/nats/config/internal_tls/certificate.pem"
-    key_file: "/var/vcap/jobs/nats/config/internal_tls/private_key.pem"
+    ca_file: "/var/vcap/jobs/nats-tls/config/internal_tls/ca.pem"
+    cert_file: "/var/vcap/jobs/nats-tls/config/internal_tls/certificate.pem"
+    key_file: "/var/vcap/jobs/nats-tls/config/internal_tls/private_key.pem"
     cipher_suites: [
       "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
       "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"

@@ -8,12 +8,19 @@ templates:
   run: bin/run
   bpm.yml.erb: config/bpm.yml
 
+  client_tls/ca.pem.erb: config/client_tls/ca.pem
+  client_tls/certificate.pem.erb: config/client_tls/certificate.pem
+  client_tls/private_key.pem.erb: config/client_tls/private_key.pem
+
 packages:
   - nats-smoke
 
 consumes:
 - name: nats
   type: nats
+  optional: true
+- name: nats-tls
+  type: nats-tls
   optional: true
 
 properties:
@@ -25,3 +32,8 @@ properties:
     description: "The port for the NATS server to listen on."
   nats.machines:
     description: "IP of each NATS cluster member."
+
+  nats.client.tls.certificate:
+    description: "The PEM-encoded certificate to use for verifying the TLS connection to the server."
+  nats.client.tls.private_key:
+    description: "The PEM-encoded private key to use for verifying the TLS connection to the server."

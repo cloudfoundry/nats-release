@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -exu pipefail
+
+# Avoid Neighbour table overflow
+# gc_thresh2 and gc_thresh3 are the soft and hard limits for arp table gc
+set +e
+sysctl -w net.ipv4.neigh.default.gc_thresh3=4096
+sysctl -w net.ipv4.neigh.default.gc_thresh2=2048
+set -e

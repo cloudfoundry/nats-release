@@ -1,29 +1,34 @@
 ---
-name: nats
+name: nats-tls
 
-description: "The NATS server provides publish-subscribe messaging system for the Cloud Controller, the DEA , HM9000, and other Cloud Foundry components."
+description: "A NATS server supporting TLS that provides publish-subscribe messaging system for the Cloud Foundry components."
 
 templates:
-  nats.conf.erb: config/nats.conf
+  nats-tls.conf.erb: config/nats-tls.conf
   pre-start.erb: bin/pre-start
-  bpm.yml.erb: config/bpm.yml
+  bpm.erb.yml: config/bpm.yml
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
   internal_tls/private_key.pem.erb: config/internal_tls/private_key.pem
 
+  external_tls/ca.pem.erb: config/external_tls/ca.pem
+  external_tls/certificate.pem.erb: config/external_tls/certificate.pem
+  external_tls/private_key.pem.erb: config/external_tls/private_key.pem
+
 packages:
   - gnatsd
 
 provides:
-- name: nats
-  type: nats
+- name: nats-tls
+  type: nats-tls
   properties:
   - nats.user
   - nats.password
   - nats.port
   - nats.monitor_port
   - nats.cluster_port
+  - nats.external.tls.ca
 
 consumes:
 - name: nats
@@ -40,10 +45,10 @@ properties:
     description: "Password for server authentication."
   nats.port:
     description: "The port for the NATS server to listen on."
-    default: 4222
+    default: 4224
   nats.cluster_port:
     description: "The port for the NATS servers to communicate with other servers in the cluster."
-    default: 4223
+    default: 4225
   nats.authorization_timeout:
     description: "After accepting a connection, wait up to this many seconds for credentials."
     default: 15
@@ -71,3 +76,10 @@ properties:
     description: "The PEM-encoded certificate to use for verifying the TLS connections of cluster-internal traffic."
   nats.internal.tls.private_key:
     description: "The PEM-encoded private key to use for verifying the TLS connections of cluster-internal traffic."
+
+  nats.external.tls.ca:
+    description: "The PEM-encoded certificate of the certificate authority to use for verifying the TLS connections of external traffic."
+  nats.external.tls.certificate:
+    description: "The PEM-encoded certificate to use for verifying the TLS connections of external traffic."
+  nats.external.tls.private_key:
+    description: "The PEM-encoded private key to use for verifying the TLS connections of external traffic."
