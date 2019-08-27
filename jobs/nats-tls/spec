@@ -67,19 +67,19 @@ properties:
     description: "Port for pprof. 0 means disabled."
     default: 0
 
+  nats.external.tls.ca:
+    description: "Certificate of the CA for publisher/subscriber traffic. In PEM format."
+  nats.external.tls.certificate:
+    description: "Certificate for publisher/subscriber traffic. In PEM format."
+  nats.external.tls.private_key:
+    description: "Private key for publisher/subscriber traffic. In PEM format."
+
   nats.internal.tls.enabled:
-    description: "Enable mTLS for the cluster-internal network traffic between NATS servers."
+    description: "Enable mutually authenticated TLS for NATS cluster-internal traffic."
     default: false
   nats.internal.tls.ca:
-    description: "The PEM-encoded certificate of the certificate authority to use for verifying the TLS connections of cluster-internal traffic."
+    description: "Certificate of the CA for cluster-internal traffic. In PEM format."
   nats.internal.tls.certificate:
-    description: "The PEM-encoded certificate to use for verifying the TLS connections of cluster-internal traffic."
+    description: "Certificate for cluster-internal traffic. In PEM format."
   nats.internal.tls.private_key:
-    description: "The PEM-encoded private key to use for verifying the TLS connections of cluster-internal traffic."
-
-  nats.external.tls.ca:
-    description: "The PEM-encoded certificate of the certificate authority to use for verifying the TLS connections of external traffic."
-  nats.external.tls.certificate:
-    description: "The PEM-encoded certificate to use for verifying the TLS connections of external traffic."
-  nats.external.tls.private_key:
-    description: "The PEM-encoded private key to use for verifying the TLS connections of external traffic."
+    description: "Private key for cluster-internal traffic. In PEM format."

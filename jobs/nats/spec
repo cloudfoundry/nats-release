@@ -63,11 +63,11 @@ properties:
     default: 0
 
   nats.internal.tls.enabled:
-    description: "Enable mTLS for the cluster-internal network traffic between NATS servers."
+    description: "Enable mutually authenticated TLS for NATS cluster-internal traffic."
     default: false
   nats.internal.tls.ca:
-    description: "The PEM-encoded certificate of the certificate authority to use for verifying the TLS connections of cluster-internal traffic."
+    description: "Certificate of the CA for cluster-internal traffic. In PEM format."
   nats.internal.tls.certificate:
-    description: "The PEM-encoded certificate to use for verifying the TLS connections of cluster-internal traffic."
+    description: "Certificate for cluster-internal traffic. In PEM format."
   nats.internal.tls.private_key:
-    description: "The PEM-encoded private key to use for verifying the TLS connections of cluster-internal traffic."
+    description: "Private key for cluster-internal traffic. In PEM format."
