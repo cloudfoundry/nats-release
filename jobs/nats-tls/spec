@@ -1,7 +1,7 @@
 ---
 name: nats-tls
 
-description: "A NATS server supporting TLS that provides publish-subscribe messaging system for the Cloud Foundry components."
+description: "TLS-secured NATS server providing a publish-subscribe messaging system for Cloud Foundry components."
 
 templates:
   nats-tls.conf.erb: config/nats-tls.conf
