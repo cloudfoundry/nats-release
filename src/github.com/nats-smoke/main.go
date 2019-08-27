@@ -54,23 +54,23 @@ func main() {
 		log.Fatalf("failed to decode json configuration: %v\n", err)
 	}
 
-	tlsConn, err := tlsConn(c)
+	tlsConnection, err := tlsConnection(c)
 	if err != nil {
 		log.Fatalf("failed to connect to tls cluster: %v\n", err)
 	}
-	if tlsConn != nil {
-		defer tlsConn.Close()
+	if tlsConnection != nil {
+		defer tlsConnection.Close()
 	}
 
-	stdConn, err := stdConn(c)
+	plaintextConnection, err := plaintextConnection(c)
 	if err != nil {
 		log.Fatalf("failed to connect to non-tls cluster: %v\n", err)
 	}
-	if stdConn != nil {
-		defer stdConn.Close()
+	if plaintextConnection != nil {
+		defer plaintextConnection.Close()
 	}
 
-	conns := createConnPermutations(stdConn, tlsConn)
+	conns := createConnPermutations(plaintextConnection, tlsConnection)
 
 ConnPermutations:
 	for _, conn := range conns {
@@ -123,7 +123,7 @@ ConnPermutations:
 	log.Println("SUCCESS")
 }
 
-func tlsConn(c config) (*nats.Conn, error) {
+func tlsConnection(c config) (*nats.Conn, error) {
 	if len(c.TLS.Hosts) == 0 {
 		log.Println("Detected no TLS hosts")
 		return nil, nil
@@ -147,7 +147,7 @@ func tlsConn(c config) (*nats.Conn, error) {
 	return nats.Connect(strings.Join(servers, ","), nats.Secure(tlsConfig))
 }
 
-func stdConn(c config) (*nats.Conn, error) {
+func plaintextConnection(c config) (*nats.Conn, error) {
 	if len(c.NonTLS.Hosts) == 0 {
 		log.Println("Detected no non-TLS hosts")
 		return nil, nil
@@ -161,39 +161,39 @@ func stdConn(c config) (*nats.Conn, error) {
 	return nats.Connect(strings.Join(servers, ","))
 }
 
-func createConnPermutations(stdConn, tlsConn *nats.Conn) []pubSubConnection {
+func createConnPermutations(plaintextConnection, tlsConnection *nats.Conn) []pubSubConnection {
 	conns := make([]pubSubConnection, 0, 4)
 
-	if stdConn != nil {
+	if plaintextConnection != nil {
 		conns = append(
 			conns,
 			pubSubConnection{
-				pub: stdConn,
-				sub: stdConn,
+				pub: plaintextConnection,
+				sub: plaintextConnection,
 			},
 		)
 	}
 
-	if tlsConn != nil {
+	if tlsConnection != nil {
 		conns = append(
 			conns,
 			pubSubConnection{
-				pub: tlsConn,
-				sub: tlsConn,
+				pub: tlsConnection,
+				sub: tlsConnection,
 			},
 		)
 	}
 
-	if stdConn != nil && tlsConn != nil {
+	if plaintextConnection != nil && tlsConnection != nil {
 		conns = append(
 			conns,
 			pubSubConnection{
-				pub: stdConn,
-				sub: tlsConn,
+				pub: plaintextConnection,
+				sub: tlsConnection,
 			},
 			pubSubConnection{
-				pub: tlsConn,
-				sub: stdConn,
+				pub: tlsConnection,
+				sub: plaintextConnection,
 			},
 		)
 	}
