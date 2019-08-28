@@ -1,7 +1,7 @@
 ---
 name: smoke-tests
 
-description: "The smoke tests errand run a simple check that NATs is accessible and relaying messages properly"
+description: "The smoke tests errand run a simple check that NATS is accessible and relaying messages properly"
 
 templates:
   config.json.erb: bin/config.json
