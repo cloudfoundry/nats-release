@@ -38,6 +38,15 @@ The smoke tests errand run a simple check that NATS is accessible and
 relaying messages properly. It will try to use all configured server
 connections.
 
+## Example Manifests
+
+In the `example-manifests` folder we have an example of deployment of `nats` and
+`nats tls` with the smoke test.
+
+Also, there is an ops file called `enable_nats_tl_for_cf.yml` which can be used
+to add `nats` and `nats-tls` jobs with the `smoke-test` errand to the CF
+deployment.
+
 ## File a Bug
 
 Bugs can be filed using
