@@ -74,8 +74,6 @@ func main() {
 
 ConnPermutations:
 	for _, conn := range conns {
-		log.Printf("Subscriber conn using TLS: %v\n", conn.sub.TLSRequired())
-		log.Printf("Publisher conn using TLS: %v\n", conn.pub.TLSRequired())
 
 		actualMessageCount := 0
 		msgChan := make(chan *nats.Msg, 64)
@@ -85,10 +83,9 @@ ConnPermutations:
 			log.Fatalf("failed to subscribe to topic: %v\n", err)
 		}
 
-		err = conn.sub.Flush()
-		if err != nil {
-			log.Fatalf("failed to flush connection: %v\n", err)
-		}
+		// because we are dealing with async channels, we want to sleep to
+		// make sure we subscribe before we start publishing
+		time.Sleep(500 * time.Millisecond)
 
 		for i := 0; i < wantedMessageCount; i++ {
 			err = conn.pub.Publish("test", []byte(fmt.Sprintf("message %d", i)))
@@ -105,7 +102,9 @@ ConnPermutations:
 			case <-msgChan:
 				actualMessageCount++
 			case <-timeout:
-				log.Fatalf("expected to receive %d messages but only received %d", wantedMessageCount, actualMessageCount)
+				log.Printf("Subscriber conn using TLS: %v\n", conn.sub.TLSRequired())
+				log.Printf("Publisher conn using TLS: %v\n", conn.pub.TLSRequired())
+				log.Fatalf("FAILED - expected to receive %d messages but only received %d", wantedMessageCount, actualMessageCount)
 			case <-tick:
 				if wantedMessageCount == actualMessageCount {
 					err = sub.Unsubscribe()
@@ -165,6 +164,7 @@ func createConnPermutations(plaintextConnection, tlsConnection *nats.Conn) []pub
 	conns := make([]pubSubConnection, 0, 4)
 
 	if plaintextConnection != nil {
+		log.Println("Testing plaintext connections")
 		conns = append(
 			conns,
 			pubSubConnection{
@@ -175,6 +175,7 @@ func createConnPermutations(plaintextConnection, tlsConnection *nats.Conn) []pub
 	}
 
 	if tlsConnection != nil {
+		log.Println("Testing TLS connections")
 		conns = append(
 			conns,
 			pubSubConnection{
@@ -185,6 +186,7 @@ func createConnPermutations(plaintextConnection, tlsConnection *nats.Conn) []pub
 	}
 
 	if plaintextConnection != nil && tlsConnection != nil {
+		log.Println("Testing combinations of plaintext and TLS connections")
 		conns = append(
 			conns,
 			pubSubConnection{
