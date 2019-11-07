@@ -59,3 +59,11 @@
 - type: replace
   path: /instance_groups/name=nats-smoke-tests/jobs/name=smoke-tests/properties?/nats?/client?/tls?/private_key
   value: "((nats_client_cert.private_key))"
+
+- type: replace
+  path: /instance_groups/name=nats-benchmarks/jobs/name=natsbench/properties?/nats?/client?/tls?/certificate
+  value: "((nats_client_cert.certificate))"
+
+- type: replace
+  path: /instance_groups/name=nats-benchmarks/jobs/name=natsbench/properties?/nats?/client?/tls?/private_key
+  value: "((nats_client_cert.private_key))"

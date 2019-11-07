@@ -40,10 +40,13 @@ instance_groups:
       nats:
         user: nats
         password: "((nats_password))"
+        monitor_port: 8222
+        
   networks:
   - name: default
   vm_type: default
   stemcell: default
+
 - name: nats-smoke-tests
   azs: [z1]
   vm_type: default
@@ -52,6 +55,18 @@ instance_groups:
   lifecycle: errand
   jobs:
   - name: smoke-tests
+    release: nats
+  networks:
+  - name: default
+
+- name: nats-benchmarks
+  azs: [z1]
+  vm_type: default
+  stemcell: default
+  instances: 1
+  lifecycle: errand
+  jobs:
+  - name: natsbench
     release: nats
   networks:
   - name: default

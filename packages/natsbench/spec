@@ -1,0 +1,8 @@
+---
+name: natsbench
+
+dependencies:
+  - golang-1-linux
+
+files:
+  - natsbench/**
