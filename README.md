@@ -23,12 +23,12 @@ then the connection is upgraded. If either of the client or server
 expects to use TLS but its peer does not then they will refuse to connect
 to avoid downgrade attacks.
 
-#### nats
+#### NATS
 
 NATS serving plain-text traffic. This job will be removed when
 *all* Cloud Foundry NATS clients are upgraded to use TLS.
 
-#### nats-tls
+#### NATS-TLS
 
 NATS serving TLS traffic.
 
