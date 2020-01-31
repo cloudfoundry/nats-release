@@ -71,6 +71,28 @@ resources:
     private_key: ((github_private_key.private_key))
     uri: git@github.com:cloudfoundry/deployments-routing.git
 
+- name: networking-oss-deployments
+  type: git
+  source:
+    branch: master
+    private_key: ((github_private_key.private_key))
+    uri: git@github.com:cloudfoundry/networking-oss-deployments.git
+
+- name: networking-oss-tools
+  type: git
+  source:
+    branch: master
+    private_key: ((github_private_key.private_key))
+    uri: git@github.com:cloudfoundry/networking-oss-tools.git
+
+
+- name: we-dont-use-vars-files
+  type: git
+  source:
+    branch: master
+    private_key: ((github_private_key.private_key))
+    uri: git@github.com:cloudfoundry/networking-oss-deployments.git
+
 - name: bosh-bootloader
   type: git
   source:
@@ -140,7 +162,8 @@ jobs:
   plan:
   - in_parallel:
     - get: cf-deployment-concourse-tasks
-    - get: deployments-routing
+    - get: networking-oss-deployments
+    - get: networking-oss-tools
     - get: nats-release-ci
     - get: bosh-bootloader
     - get: morning-trigger
@@ -150,7 +173,7 @@ jobs:
     params:
       ENVIRONMENT: nats-env
     input_mapping:
-      bbl-state: deployments-routing
+      bbl-state: networking-oss-deployments
   - task: make-certs
     file: nats-release-ci/ci/tasks/make-certs/task.yml
     params:
@@ -167,13 +190,13 @@ jobs:
       BBL_LB_KEY: ../lb_certs/key.pem
       LB_DOMAIN: nats-env.routing.cf-app.com
       BBL_ENV_NAME: nats-env
-      BBL_STATE_DIR: nats-env/bbl-state
+      BBL_STATE_DIR: environments/nats-env/bbl-state
       GIT_COMMIT_EMAIL: cf-routing-eng@pivotal.io
     input_mapping:
       bbl-config: updated-bbl-state
       bbl-state: updated-bbl-state
     ensure:
-      put: deployments-routing
+      put: networking-oss-deployments
       params:
         repository: updated-bbl-state
         rebase: true
@@ -183,7 +206,8 @@ jobs:
   build_logs_to_retain: 100
   plan:
   - in_parallel:
-    - get: deployments-routing
+    - get: networking-oss-deployments
+    - get: networking-oss-tools
     - get: cf-deployment-concourse-tasks
     - get: evening-trigger
       passed:
@@ -193,13 +217,13 @@ jobs:
   - task: destroy-nats-env
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
-      BBL_STATE_DIR: nats-env/bbl-state
+      BBL_STATE_DIR: environments/nats-env/bbl-state
       BBL_GCP_SERVICE_ACCOUNT_KEY: ((shared_gcp_account_creds))
       GIT_COMMIT_EMAIL: cf-routing-eng@pivotal.io
     input_mapping:
-      bbl-state: deployments-routing
+      bbl-state: networking-oss-deployments
     ensure:
-      put: deployments-routing
+      put: networking-oss-deployments
       params:
         repository: updated-bbl-state
         rebase: true
@@ -214,7 +238,8 @@ jobs:
       trigger: true
     - get: nats-release
       trigger: true
-    - get: deployments-routing
+    - get: networking-oss-deployments
+    - get: networking-oss-tools
     - get: nats-release-ci
     - get: cf-deployment-concourse-tasks
     - get: cf-deployment
@@ -224,9 +249,9 @@ jobs:
   - task: deploy-nats
     file: nats-release-ci/ci/tasks/bosh-deploy-nats/task.yml
     input_mapping:
-      bbl-state: deployments-routing
+      bbl-state: networking-oss-deployments
     params:
-      BBL_STATE_DIR: nats-env/bbl-state
+      BBL_STATE_DIR: environments/nats-env/bbl-state
 
 - name: smoke-tests
   public: true
@@ -238,17 +263,18 @@ jobs:
       passed: [deploy-nats-standalone]
       trigger: true
     - get: nats-release-ci
-    - get: deployments-routing
+    - get: networking-oss-deployments
       passed: [deploy-nats-standalone]
+    - get: networking-oss-tools
     - get: cf-deployment-concourse-tasks
   - task: run-errand-smoke-tests
     file: nats-release-ci/ci/tasks/run-errand-nats-release/task.yml
     input_mapping:
-      bbl-state: deployments-routing
+      bbl-state: networking-oss-deployments
     params:
       DEPLOYMENT_NAME: nats
       ERRAND_NAME: smoke-tests
-      BBL_STATE_DIR: nats-env/bbl-state
+      BBL_STATE_DIR: environments/nats-env/bbl-state
 
 - name: delete-nats-standalone
   public: true
@@ -257,7 +283,8 @@ jobs:
   plan:
   - in_parallel:
     - get: cf-deployment-concourse-tasks
-    - get: deployments-routing
+    - get: networking-oss-deployments
+    - get: networking-oss-tools
     - get: nats-release
       trigger: true
       passed: [smoke-tests]
@@ -266,10 +293,10 @@ jobs:
   - task: delete-nats-standalone
     file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
     input_mapping:
-      bbl-state: deployments-routing
+      bbl-state: networking-oss-deployments
     params:
       DEPLOYMENT_NAME: nats
-      BBL_STATE_DIR: nats-env/bbl-state
+      BBL_STATE_DIR: environments/nats-env/bbl-state
 
 - name: deploy-cf-with-created-nats
   serial_groups: [nats]
@@ -279,7 +306,8 @@ jobs:
   - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: cf-deployment
-    - get: deployments-routing
+    - get: networking-oss-deployments
+    - get: networking-oss-tools
     - get: nats-release
       trigger: true
       passed: [smoke-tests]
@@ -289,28 +317,27 @@ jobs:
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     input_mapping:
-      bbl-state: deployments-routing
+      bbl-state: networking-oss-deployments
     params:
-      BBL_STATE_DIR: nats-env/bbl-state
+      BBL_STATE_DIR: environments/nats-env/bbl-state
   - task: deploy-cf-with-created-nats
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
-      bbl-state: deployments-routing
+      bbl-state: networking-oss-deployments
       release: nats-release
       ops-files: cf-deployment
-      vars-store: deployments-routing
-      vars-files: deployments-routing
+      vars-files: we-dont-use-vars-files
     params:
-      BBL_STATE_DIR: nats-env/bbl-state
+      BBL_STATE_DIR: environments/nats-env/bbl-state
       SYSTEM_DOMAIN: nats-env.routing.cf-app.com
       OPS_FILES: |
         operations/use-internal-lookup-for-route-services.yml
   - task: run-bosh-cleanup
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     input_mapping:
-      bbl-state: deployments-routing
+      bbl-state: networking-oss-deployments
     params:
-      BBL_STATE_DIR: nats-env/bbl-state
+      BBL_STATE_DIR: environments/nats-env/bbl-state
 
 - name: cf-acceptance-tests
   serial_groups: [nats]
@@ -320,7 +347,8 @@ jobs:
   - in_parallel:
     - get: nats-release-ci
     - get: cf-acceptance-tests
-    - get: deployments-routing
+    - get: networking-oss-deployments
+    - get: networking-oss-tools
     - get: cf-deployment-concourse-tasks
     - get: nats-release
       passed: [deploy-cf-with-created-nats]
@@ -333,10 +361,10 @@ jobs:
   - task: update-integration-configs
     file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
     input_mapping:
-      bbl-state: created-integration-configs
+      bbl-state: networking-oss-deployments
       integration-configs: created-integration-configs
     params:
-      BBL_STATE_DIR: nats-env/bbl-state
+      BBL_STATE_DIR: environments/nats-env/bbl-state
       CATS_INTEGRATION_CONFIG_FILE: nats-env/cats_integration_config.json
       GIT_COMMIT_EMAIL: cf-routing-eng@pivotal.io
   - task: run-cats
@@ -344,7 +372,7 @@ jobs:
       integration-config: updated-integration-configs
     file: cf-deployment-concourse-tasks/run-cats/task.yml
     params:
-      CONFIG_FILE_PATH: nats-env/cats_integration_config.json
+      CONFIG_FILE_PATH: cats_integration_config.json
 
 - name: delete-cf-deployment
   public: true
@@ -354,7 +382,8 @@ jobs:
   - in_parallel:
     - get: nats-release-ci
     - get: cf-deployment-concourse-tasks
-    - get: deployments-routing
+    - get: networking-oss-deployments
+    - get: networking-oss-tools
     - get: nats-release
       trigger: true
       passed: [cf-acceptance-tests]
@@ -363,10 +392,10 @@ jobs:
   - task: delete-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
     input_mapping:
-      bbl-state: deployments-routing
+      bbl-state: networking-oss-deployments
     params:
       DEPLOYMENT_NAME: cf
-      BBL_STATE_DIR: nats-env/bbl-state
+      BBL_STATE_DIR: environments/nats-env/bbl-state
 
 - name: create-final-release
   public: true
