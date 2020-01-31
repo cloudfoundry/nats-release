@@ -7,21 +7,25 @@ image_resource:
     repository: cloudfoundry/cf-routing-pipeline
 
 inputs:
-  - name: nats-release-ci
+  - name: routing-release-ci
   - name: deployments-routing
+    optional: true
+  - name: networking-oss-deployments
+    optional: true
+  - name: networking-oss-tools
+    optional: true
   - name: cf-deployment-concourse-tasks
 
 outputs:
   - name: created-integration-configs
 
 run:
-  path: nats-release-ci/ci/tasks/create-integration-configs/task
+  path: routing-release-ci/ci/tasks/create-integration-configs/task
 
 params:
   ISO_SEG_NAME:
   ISO_SEG_DOMAIN_PREFIX: iso-seg
   ENABLE_ISOLATION_SEGMENT_TESTS: true
   ENVIRONMENT:
-  VARS_STORE_FILE: deployment-vars.yml
   GIT_COMMIT_EMAIL: cf-routing-eng@pivotal.io
   GIT_COMMIT_USERNAME: "CI Bot"
