@@ -360,7 +360,6 @@ jobs:
       integration-configs: created-integration-configs
     params:
       BBL_STATE_DIR: environments/nats-env/bbl-state
-      CATS_INTEGRATION_CONFIG_FILE: nats-env/cats_integration_config.json
       GIT_COMMIT_EMAIL: cf-routing-eng@pivotal.io
   - task: run-cats
     input_mapping:
