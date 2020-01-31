@@ -7,7 +7,7 @@ image_resource:
     repository: cloudfoundry/cf-routing-pipeline
 
 inputs:
-  - name: routing-release-ci
+  - name: nats-release-ci
   - name: deployments-routing
     optional: true
   - name: networking-oss-deployments
@@ -20,7 +20,7 @@ outputs:
   - name: created-integration-configs
 
 run:
-  path: routing-release-ci/ci/tasks/create-integration-configs/task
+  path: nats-release-ci/ci/tasks/create-integration-configs/task
 
 params:
   ISO_SEG_NAME:

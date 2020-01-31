@@ -8,7 +8,7 @@ image_resource:
 
 inputs:
 - name: bbl-state
-- name: routing-release-ci
+- name: nats-release-ci
 
 outputs:
 - name: updated-bbl-state
@@ -21,4 +21,4 @@ params:
   GIT_COMMIT_MSG: Adding new certs
 
 run:
-  path: routing-release-ci/ci/tasks/make-certs/task
+  path: nats-release-ci/ci/tasks/make-certs/task
