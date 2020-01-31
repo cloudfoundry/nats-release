@@ -171,6 +171,7 @@ jobs:
     file: nats-release-ci/ci/tasks/make-certs/task.yml
     params:
       ENVIRONMENT: nats-env
+      ENV_PATH: environments/nats-env
     input_mapping:
       bbl-state: updated-bbl-state
   - task: setup-nats
