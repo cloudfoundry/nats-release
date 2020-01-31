@@ -64,13 +64,6 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment.git
 
-- name: deployments-routing
-  type: git
-  source:
-    branch: master
-    private_key: ((github_private_key.private_key))
-    uri: git@github.com:cloudfoundry/deployments-routing.git
-
 - name: networking-oss-deployments
   type: git
   source:
@@ -308,6 +301,7 @@ jobs:
     - get: cf-deployment
     - get: networking-oss-deployments
     - get: networking-oss-tools
+    - get: we-dont-use-vars-files
     - get: nats-release
       trigger: true
       passed: [smoke-tests]
