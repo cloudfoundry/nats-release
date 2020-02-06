@@ -164,7 +164,7 @@ jobs:
   - task: add-parent-dns
     file: nats-release-ci/ci/tasks/add-parent-dns/task.yml
     params:
-      ENVIRONMENT: nats-env
+      ENVIRONMENT: environments/nats-env
     input_mapping:
       bbl-state: networking-oss-deployments
   - task: make-certs
