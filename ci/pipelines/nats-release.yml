@@ -71,14 +71,6 @@ resources:
     private_key: ((github_private_key.private_key))
     uri: git@github.com:cloudfoundry/networking-oss-deployments.git
 
-- name: networking-oss-tools
-  type: git
-  source:
-    branch: master
-    private_key: ((github_private_key.private_key))
-    uri: git@github.com:cloudfoundry/networking-oss-tools.git
-
-
 - name: we-dont-use-vars-files
   type: git
   source:
@@ -156,7 +148,6 @@ jobs:
   - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: networking-oss-deployments
-    - get: networking-oss-tools
     - get: nats-release-ci
     - get: bosh-bootloader
     - get: morning-trigger
@@ -201,7 +192,6 @@ jobs:
   plan:
   - in_parallel:
     - get: networking-oss-deployments
-    - get: networking-oss-tools
     - get: cf-deployment-concourse-tasks
     - get: evening-trigger
       passed:
@@ -233,7 +223,6 @@ jobs:
     - get: nats-release
       trigger: true
     - get: networking-oss-deployments
-    - get: networking-oss-tools
     - get: nats-release-ci
     - get: cf-deployment-concourse-tasks
     - get: cf-deployment
@@ -259,7 +248,6 @@ jobs:
     - get: nats-release-ci
     - get: networking-oss-deployments
       passed: [deploy-nats-standalone]
-    - get: networking-oss-tools
     - get: cf-deployment-concourse-tasks
   - task: run-errand-smoke-tests
     file: nats-release-ci/ci/tasks/run-errand-nats-release/task.yml
@@ -278,7 +266,6 @@ jobs:
   - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: networking-oss-deployments
-    - get: networking-oss-tools
     - get: nats-release
       trigger: true
       passed: [smoke-tests]
@@ -301,7 +288,6 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: cf-deployment
     - get: networking-oss-deployments
-    - get: networking-oss-tools
     - get: we-dont-use-vars-files
     - get: nats-release
       trigger: true
@@ -343,7 +329,6 @@ jobs:
     - get: nats-release-ci
     - get: cf-acceptance-tests
     - get: networking-oss-deployments
-    - get: networking-oss-tools
     - get: cf-deployment-concourse-tasks
     - get: nats-release
       passed: [deploy-cf-with-created-nats]
@@ -377,7 +362,6 @@ jobs:
     - get: nats-release-ci
     - get: cf-deployment-concourse-tasks
     - get: networking-oss-deployments
-    - get: networking-oss-tools
     - get: nats-release
       trigger: true
       passed: [cf-acceptance-tests]
