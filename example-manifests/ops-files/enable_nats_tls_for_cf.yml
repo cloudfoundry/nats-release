@@ -1,4 +1,19 @@
 - type: replace
+  path: /addons?/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=nats.service.cf.internal
+  value:
+    domain: nats.service.cf.internal
+    targets:
+    - deployment: cf
+      domain: bosh
+      instance_group: nats
+      network: default
+      query: '*'
+
+- type: replace
+  path: /instance_groups/name=nats/jobs/name=nats/properties/nats?/hostname
+  value: nats.service.cf.internal
+
+- type: replace
   path: /variables?/name=nats_internal_ca?
   value:
     name: nats_internal_ca
@@ -14,9 +29,9 @@
     type: certificate
     options:
       ca: nats_internal_ca
-      common_name: "*.nats.default.cf.bosh"
+      common_name: nats.service.cf.internal
       alternative_names:
-      - "*.nats.default.cf.bosh"
+      - nats.service.cf.internal
       extended_key_usage:
       - client_auth
       - server_auth
@@ -24,14 +39,6 @@
 - type: replace
   path: /instance_groups/name=nats/jobs/name=nats/properties/nats?/internal?/tls?/enabled
   value: true
-
-- type: replace
-  path: /instance_groups/name=nats/jobs/name=nats/consumes?
-  value:
-    nats:
-      ip_addresses: false
-    nats-tls:
-      ip_addresses: false
 
 - type: replace
   path: /instance_groups/name=nats/jobs/name=nats/properties/nats?/internal?/tls?/ca
@@ -71,9 +78,9 @@
     type: certificate
     options:
       ca: nats_ca
-      common_name: "*.nats.default.cf.bosh"
+      common_name: nats.service.cf.internal
       alternative_names:
-      - "*.nats.default.cf.bosh"
+      - nats.service.cf.internal
       extended_key_usage:
       - server_auth
 
@@ -82,15 +89,11 @@
   value:
     name: nats-tls
     release: nats
-    consumes:
-      nats:
-        ip_addresses: false
-      nats-tls:
-        ip_addresses: false
     properties:
       nats:
         user: nats
         password: "((nats_password))"
+        hostname: nats.service.cf.internal
         internal:
           tls:
             ca: "((nats_internal_cert.ca))"
@@ -117,11 +120,6 @@
     jobs:
     - name: smoke-tests
       release: nats
-      consumes:
-        nats:
-          ip_addresses: false
-        nats-tls:
-          ip_addresses: false
       properties:
         nats:
           client:

@@ -28,6 +28,8 @@ properties:
     description: "Username for server authentication."
   nats.password:
     description: "Password for server authentication."
+  nats.hostname:
+    description: "Hostname for nats cluster."
   nats.port:
     description: "The port for the NATS server to listen on."
   nats.machines:
