@@ -1,0 +1,45 @@
+name: nats
+version: "33"
+commit_hash: ff4b1d9
+uncommitted_changes: false
+jobs:
+- name: nats
+  version: c194c578db3178f6ff013f2d418b3037bde0dd228584486d8d804d1dd51a2f6a
+  fingerprint: c194c578db3178f6ff013f2d418b3037bde0dd228584486d8d804d1dd51a2f6a
+  sha1: sha256:5f16a187e728f390d39c44276ef1c431a16880c61888d87ffafb288e1b51239b
+  packages:
+  - gnatsd
+- name: nats-tls
+  version: efd1cf52f7b80f5a12572c6e4e78a9b94dc5c90c5a73aec2f5a2865ba2b6f59c
+  fingerprint: efd1cf52f7b80f5a12572c6e4e78a9b94dc5c90c5a73aec2f5a2865ba2b6f59c
+  sha1: sha256:fc71b22d3c4b39c041626079f8350145f1f4bd0286d3e987e32e8b445487b44e
+  packages:
+  - gnatsd
+- name: smoke-tests
+  version: d0171675435288c416a6b680c158ae57e29f2ff0c91648581090f8e1039b23b2
+  fingerprint: d0171675435288c416a6b680c158ae57e29f2ff0c91648581090f8e1039b23b2
+  sha1: sha256:547bca14b390e6249fb4b2b38b0773e6d0e55546f4d616d4685f2a800e8b3439
+  packages:
+  - nats-smoke
+packages:
+- name: gnatsd
+  version: a8ffb4a0f78bb85522991ad0397a49edb9499b9eb7cf716d2082e61caa94aca8
+  fingerprint: a8ffb4a0f78bb85522991ad0397a49edb9499b9eb7cf716d2082e61caa94aca8
+  sha1: sha256:78afa9e1527c36684ebbb4157c7ac6b78be9b5bfc1a870f605e7f40b08e314f2
+  dependencies:
+  - golang-1-linux
+- name: golang-1-linux
+  version: 281a2936e387cdfca4fa1cd1bac358f1aa1b44430011fa2a775d632d500adb54
+  fingerprint: 281a2936e387cdfca4fa1cd1bac358f1aa1b44430011fa2a775d632d500adb54
+  sha1: sha256:025aa74d0699071103a9799da6868e15670719ecd4cfa722bb64d4aeaee32859
+  dependencies: []
+- name: nats-smoke
+  version: f9b48cef2de887b49844d823d7135f065d59fbbca2c16393d86775e00007c864
+  fingerprint: f9b48cef2de887b49844d823d7135f065d59fbbca2c16393d86775e00007c864
+  sha1: sha256:fccc98a60a4cf874e8d2178dfe4194eb33c17a6f3d4fc4399694ef642190c67d
+  dependencies:
+  - golang-1-linux
+license:
+  version: 03d3298216ff6caa85c599c878020012fbf74adf4ab427407f7585d005b2c4b5
+  fingerprint: 03d3298216ff6caa85c599c878020012fbf74adf4ab427407f7585d005b2c4b5
+  sha1: sha256:2b36f342a58d00279fd1752c08bec85ced5f6b68e474ac99a0c5338770d0bf87
