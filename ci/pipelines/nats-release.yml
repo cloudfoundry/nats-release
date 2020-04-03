@@ -306,13 +306,13 @@ jobs:
     input_mapping:
       bbl-state: networking-oss-deployments
       release: nats-release
-      ops-files: cf-deployment
+      ops-files: nats-release
       vars-files: we-dont-use-vars-files
     params:
       BBL_STATE_DIR: environments/nats-env/bbl-state
       SYSTEM_DOMAIN: nats-env.routing.cf-app.com
       OPS_FILES: |
-        operations/use-internal-lookup-for-route-services.yml
+        example-manifests/ops-files/enable_nats_tls_for_cf.yml
   - task: run-bosh-cleanup
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     input_mapping:

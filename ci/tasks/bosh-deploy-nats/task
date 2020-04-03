@@ -20,8 +20,7 @@ function bosh-deploy-nats() {
       -n \
       -d "nats" \
       deploy "${PWD}/example-manifests/nats.yml" \
-      -o "${PWD}/example-manifests/ops-files/internal_tls.yml" \
-      -o "${PWD}/example-manifests/ops-files/tls.yml"
+      -o "${PWD}/example-manifests/ops-files/enable_nats_tls_for_cf.yml"
   popd
 }
 
