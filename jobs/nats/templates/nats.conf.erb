@@ -80,7 +80,7 @@ cluster {
     timeout: <%= p("nats.authorization_timeout") %>
   }
 
-  <% if p("nats.internal.tls.enabled") -%>
+  <% if p("nats.internal.tls.enabled") %>
   tls {
     ca_file: "/var/vcap/jobs/nats/config/internal_tls/ca.pem"
     cert_file: "/var/vcap/jobs/nats/config/internal_tls/certificate.pem"
@@ -95,7 +95,7 @@ cluster {
     timeout: 5 # seconds
     verify: true
   }
-  <% end -%>
+  <% end %>
 
   routes = [
     <% nats_peers.each do |peer| %>
