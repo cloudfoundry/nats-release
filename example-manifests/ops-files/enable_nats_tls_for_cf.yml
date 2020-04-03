@@ -119,7 +119,7 @@
             certificate: "((nats_server_cert.certificate))"
 
 - type: replace
-  path: /instance_groups/-
+  path: /instance_groups?/name=nats-smoke-tests?
   value:
     name: nats-smoke-tests
     azs: [z1]
