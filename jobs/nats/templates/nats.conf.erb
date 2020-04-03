@@ -19,14 +19,11 @@
 
   nats_peers = nil
 
-  unless nats_peers
-    if_p("nats.machines") do |ips|
-      nats_peers = ips.map do |ip|
-        NatsPeer.new(nil, ip, p("nats.cluster_port"), p("nats.user"), p("nats.password"))
-      end
+  if_p("nats.machines") do |ips|
+    nats_peers = ips.map do |ip|
+      NatsPeer.new(nil, ip, p("nats.cluster_port"), p("nats.user"), p("nats.password"))
     end
   end
-
 
   unless nats_peers
     nats_peers = []
