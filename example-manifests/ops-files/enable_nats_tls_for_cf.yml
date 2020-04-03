@@ -10,6 +10,17 @@
       query: '*'
 
 - type: replace
+  path: /addons?/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=_.nats.service.cf.internal
+  value:
+    domain: _.nats.service.cf.internal
+    targets:
+    - deployment: cf
+      domain: bosh
+      instance_group: nats
+      network: default
+      query: '_'
+
+- type: replace
   path: /instance_groups/name=nats/jobs/name=nats/properties/nats?/hostname
   value: nats.service.cf.internal
 
@@ -29,8 +40,9 @@
     type: certificate
     options:
       ca: nats_internal_ca
-      common_name: nats.service.cf.internal
+      common_name: "*.nats.service.cf.internal"
       alternative_names:
+      - "*.nats.service.cf.internal"
       - nats.service.cf.internal
       extended_key_usage:
       - client_auth

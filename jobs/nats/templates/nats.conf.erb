@@ -1,6 +1,7 @@
 <%
   class NatsPeer
-    def initialize(address, cluster_port, username, password)
+    def initialize(instance_id, address, cluster_port, username, password)
+      @instance_id = instance_id
       @address = address
       @cluster_port = cluster_port
       @username = username
@@ -8,24 +9,20 @@
     end
 
     def url
-      "nats-route://#{@username}:#{@password}@#{@address}:#{@cluster_port}"
-    end
-  end
-
-  nats_peers = nil
-  if_p("nats.hostname") do |hostname|
-    nats_peers = [NatsPeer.new(hostname, p("nats.cluster_port"), p("nats.user"), p("nats.password"))]
-    if_link("nats-tls") do |nats_tls_link|
-      nats_tls_link.if_p("nats.hostname") do |hostname|
-        nats_peers += [NatsPeer.new(hostname, nats_tls_link.p("nats.cluster_port"), nats_tls_link.p("nats.user"), nats_tls_link.p("nats.password"))]
+      if @instance_id == nil
+        "nats-route://#{@username}:#{@password}@#{@address}:#{@cluster_port}"
+      else
+        "nats-route://#{@username}:#{@password}@#{@instance_id}.#{@address}:#{@cluster_port}"
       end
     end
   end
 
+  nats_peers = nil
+
   unless nats_peers
     if_p("nats.machines") do |ips|
       nats_peers = ips.map do |ip|
-        NatsPeer.new(ip, p("nats.cluster_port"), p("nats.user"), p("nats.password"))
+        NatsPeer.new(nil, ip, p("nats.cluster_port"), p("nats.user"), p("nats.password"))
       end
     end
   end
@@ -34,22 +31,14 @@
   unless nats_peers
     nats_peers = []
     if_link("nats") do |nats_link|
-      nats_link.if_p("nats.hostname") do |hostname|
-          nats_peers += [NatsPeer.new(hostname, nats_link.p("nats.cluster_port"), nats_link.p("nats.user"), nats_link.p("nats.password"))]
-      end.else do
-        nats_peers += nats_link.instances.map do |instance|
-          NatsPeer.new(instance.address, nats_link.p("nats.cluster_port"), nats_link.p("nats.user"), nats_link.p("nats.password"))
-        end
+      nats_peers += nats_link.instances.map do |instance|
+        NatsPeer.new(instance.id, nats_link.p("nats.hostname"), nats_link.p("nats.cluster_port"), nats_link.p("nats.user"), nats_link.p("nats.password"))
       end
     end
 
     if_link("nats-tls") do |nats_tls_link|
-      nats_tls_link.if_p("nats.hostname") do |hostname|
-        nats_peers += [NatsPeer.new(hostname, nats_tls_link.p("nats.cluster_port"), nats_tls_link.p("nats.user"), nats_tls_link.p("nats.password"))]
-      end.else do
-        nats_peers += nats_tls_link.instances.map do |instance|
-          NatsPeer.new(instance.address, nats_tls_link.p("nats.cluster_port"), nats_tls_link.p("nats.user"), nats_tls_link.p("nats.password"))
-        end
+      nats_peers += nats_tls_link.instances.map do |instance|
+        NatsPeer.new(instance.id, nats_tls_link.p("nats.hostname"), nats_tls_link.p("nats.cluster_port"), nats_tls_link.p("nats.user"), nats_tls_link.p("nats.password"))
       end
     end
   end
