@@ -2,10 +2,8 @@
 groups:
 - name: nats-release
   jobs:
-  - deploy-nats-standalone
-  - smoke-tests
-  - delete-nats-standalone
   - deploy-cf-with-created-nats
+  - smoke-tests
   - cf-acceptance-tests
   - delete-cf-deployment
   - create-final-release
@@ -18,11 +16,6 @@ groups:
   - upgrade-go1.x
 
 resources:
-- name: stemcell
-  type: bosh-io-stemcell
-  source:
-    name: bosh-google-kvm-ubuntu-xenial-go_agent
-
 - name: golang-release-latest
   type: git
   source:
@@ -196,7 +189,6 @@ jobs:
     - get: evening-trigger
       passed:
       - delete-cf-deployment
-      - delete-nats-standalone
       trigger: true
   - task: destroy-nats-env
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -212,73 +204,6 @@ jobs:
         repository: updated-bbl-state
         rebase: true
 
-- name: deploy-nats-standalone
-  serial_groups: [nats]
-  public: true
-  build_logs_to_retain: 100
-  plan:
-  - in_parallel:
-    - get: stemcell
-      trigger: true
-    - get: nats-release
-      trigger: true
-    - get: networking-oss-deployments
-    - get: nats-release-ci
-    - get: cf-deployment-concourse-tasks
-    - get: cf-deployment
-    - get: morning-trigger
-      trigger: true
-      passed: [nats-setup]
-  - task: deploy-nats
-    file: nats-release-ci/ci/tasks/bosh-deploy-nats/task.yml
-    input_mapping:
-      bbl-state: networking-oss-deployments
-    params:
-      BBL_STATE_DIR: environments/nats-env/bbl-state
-
-- name: smoke-tests
-  public: true
-  serial_groups: [nats]
-  build_logs_to_retain: 100
-  plan:
-  - in_parallel:
-    - get: nats-release
-      passed: [deploy-nats-standalone]
-      trigger: true
-    - get: nats-release-ci
-    - get: networking-oss-deployments
-      passed: [deploy-nats-standalone]
-    - get: cf-deployment-concourse-tasks
-  - task: run-errand-smoke-tests
-    file: nats-release-ci/ci/tasks/run-errand-nats-release/task.yml
-    input_mapping:
-      bbl-state: networking-oss-deployments
-    params:
-      DEPLOYMENT_NAME: nats
-      ERRAND_NAME: smoke-tests
-      BBL_STATE_DIR: environments/nats-env/bbl-state
-
-- name: delete-nats-standalone
-  public: true
-  serial_groups: [nats]
-  build_logs_to_retain: 100
-  plan:
-  - in_parallel:
-    - get: cf-deployment-concourse-tasks
-    - get: networking-oss-deployments
-    - get: nats-release
-      trigger: true
-      passed: [smoke-tests]
-    - get: evening-trigger
-      trigger: true
-  - task: delete-nats-standalone
-    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-    input_mapping:
-      bbl-state: networking-oss-deployments
-    params:
-      DEPLOYMENT_NAME: nats
-      BBL_STATE_DIR: environments/nats-env/bbl-state
-
 - name: deploy-cf-with-created-nats
   serial_groups: [nats]
   public: true
@@ -291,7 +216,6 @@ jobs:
     - get: we-dont-use-vars-files
     - get: nats-release
       trigger: true
-      passed: [smoke-tests]
     - get: morning-trigger
       trigger: true
       passed: [nats-setup]
@@ -320,6 +244,27 @@ jobs:
     params:
       BBL_STATE_DIR: environments/nats-env/bbl-state
 
+- name: smoke-tests
+  public: true
+  serial_groups: [nats]
+  build_logs_to_retain: 100
+  plan:
+  - in_parallel:
+    - get: nats-release
+      passed: [deploy-cf-with-created-nats]
+      trigger: true
+    - get: nats-release-ci
+    - get: networking-oss-deployments
+    - get: cf-deployment-concourse-tasks
+  - task: run-errand-smoke-tests
+    file: nats-release-ci/ci/tasks/run-errand-nats-release/task.yml
+    input_mapping:
+      bbl-state: networking-oss-deployments
+    params:
+      DEPLOYMENT_NAME: nats
+      ERRAND_NAME: smoke-tests
+      BBL_STATE_DIR: environments/nats-env/bbl-state
+
 - name: cf-acceptance-tests
   serial_groups: [nats]
   public: true
@@ -331,7 +276,7 @@ jobs:
     - get: networking-oss-deployments
     - get: cf-deployment-concourse-tasks
     - get: nats-release
-      passed: [deploy-cf-with-created-nats]
+      passed: [smoke-tests]
       trigger: true
   - task: create-integration-config
     file: nats-release-ci/ci/tasks/create-integration-configs/task.yml
