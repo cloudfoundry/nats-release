@@ -7,14 +7,13 @@ image_resource:
     repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
 
 inputs:
-- name: bbl-state
+- name: toolsmiths-metadata-dir
 - name: nats-release-ci
-- name: cf-deployment-concourse-tasks
+- name: networking-oss-deployments
 
 run:
   path: nats-release-ci/ci/tasks/run-errand-nats-release/task
 
 params:
-  BBL_STATE_DIR: bbl-state
   DEPLOYMENT_NAME: cf
   ERRAND_NAME:
