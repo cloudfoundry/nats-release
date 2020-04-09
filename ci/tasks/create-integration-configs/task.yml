@@ -10,6 +10,8 @@ inputs:
   - name: nats-release-ci
   - name: networking-oss-deployments
     optional: true
+  - name: toolsmiths-metadata-dir
+    optional: true
   - name: cf-deployment-concourse-tasks
 
 outputs:
