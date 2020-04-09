@@ -6,7 +6,7 @@ groups:
   - smoke-tests
   - cf-acceptance-tests
   - delete-cf-deployment
-  - nats-cf-deployment-cats
+  - smoke-tests-and-CATs
   - create-final-release
 - name: maintenance
   jobs:
@@ -259,7 +259,7 @@ jobs:
     params:
       BBL_STATE_DIR: environments/nats-env/bbl-state
 
-- name: nats-cf-deployment-cats
+- name: smoke-tests-and-CATs
   plan:
   - in_parallel:
     - do:
@@ -312,6 +312,14 @@ jobs:
         add-lb-ca-cert.yml
         use-compiled-releases.yml
         scale-for-cats.yml
+        smoke-tests.yml
+  - task: run-smoke-tests
+    file: nats-release-ci/ci/tasks/run-errand-nats-release/task.yml
+    params:
+      DEPLOYMENT_NAME: cf
+      ERRAND_NAME: smoke-tests
+    input_mapping:
+      toolsmiths-metadata-dir: cf-environment
   - task: create-integration-config
     file: nats-release-ci/ci/tasks/create-integration-configs/task.yml
     input_mapping:
