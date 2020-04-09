@@ -32,7 +32,6 @@ pushd created-integration-configs
   git init
 popd
 
-SYSTEM_DOMAIN="${ENVIRONMENT}.routing.cf-app.com"
 CF_SMOKE_TESTS_CONFIG="created-integration-configs/cf_smoke_tests_config.json"
 CATS_INTEGRATION_CONFIG="created-integration-configs/cats_integration_config.json"
 RATS_INTEGRATION_CONFIG="created-integration-configs/rats_integration_config.json"
