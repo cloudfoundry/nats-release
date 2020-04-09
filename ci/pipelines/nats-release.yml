@@ -6,6 +6,7 @@ groups:
   - smoke-tests
   - cf-acceptance-tests
   - delete-cf-deployment
+  - nats-cf-deployment-cats
   - create-final-release
 - name: maintenance
   jobs:
@@ -43,6 +44,14 @@ resources:
     branch: develop
     private_key: ((read_write_deploy_key.private_key))
     uri: git@github.com:cloudfoundry/nats-release.git
+
+- name: routing-release-ci
+  type: git
+  source:
+    paths:
+      - ci/tasks
+    branch: develop
+    uri: https://github.com/cloudfoundry/routing-release
 
 - name: nats-release-master
   type: git
@@ -88,7 +97,7 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
-    tag_filter: v8.*
+    tag_filter: v10.*
 
 - name: morning-trigger
   type: time
@@ -105,6 +114,12 @@ resources:
     start: 7:00 PM
     stop: 7:01 PM
     days: [Monday, Tuesday, Wednesday, Thursday, Friday]
+
+- name: weekly
+  type: time
+  icon: clock
+  source:
+    interval: '168h'  # 1 week
 
 jobs:
 - name: upgrade-go1.x
@@ -243,6 +258,86 @@ jobs:
       bbl-state: networking-oss-deployments
     params:
       BBL_STATE_DIR: environments/nats-env/bbl-state
+
+- name: nats-cf-deployment-cats
+  plan:
+  - in_parallel:
+    - do:
+      - get: routing-release-ci
+        params: {submodules: none}
+      - task: claim-cf-deployment-environment
+        file: routing-release-ci/ci/tasks/claim-cf-deployment-environment/task.yml
+        tags:
+        - vsphere-cf-networking
+        params:
+          ENVIRONMENT_TYPE: cf-deployment
+          ENVIRONMENT_NOTES: nats-cf-deployment-cats
+          TOOLSMITHS_API_TOKEN: ((toolsmiths_api_key))
+    - get: cf-acceptance-tests
+    - get: nats-release-ci
+    - get: networking-oss-deployments
+    - get: cf-deployment
+    - get: cf-deployment-concourse-tasks
+    - get: nats-release
+    - get: we-dont-use-vars-files
+      trigger: true
+    - get: weekly
+      trigger: true
+  - task: write-lb-cert-to-credhub
+    file: routing-release-ci/ci/tasks/write-lb-cert-to-credhub/task.yml
+    input_mapping:
+      toolsmiths-metadata-dir: cf-environment
+  - task: merge-ops-files
+    file: routing-release-ci/ci/tasks/merge-ops-files/task.yml
+    input_mapping:
+      source1: nats-release
+    params:
+      SOURCE1_DIR: example-manifests/ops-files
+  - task: fetch-our-envs-manifest
+    file: routing-release-ci/ci/tasks/fetch-toolsmiths-manifest/task.yml
+    input_mapping:
+      toolsmiths-metadata-dir: cf-environment
+  - task: redeploy-nats-release
+    file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
+    input_mapping:
+      toolsmiths-env: cf-environment
+      release: nats-release
+      ops-files: merged-operations
+      vars-files: we-dont-use-vars-files
+      cf-deployment: our-envs-manifest
+    params:
+      MANIFEST_FILE: manifest.yml
+      OPS_FILES: |
+        enable_nats_tls_for_cf.yml
+        add-lb-ca-cert.yml
+        use-compiled-releases.yml
+        scale-for-cats.yml
+  - task: create-integration-config
+    file: nats-release-ci/ci/tasks/create-integration-configs/task.yml
+    input_mapping:
+      toolsmiths-metadata-dir: cf-environment
+    params:
+      ENABLE_ISOLATION_SEGMENT_TESTS: false
+  - task: update-integration-configs
+    file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
+    input_mapping:
+      toolsmiths-env: cf-environment
+      integration-configs: created-integration-configs
+    params:
+      CATS_INTEGRATION_CONFIG_FILE: cats_integration_config.json
+      GIT_COMMIT_EMAIL: cf-routing-eng@pivotal.io
+  - task: run-cats
+    input_mapping:
+      integration-config: updated-integration-configs
+    file: cf-deployment-concourse-tasks/run-cats/task.yml
+    params:
+      CONFIG_FILE_PATH: cats_integration_config.json
+  - task: release-pooled-environment
+    file: routing-release-ci/ci/tasks/unclaim-cf-deployment-environment/task.yml
+    tags:
+    - vsphere-cf-networking
+    params:
+      TOOLSMITHS_API_TOKEN: ((toolsmiths_api_key))
 
 - name: smoke-tests
   public: true
