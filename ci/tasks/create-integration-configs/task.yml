@@ -8,8 +8,6 @@ image_resource:
 
 inputs:
   - name: nats-release-ci
-  - name: deployments-routing
-    optional: true
   - name: networking-oss-deployments
     optional: true
   - name: cf-deployment-concourse-tasks
