@@ -261,7 +261,7 @@ jobs:
     input_mapping:
       bbl-state: networking-oss-deployments
     params:
-      DEPLOYMENT_NAME: nats
+      DEPLOYMENT_NAME: cf
       ERRAND_NAME: smoke-tests
       BBL_STATE_DIR: environments/nats-env/bbl-state
 
