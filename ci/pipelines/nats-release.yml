@@ -279,8 +279,8 @@ jobs:
     - get: cf-deployment
     - get: cf-deployment-concourse-tasks
     - get: nats-release
-    - get: we-dont-use-vars-files
       trigger: true
+    - get: we-dont-use-vars-files
     - get: weekly
       trigger: true
   - task: write-lb-cert-to-credhub
