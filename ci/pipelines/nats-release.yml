@@ -3,6 +3,7 @@ groups:
 - name: nats-release
   jobs:
   - smoke-tests-and-CATs
+  - ship-what
   - create-final-release
 - name: bump-go
   jobs:
@@ -207,6 +208,21 @@ jobs:
     params:
       TOOLSMITHS_API_TOKEN: ((toolsmiths_api_key))
 
+- name: ship-what
+  serial: true
+  plan:
+  - in_parallel:
+    - get: nats-release
+      params:
+        submodules: all
+      trigger: true
+      passed: [smoke-tests-and-CATs]
+    - get: nats-release-ci
+  - task: build-release-notes
+    file: nats-release-ci/ci/tasks/build-release-notes/task.yml
+    input_mapping:
+      master-release: nats-release
+
 - name: create-final-release
   public: true
   build_logs_to_retain: 100
@@ -214,7 +230,7 @@ jobs:
   - in_parallel:
     - get: nats-release-ci
     - get: nats-release
-      passed: [smoke-tests-and-CATs]
+      passed: [ship-what]
     - get: nats-release-master
   - task: create-final-release
     file: nats-release-ci/ci/tasks/create-final-nats-release/task.yml
