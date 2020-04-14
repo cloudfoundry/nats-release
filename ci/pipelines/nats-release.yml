@@ -2,27 +2,14 @@
 groups:
 - name: nats-release
   jobs:
-  - deploy-nats-standalone
-  - smoke-tests
-  - delete-nats-standalone
-  - deploy-cf-with-created-nats
-  - cf-acceptance-tests
-  - delete-cf-deployment
+  - smoke-tests-and-CATs
+  - ship-what
   - create-final-release
-- name: maintenance
-  jobs:
-  - nats-setup
-  - nats-destroy
 - name: bump-go
   jobs:
   - upgrade-go1.x
 
 resources:
-- name: stemcell
-  type: bosh-io-stemcell
-  source:
-    name: bosh-google-kvm-ubuntu-xenial-go_agent
-
 - name: golang-release-latest
   type: git
   source:
@@ -51,6 +38,14 @@ resources:
     private_key: ((read_write_deploy_key.private_key))
     uri: git@github.com:cloudfoundry/nats-release.git
 
+- name: routing-release-ci
+  type: git
+  source:
+    paths:
+      - ci/tasks
+    branch: develop
+    uri: https://github.com/cloudfoundry/routing-release
+
 - name: nats-release-master
   type: git
   source:
@@ -78,12 +73,6 @@ resources:
     private_key: ((github_private_key.private_key))
     uri: git@github.com:cloudfoundry/networking-oss-deployments.git
 
-- name: bosh-bootloader
-  type: git
-  source:
-    branch: master
-    uri: https://github.com/cloudfoundry/bosh-bootloader
-
 - name: cf-acceptance-tests
   type: git
   source:
@@ -95,23 +84,13 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
-    tag_filter: v8.*
+    tag_filter: v10.*
 
-- name: morning-trigger
+- name: weekly
   type: time
+  icon: clock
   source:
-    location: America/Los_Angeles
-    start: 6:00 AM
-    stop: 6:01 AM
-    days: [Monday, Tuesday, Wednesday, Thursday, Friday]
-
-- name: evening-trigger
-  type: time
-  source:
-    location: America/Los_Angeles
-    start: 7:00 PM
-    stop: 7:01 PM
-    days: [Monday, Tuesday, Wednesday, Thursday, Friday]
+    interval: '168h'  # 1 week
 
 jobs:
 - name: upgrade-go1.x
@@ -141,210 +120,80 @@ jobs:
     params:
       repository: modified-release
 
-- name: nats-setup
-  serial_groups: [nats]
-  build_logs_to_retain: 100
+- name: smoke-tests-and-CATs
   plan:
   - in_parallel:
-    - get: cf-deployment-concourse-tasks
-    - get: networking-oss-deployments
+    - do:
+      - get: routing-release-ci
+        params: {submodules: none}
+      - task: claim-cf-deployment-environment
+        file: routing-release-ci/ci/tasks/claim-cf-deployment-environment/task.yml
+        tags:
+        - vsphere-cf-networking
+        params:
+          ENVIRONMENT_TYPE: cf-deployment
+          ENVIRONMENT_NOTES: nats-cf-deployment-cats
+          TOOLSMITHS_API_TOKEN: ((toolsmiths_api_key))
+    - get: cf-acceptance-tests
     - get: nats-release-ci
-    - get: bosh-bootloader
-    - get: morning-trigger
-      trigger: true
-  - task: add-parent-dns
-    file: nats-release-ci/ci/tasks/add-parent-dns/task.yml
-    params:
-      ENVIRONMENT: environments/nats-env
-    input_mapping:
-      bbl-state: networking-oss-deployments
-  - task: make-certs
-    file: nats-release-ci/ci/tasks/make-certs/task.yml
-    params:
-      ENVIRONMENT: nats-env
-      ENV_PATH: environments/nats-env
-    input_mapping:
-      bbl-state: updated-bbl-state
-  - task: setup-nats
-    file: cf-deployment-concourse-tasks/bbl-up/task.yml
-    params:
-      BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: ((shared_gcp_account_creds))
-      BBL_GCP_REGION: us-west1
-      BBL_LB_CERT: ../lb_certs/cert.pem
-      BBL_LB_KEY: ../lb_certs/key.pem
-      LB_DOMAIN: nats-env.routing.cf-app.com
-      BBL_ENV_NAME: nats-env
-      BBL_STATE_DIR: environments/nats-env/bbl-state
-      GIT_COMMIT_EMAIL: cf-routing-eng@pivotal.io
-    input_mapping:
-      bbl-config: updated-bbl-state
-      bbl-state: updated-bbl-state
-    ensure:
-      put: networking-oss-deployments
-      params:
-        repository: updated-bbl-state
-        rebase: true
-
-- name: nats-destroy
-  serial_groups: [nats]
-  build_logs_to_retain: 100
-  plan:
-  - in_parallel:
     - get: networking-oss-deployments
-    - get: cf-deployment-concourse-tasks
-    - get: evening-trigger
-      passed:
-      - delete-cf-deployment
-      - delete-nats-standalone
-      trigger: true
-  - task: destroy-nats-env
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      BBL_STATE_DIR: environments/nats-env/bbl-state
-      BBL_GCP_SERVICE_ACCOUNT_KEY: ((shared_gcp_account_creds))
-      GIT_COMMIT_EMAIL: cf-routing-eng@pivotal.io
-    input_mapping:
-      bbl-state: networking-oss-deployments
-    ensure:
-      put: networking-oss-deployments
-      params:
-        repository: updated-bbl-state
-        rebase: true
-
-- name: deploy-nats-standalone
-  serial_groups: [nats]
-  public: true
-  build_logs_to_retain: 100
-  plan:
-  - in_parallel:
-    - get: stemcell
-      trigger: true
-    - get: nats-release
-      trigger: true
-    - get: networking-oss-deployments
-    - get: nats-release-ci
-    - get: cf-deployment-concourse-tasks
     - get: cf-deployment
-    - get: morning-trigger
-      trigger: true
-      passed: [nats-setup]
-  - task: deploy-nats
-    file: nats-release-ci/ci/tasks/bosh-deploy-nats/task.yml
-    input_mapping:
-      bbl-state: networking-oss-deployments
-    params:
-      BBL_STATE_DIR: environments/nats-env/bbl-state
-
-- name: smoke-tests
-  public: true
-  serial_groups: [nats]
-  build_logs_to_retain: 100
-  plan:
-  - in_parallel:
-    - get: nats-release
-      passed: [deploy-nats-standalone]
-      trigger: true
-    - get: nats-release-ci
-    - get: networking-oss-deployments
-      passed: [deploy-nats-standalone]
     - get: cf-deployment-concourse-tasks
-  - task: run-errand-smoke-tests
-    file: nats-release-ci/ci/tasks/run-errand-nats-release/task.yml
-    input_mapping:
-      bbl-state: networking-oss-deployments
-    params:
-      DEPLOYMENT_NAME: nats
-      ERRAND_NAME: smoke-tests
-      BBL_STATE_DIR: environments/nats-env/bbl-state
-
-- name: delete-nats-standalone
-  public: true
-  serial_groups: [nats]
-  build_logs_to_retain: 100
-  plan:
-  - in_parallel:
-    - get: cf-deployment-concourse-tasks
-    - get: networking-oss-deployments
     - get: nats-release
       trigger: true
-      passed: [smoke-tests]
-    - get: evening-trigger
-      trigger: true
-  - task: delete-nats-standalone
-    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-    input_mapping:
-      bbl-state: networking-oss-deployments
-    params:
-      DEPLOYMENT_NAME: nats
-      BBL_STATE_DIR: environments/nats-env/bbl-state
-
-- name: deploy-cf-with-created-nats
-  serial_groups: [nats]
-  public: true
-  build_logs_to_retain: 100
-  plan:
-  - in_parallel:
-    - get: cf-deployment-concourse-tasks
-    - get: cf-deployment
-    - get: networking-oss-deployments
     - get: we-dont-use-vars-files
-    - get: nats-release
+    - get: weekly
       trigger: true
-      passed: [smoke-tests]
-    - get: morning-trigger
-      trigger: true
-      passed: [nats-setup]
-  - task: upload-stemcell
-    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+  - task: write-lb-cert-to-credhub
+    file: routing-release-ci/ci/tasks/write-lb-cert-to-credhub/task.yml
     input_mapping:
-      bbl-state: networking-oss-deployments
+      toolsmiths-metadata-dir: cf-environment
+  - task: merge-ops-files
+    file: routing-release-ci/ci/tasks/merge-ops-files/task.yml
+    input_mapping:
+      source1: nats-release
     params:
-      BBL_STATE_DIR: environments/nats-env/bbl-state
-  - task: deploy-cf-with-created-nats
+      SOURCE1_DIR: example-manifests/ops-files
+  - task: fetch-our-envs-manifest
+    file: routing-release-ci/ci/tasks/fetch-toolsmiths-manifest/task.yml
+    input_mapping:
+      toolsmiths-metadata-dir: cf-environment
+  - task: redeploy-nats-release
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
-      bbl-state: networking-oss-deployments
+      toolsmiths-env: cf-environment
       release: nats-release
-      ops-files: nats-release
+      ops-files: merged-operations
       vars-files: we-dont-use-vars-files
+      cf-deployment: our-envs-manifest
     params:
-      BBL_STATE_DIR: environments/nats-env/bbl-state
-      SYSTEM_DOMAIN: nats-env.routing.cf-app.com
+      MANIFEST_FILE: manifest.yml
       OPS_FILES: |
-        example-manifests/ops-files/enable_nats_tls_for_cf.yml
-  - task: run-bosh-cleanup
-    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-    input_mapping:
-      bbl-state: networking-oss-deployments
+        enable_nats_tls_for_cf.yml
+        add-lb-ca-cert.yml
+        use-compiled-releases.yml
+        scale-for-cats.yml
+        smoke-tests.yml
+  - task: run-smoke-tests
+    file: nats-release-ci/ci/tasks/run-errand-nats-release/task.yml
     params:
-      BBL_STATE_DIR: environments/nats-env/bbl-state
-
-- name: cf-acceptance-tests
-  serial_groups: [nats]
-  public: true
-  build_logs_to_retain: 100
-  plan:
-  - in_parallel:
-    - get: nats-release-ci
-    - get: cf-acceptance-tests
-    - get: networking-oss-deployments
-    - get: cf-deployment-concourse-tasks
-    - get: nats-release
-      passed: [deploy-cf-with-created-nats]
-      trigger: true
+      DEPLOYMENT_NAME: cf
+      ERRAND_NAME: smoke-tests
+    input_mapping:
+      toolsmiths-metadata-dir: cf-environment
   - task: create-integration-config
     file: nats-release-ci/ci/tasks/create-integration-configs/task.yml
+    input_mapping:
+      toolsmiths-metadata-dir: cf-environment
     params:
-      ENVIRONMENT: nats-env
       ENABLE_ISOLATION_SEGMENT_TESTS: false
   - task: update-integration-configs
     file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
     input_mapping:
-      bbl-state: networking-oss-deployments
+      toolsmiths-env: cf-environment
       integration-configs: created-integration-configs
     params:
-      BBL_STATE_DIR: environments/nats-env/bbl-state
+      CATS_INTEGRATION_CONFIG_FILE: cats_integration_config.json
       GIT_COMMIT_EMAIL: cf-routing-eng@pivotal.io
   - task: run-cats
     input_mapping:
@@ -352,28 +201,27 @@ jobs:
     file: cf-deployment-concourse-tasks/run-cats/task.yml
     params:
       CONFIG_FILE_PATH: cats_integration_config.json
+  - task: release-pooled-environment
+    file: routing-release-ci/ci/tasks/unclaim-cf-deployment-environment/task.yml
+    tags:
+    - vsphere-cf-networking
+    params:
+      TOOLSMITHS_API_TOKEN: ((toolsmiths_api_key))
 
-- name: delete-cf-deployment
-  public: true
-  serial_groups: [nats]
-  build_logs_to_retain: 100
+- name: ship-what
+  serial: true
   plan:
   - in_parallel:
-    - get: nats-release-ci
-    - get: cf-deployment-concourse-tasks
-    - get: networking-oss-deployments
     - get: nats-release
+      params:
+        submodules: all
       trigger: true
-      passed: [cf-acceptance-tests]
-    - get: evening-trigger
-      trigger: true
-  - task: delete-cf-deployment
-    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+      passed: [smoke-tests-and-CATs]
+    - get: nats-release-ci
+  - task: build-release-notes
+    file: nats-release-ci/ci/tasks/build-release-notes/task.yml
     input_mapping:
-      bbl-state: networking-oss-deployments
-    params:
-      DEPLOYMENT_NAME: cf
-      BBL_STATE_DIR: environments/nats-env/bbl-state
+      master-release: nats-release
 
 - name: create-final-release
   public: true
@@ -382,7 +230,7 @@ jobs:
   - in_parallel:
     - get: nats-release-ci
     - get: nats-release
-      passed: [cf-acceptance-tests]
+      passed: [ship-what]
     - get: nats-release-master
   - task: create-final-release
     file: nats-release-ci/ci/tasks/create-final-nats-release/task.yml
