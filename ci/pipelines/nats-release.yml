@@ -49,7 +49,7 @@ resources:
 - name: nats-release-master
   type: git
   source:
-    branch: master
+    branch: release
     private_key: ((read_write_deploy_key.private_key))
     uri: git@github.com:cloudfoundry/nats-release.git
 
@@ -238,6 +238,7 @@ jobs:
       release-repo-master: nats-release-master
       release-repo: nats-release
     params:
+      MASTER_BRANCH: release
       RELEASE_NAME: nats
       GCP_NATS_BLOBSTORE_SERVICE_ACCOUNT_KEY: ((gcp_nats_blobstore_service_account_key))
   - put: nats-release-master
@@ -250,6 +251,8 @@ jobs:
     input_mapping:
       release-repo-master: nats-release-master
       release-repo: nats-release
+    params:
+      MASTER_BRANCH: release
   - put: nats-release
     params:
       repository: final-release-repo
