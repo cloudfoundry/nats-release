@@ -62,14 +62,14 @@ resources:
 - name: networking-oss-deployments
   type: git
   source:
-    branch: master
+    branch: main
     private_key: ((github_private_key.private_key))
     uri: git@github.com:cloudfoundry/networking-oss-deployments.git
 
 - name: we-dont-use-vars-files
   type: git
   source:
-    branch: master
+    branch: main
     private_key: ((github_private_key.private_key))
     uri: git@github.com:cloudfoundry/networking-oss-deployments.git
 
@@ -154,10 +154,6 @@ jobs:
       source1: nats-release
     params:
       SOURCE1_DIR: example-manifests/ops-files
-  - task: fetch-our-envs-manifest
-    file: routing-release-ci/ci/tasks/fetch-toolsmiths-manifest/task.yml
-    input_mapping:
-      toolsmiths-metadata-dir: cf-environment
   - task: redeploy-nats-release
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
@@ -165,9 +161,7 @@ jobs:
       release: nats-release
       ops-files: merged-operations
       vars-files: we-dont-use-vars-files
-      cf-deployment: our-envs-manifest
     params:
-      MANIFEST_FILE: manifest.yml
       OPS_FILES: |
         enable_nats_tls_for_cf.yml
         add-lb-ca-cert.yml
