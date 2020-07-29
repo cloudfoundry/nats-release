@@ -151,7 +151,7 @@ jobs:
   - task: merge-ops-files
     file: routing-release-ci/ci/tasks/merge-ops-files/task.yml
     input_mapping:
-      source1: nats-release
+      source1: nats-release-ci
     params:
       SOURCE1_DIR: example-manifests/ops-files
   - task: redeploy-nats-release
@@ -163,7 +163,6 @@ jobs:
       vars-files: we-dont-use-vars-files
     params:
       OPS_FILES: |
-        enable_nats_tls_for_cf.yml
         add-lb-ca-cert.yml
         use-compiled-releases.yml
         scale-for-cats.yml
