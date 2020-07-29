@@ -168,6 +168,7 @@ jobs:
         use-compiled-releases.yml
         scale-for-cats.yml
         smoke-tests.yml
+        disable-iso-seg-smoke-tests.yml
   - task: run-smoke-tests
     file: nats-release-ci/ci/tasks/run-errand-nats-release/task.yml
     params:
