@@ -215,6 +215,8 @@ jobs:
     file: nats-release-ci/ci/tasks/build-release-notes/task.yml
     input_mapping:
       master-release: nats-release
+    params:
+      TRACKER_API_TOKEN: ((tracker_api_token))
 
 - name: create-final-release
   public: true
