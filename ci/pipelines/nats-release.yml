@@ -217,6 +217,10 @@ jobs:
       master-release: nats-release
     params:
       TRACKER_API_TOKEN: ((tracker_api_token))
+  - task: print-bosh-job-spec-diff
+    file: nats-release-ci/ci/tasks/print-bosh-job-spec-diff/task.yml
+    input_mapping:
+      master-release: nats-release
 
 - name: create-final-release
   public: true
