@@ -99,6 +99,8 @@ jobs:
     - get: golang-release-latest
       trigger: true
     - get: nats-release-ci
+      params:
+        submodules: none
   - task: upgrade
     file: nats-release-ci/ci/tasks/upgrade-package-in-release/task.yml
     params:
@@ -124,7 +126,8 @@ jobs:
   - in_parallel:
     - do:
       - get: routing-release-ci
-        params: {submodules: none}
+        params:
+          submodules: none
       - task: claim-cf-deployment-environment
         file: routing-release-ci/ci/tasks/claim-cf-deployment-environment/task.yml
         tags:
@@ -211,6 +214,8 @@ jobs:
       trigger: true
       passed: [smoke-tests-and-CATs]
     - get: nats-release-ci
+      params:
+        submodules: none
   - task: build-release-notes
     file: nats-release-ci/ci/tasks/build-release-notes/task.yml
     input_mapping:
@@ -228,6 +233,8 @@ jobs:
   plan:
   - in_parallel:
     - get: nats-release-ci
+      params:
+        submodules: none
     - get: nats-release
       passed: [ship-what]
     - get: nats-release-master
