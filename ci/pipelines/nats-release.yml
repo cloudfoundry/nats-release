@@ -120,6 +120,7 @@ jobs:
   - put: nats-release
     params:
       repository: modified-release
+      rebase: true
 
 - name: smoke-tests-and-CATs
   plan:
