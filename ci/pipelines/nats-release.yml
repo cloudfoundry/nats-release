@@ -63,14 +63,14 @@ resources:
   type: git
   source:
     branch: main
-    private_key: ((github_private_key.private_key))
+    private_key: ((networking_oss_deployments_github_key_pair.private_key))
     uri: git@github.com:cloudfoundry/networking-oss-deployments.git
 
 - name: we-dont-use-vars-files
   type: git
   source:
     branch: main
-    private_key: ((github_private_key.private_key))
+    private_key: ((networking_oss_deployments_github_key_pair.private_key))
     uri: git@github.com:cloudfoundry/networking-oss-deployments.git
 
 - name: cf-acceptance-tests
