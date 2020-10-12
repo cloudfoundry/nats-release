@@ -1,0 +1,21 @@
+- type: replace
+  path: /instance_groups/name=nats/jobs/name=nats-tls/properties/nats/external/tls/certificate
+  value: ((nats_server_cert2.certificate))
+
+- type: replace
+  path: /instance_groups/name=nats/jobs/name=nats-tls/properties/nats/external/tls/private_key
+  value: ((nats_server_cert2.private_key))
+
+- type: replace
+  path: /variables/name=nats_server_cert
+  value:
+    name: nats_server_cert2
+    options:
+      ca: nats_ca
+      common_name: nats.service.cf.internal
+      extended_key_usage:
+      - server_auth
+      alternative_names:
+      - '*.nats.service.cf.internal'
+      - nats.service.cf.internal
+    type: certificate
