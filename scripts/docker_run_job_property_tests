@@ -1,0 +1,9 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+docker run \
+  -it \
+  --mount type=bind,source="${DIR}/..",target=/nats-release \
+  ruby:2.7 \
+  "/nats-release/scripts/run_job_property_tests"
