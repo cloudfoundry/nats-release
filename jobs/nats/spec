@@ -65,8 +65,8 @@ properties:
     description: "Port for pprof. 0 means disabled."
     default: 0
   nats.no_advertise:
-    description: "When configured to true, this nats server will not be advertised to any nats clients. This is defaulted to true for backwards compatability."
-    default: true
+    description: "When configured to true, this nats server will not be advertised to any nats clients. This is defaulted to false for backwards compatability."
+    default: false
   nats.internal.tls.enabled:
     description: "Enable mutually authenticated TLS for NATS cluster-internal traffic."
     default: false
