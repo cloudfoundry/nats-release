@@ -72,7 +72,7 @@ tls {
 }
 
 cluster {
-  no_advertise: true
+  no_advertise: <%= p("nats.no_advertise") %>
   host: "<%= spec.address %>"
   port: <%= p("nats.cluster_port") %>
 

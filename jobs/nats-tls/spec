@@ -69,6 +69,9 @@ properties:
   nats.prof_port:
     description: "Port for pprof. 0 means disabled."
     default: 0
+  nats.no_advertise:
+    description: "When configured to true, this nats server will not be advertised to any nats clients."
+    default: true
 
   nats.external.tls.ca:
     description: "Certificate of the CA for publisher/subscriber traffic. In PEM format."

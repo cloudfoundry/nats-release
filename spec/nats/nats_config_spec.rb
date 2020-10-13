@@ -18,6 +18,7 @@ module Bosh::Template::Test
             'cluster_port' => 4223,
             'authorization_timeout' => 15,
             'machines' => nil,
+            'no_advertise' => true,
             'debug' => false,
             'trace' => false,
             'monitor_port' => 0,
@@ -88,6 +89,7 @@ authorization \{
 \}
 
 cluster \{
+  no_advertise: true
   host: "10.0.0.1"
   port: 4223
 
@@ -149,6 +151,7 @@ authorization \{
 \}
 
 cluster \{
+  no_advertise: true
   host: "10.0.0.1"
   port: 4223
 
