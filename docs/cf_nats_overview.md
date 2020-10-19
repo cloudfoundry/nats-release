@@ -8,9 +8,9 @@
     - [Connection Establishment](#connection-establishment)
     - [Registeration / Unregisteration of the Application Routes in Cloud Foundry](#registeration--unregisteration-of-the-application-routes-in-cloud-foundry)
   - [NATS Server Configurations](#nats-server-configurations)
-  - [Time intervals and timeouts](#time-intervals-and-timeouts)
-    - [NATS timeouts](#nats-timeouts)
-    - [Gorouter time intervals](#gorouter-time-intervals)
+  - [Time Intervals and Timeouts](#time-intervals-and-timeouts)
+    - [NATS Timeouts](#nats-timeouts)
+    - [Gorouter Time Intervals](#gorouter-time-intervals)
     - [Route Registrar](#route-registrar)
   - [Debugging NATS in Cloud Foundry](#debugging-nats-in-cloud-foundry)
 
@@ -68,12 +68,12 @@ The release also allow configuring a monitoring port at which the [monitoring en
 
 The full list of configurable features can be found in the [spec file](https://github.com/cloudfoundry/nats-release/blob/release/jobs/nats-tls/spec).
 
- ## Time intervals and timeouts
- ### NATS timeouts
+ ## Time Intervals and Timeouts
+ ### NATS Timeouts
  | Interval | Default value |Description |
  |---|---|---|
- |  [timeout](https://github.com/cloudfoundry/nats-release/blob/release/jobs/nats-tls/templates/nats-tls.conf.erb#L70) | 5s | TLS handshake timeout for internal and external communication.|
- |  [nats.authorization_timeout](https://docs.nats.io/nats-server/configuration/securing_nats/tls) | 15s | Timeout for authorization within NATS cluster. |
+ |  (tls) [timeout](https://github.com/cloudfoundry/nats-release/blob/a626be571d06b81004b247d58f5abf74a143346e/jobs/nats-tls/templates/nats-tls.conf.erb#L70) | 5s | TLS handshake timeout for internal and external communication.|
+ |  [nats.authorization_timeout](https://github.com/cloudfoundry/nats-release/blob/a626be571d06b81004b247d58f5abf74a143346e/jobs/nats-tls/spec#L55) | 15s | Timeout for authorization within NATS cluster. |
  |  [write_deadline](https://docs.nats.io/nats-server/configuration#connection-timeouts) | 2s | Maximum number of seconds the server will block when writing. Once this threshold is exceeded the connection will be closed.|
 
 The values for timeouts can be seen in the cluster config:
@@ -91,13 +91,13 @@ cluster {
   }
   ```
 
-  ### Gorouter time intervals
+  ### Gorouter Time Intervals
  | Interval | Default value | Description |
  |---|---|---|
- | [NatsClientPingInterval](https://github.com/cloudfoundry/gorouter/blob/main/config/config.go#L304) | 20s | Interval configured by NATS client to ping configured NATS servers. If NATS Server is unreachable, the Gorouter fails over to next NATS server. Configured in code and cannot be reconfigured by operators.|
- | [prune_stale_droplets_interval](https://github.com/cloudfoundry/routing-release/blob/develop/jobs/gorouter/templates/gorouter.yml.erb#L83) | 30s | interval defined to prune stale routes (i.e. pruning cycle). Cannot be configured by operators.|
- | [droplet_stale_threshold](https://github.com/cloudfoundry/routing-release/blob/develop/jobs/gorouter/templates/gorouter.yml.erb#L84) | 120s | Time after which gorouter considers the route information as stale and the route will be pruned from the routing table. Cannot be configured by operators.|
- | [requested_route_registration_interval_in_seconds](https://github.com/cloudfoundry/routing-release/blob/develop/jobs/gorouter/spec#L49) | 20s | Interval that other components should then send "router.register" on.|
+ | [NatsClientPingInterval](https://github.com/cloudfoundry/gorouter/blob/1e285091233eec98592cb11bad7d23c8dcbc90c4/config/config.go#L310) | 20s | Interval configured by NATS client to ping configured NATS servers. If NATS Server is unreachable, the Gorouter fails over to next NATS server. Configured in code and cannot be reconfigured by operators.|
+ | [prune_stale_droplets_interval](https://github.com/cloudfoundry/routing-release/blob/b9609d958aeca0fef6584239350b6e3493036258/jobs/gorouter/templates/gorouter.yml.erb#L83) | 30s | interval defined to prune stale routes (i.e. pruning cycle). Cannot be configured by operators.|
+ | [droplet_stale_threshold](https://github.com/cloudfoundry/routing-release/blob/b9609d958aeca0fef6584239350b6e3493036258/jobs/gorouter/templates/gorouter.yml.erb#L84) | 120s | Time after which gorouter considers the route information as stale and the route will be pruned from the routing table. Cannot be configured by operators.|
+ | [requested_route_registration_interval_in_seconds](https://github.com/cloudfoundry/routing-release/blob/b9609d958aeca0fef6584239350b6e3493036258/jobs/gorouter/spec#L49) | 20s | Interval that other components should then send "router.register" on.|
 
  ### Route Registrar
 | Interval | Default value | Description |
