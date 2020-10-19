@@ -20,8 +20,9 @@
   nats_peers = nil
 
   if_p("nats.machines") do |ips|
-    nats_peers = ips.map do |ip|
-      NatsPeer.new(nil, ip, p("nats.cluster_port"), p("nats.user"), p("nats.password"))
+    NatsPeer.new(nil, ip, p("nats.cluster_port"), p("nats.user"), p("nats.password"))
+    if_p("nats.nontls_cluster_port") do |nontls_cluster_port|
+      NatsPeer.new(nil, ip, nontls_cluster_port, p("nats.user"), p("nats.password"))
     end
   end
 
