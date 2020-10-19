@@ -48,7 +48,7 @@ properties:
     description: "The port for the NATS servers to communicate with other servers in the cluster."
     default: 4223
   nats.tls_cluster_port:
-    description: "The port for the NATS servers to communicate with other servers in the cluster (no default but usually 4225)."
+    description: "The port for the NATS servers to communicate with other servers in the cluster. No default but usually 4225."
   nats.authorization_timeout:
     description: "After accepting a connection, wait up to this many seconds for credentials."
     default: 15
