@@ -21,7 +21,7 @@ module Bosh::Template::Test
             'no_advertise' => true,
             'debug' => false,
             'trace' => false,
-            'monitor_port' => 0,
+            'http' => '0.0.0.0:0',
             'prof_port' => 0,
             'internal' => {
               'tls' => {
@@ -50,7 +50,7 @@ module Bosh::Template::Test
                 'hostname' => 'my-host',
                 'port' => 4222,
                 'cluster_port' => 4223,
-                'monitor_port' => 0
+                'http' => '0.0.0.0:0'
               }
             }
           )
@@ -76,7 +76,7 @@ expected_template =  %{
 net: "10.0.0.1"
 port: 4222
 prof_port: 0
-monitor_port: 0
+http: "0.0.0.0:0"
 
 debug: false
 trace: false
@@ -138,7 +138,7 @@ expected_template =  %{
 net: "10.0.0.1"
 port: 4222
 prof_port: 0
-monitor_port: 0
+http: "0.0.0.0:0"
 
 debug: false
 trace: false
