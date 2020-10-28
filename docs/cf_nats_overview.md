@@ -20,18 +20,23 @@
 
 ## Overview
 
-Cloud Foundry uses NATS as a publish-suscribe messaging system for route configuration. The nats-release deploys NATS as a bosh release to be used to exchange route registration/unregistration between route publishers (Route Emitters, Route Registrars) and route subscribers (Gorouters).
+Cloud Foundry uses NATS as a publish-subscribe messaging system for exchanging routes and metrics configurations between components. The nats-release deploys NATS server as a bosh release to/from which the messages are consumed.
+
 ## Architecture
 ![](images/cf-routing.png)
 
 | Component | Description   |
 |---|---|
-| Route Emitter | A job that runs on the Diego Cell. It publishes the route information of an app to NATS. It sends a message with subject "router.register" or "router.unregister" and information about the app. The format of the "router.register" message can be found [here](https://github.com/cloudfoundry/gorouter#registering-routes-via-nats).|
-| Route Registrar | Publishes route information for the system components.  |
-| NATS Server | Receives the published routes from publishers and conveys then to subscribers.|
-| NATS Cluster  | See more [here](https://docs.nats.io/nats-server/configuration/clustering). The participating NATS Server listens on a cluster port and knows the other NATS Servers which join the cluster.|
-| Gorouter | Subscribes for the messages with subject "router.*". |
+| [Route Emitter](https://github.com/cloudfoundry/route-emitter) | A job that runs on the Diego Cell. It publishes(internal and external) app routes.|
+| [Route Registrar](https://github.com/cloudfoundry/route-registrar) | Publishes route information for the system components.  |
+| [NATS Server](https://github.com/nats-io/nats-server) | Receives the published routes from publishers and conveys then to subscribers.|
+| [NATS Cluster](https://docs.nats.io/nats-server/configuration/clustering)  | The participating NATS Server listens on a cluster port and knows the other NATS Servers which join the cluster.|
+| [Gorouter](https://github.com/cloudfoundry/gorouter) | Subscribes for the messages with subject "router.*". |
+| [Service Discovery Controller](https://github.com/cloudfoundry/cf-networking-release/blob/develop/docs/service-discovery-architecture.md) | Subscribes to route updates from NATS on the internal routes subjects, "service-discovery.register", "service-discovery.unregister" and "service-discovery.greet" |
+| [Metrics Discovery Registrar](https://github.com/cloudfoundry/metrics-discovery-release#metrics-discovery-registrar)  | Publishes scrape configs to CF NATS to be consumed by a Scrape Config Generator.|
+| [Scrape Config Generator](https://github.com/cloudfoundry/metrics-discovery-release#scrape-config-generator)| Subscribes to CF NATS and consumes published metric targets.|
 
+Note: The document will further focus on the external routing in Cloud Foundry.
 
 ## Communication Flow
 
@@ -53,7 +58,7 @@ If a Route Emitter comes online after the Gorouter, it must make a NATS request 
 
 Each NATS Server instance forwards messages that it has received from Route Emitters to the other NATS Server instances in the cluster. Messages received from a Route connection will only be distributed to local clients, e.g. Gorouter.
 
-Upon receival of the registration/deregistration of app routes, Gorouter updates its routing table. If Gorouter doesn't receive a "router.register" message for an app within [`droplet_stale_threshold`](#gorouter-time-intervals), it prunes the route within the next pruning cycle (Note: pruning is performed to prevent misrouting, thus it is disabled when TLS/mTLS to Apps is enabled, as described [here](https://docs.cloudfoundry.org/concepts/http-routing.html#consistency)) 
+Upon receival of the registration/deregistration of app routes, Gorouter updates its routing table. If Gorouter doesn't receive a "router.register" message for an app within [`droplet_stale_threshold`](#gorouter-time-intervals), it prunes the route within the next pruning cycle (Note: pruning is performed to prevent misrouting, thus it is disabled when TLS/mTLS to Apps is enabled, as described [here](https://docs.cloudfoundry.org/concepts/http-routing.html#consistency))
 
 The picture illustrates the communication flow described above.
 
@@ -61,7 +66,7 @@ The picture illustrates the communication flow described above.
 
 ## NATS Server Configurations
 
-The nats-release currently offers two NATS jobs that can be colocated: a plain-text one (nats), which will be removed when all Cloud Foundry NATS clients are upgraded to use TLS, and a TLS one (nats-tls). The release garantees that the non-tls clients (e.g. Gorouter) don't attempt to connect to the tls servers by setting the default value for `no_advertise` flag in nats-tls job to [`true`](https://github.com/cloudfoundry/nats-release/blob/a626be571d06b81004b247d58f5abf74a143346e/jobs/nats-tls/spec#L74). In this case the NATS Server configured by nats-tls job will not advertise its client IP to the other cluster participants. Only clients (e.g. Route Emitter) which know the tls server from their configuration will attempt to connect to it.
+The nats-release currently offers two NATS jobs that can be colocated: a plain-text one (nats), which will be removed when all Cloud Foundry NATS clients are upgraded to use TLS, and a TLS one (nats-tls). The release guarantees that the non-tls clients (e.g. Gorouter) don't attempt to connect to the tls servers by setting the default value for `no_advertise` flag in nats-tls job to [`true`](https://github.com/cloudfoundry/nats-release/blob/a626be571d06b81004b247d58f5abf74a143346e/jobs/nats-tls/spec#L74). In this case the NATS Server configured by nats-tls job will not advertise its client IP to the other cluster participants. Only clients (e.g. Route Emitter) which know the tls server from their configuration will attempt to connect to it.
 
 Aside from choosing to run nats or nats-tls jobs which will accordingly enable or disable TLS for the server external traffic (communication with clients), the release also allows you to enable authenticated TLS for NATS cluster-internal traffic by setting the property [`nats.internal.tls.enabled`](https://github.com/cloudfoundry/nats-release/blob/a626be571d06b81004b247d58f5abf74a143346e/jobs/nats-tls/spec#L83) to `true`.
 
