@@ -25,6 +25,7 @@ provides:
   - nats.port
   - nats.monitor_port
   - nats.cluster_port
+  - nats.write_deadline
 
 consumes:
 - name: nats
@@ -69,6 +70,9 @@ properties:
   nats.no_advertise:
     description: "When configured to true, this nats server will not be advertised to any nats clients. This is defaulted to false for backwards compatability."
     default: false
+  nats.write_deadline:
+    description: "Maximum number of seconds the server will block when writing. Once this threshold is exceeded the connection will be closed and the client will be considered as Slow Consumer."
+    default: 2s
   nats.internal.tls.enabled:
     description: "Enable mutually authenticated TLS for NATS cluster-internal traffic."
     default: false
@@ -78,3 +82,4 @@ properties:
     description: "Certificate for cluster-internal traffic. In PEM format."
   nats.internal.tls.private_key:
     description: "Private key for cluster-internal traffic. In PEM format."
+

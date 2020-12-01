@@ -48,6 +48,7 @@ net: "<%= spec.address %>"
 port: <%= p("nats.port") %>
 prof_port: <%= p("nats.prof_port") %>
 http: "0.0.0.0:<%= p("nats.monitor_port") %>"
+write_deadline: "<%= p("nats.write_deadline") %>"
 
 debug: <%= p("nats.debug") %>
 trace: <%= p("nats.trace") %>
