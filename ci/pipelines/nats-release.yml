@@ -2,7 +2,7 @@
 groups:
 - name: nats-release
   jobs:
-  - smoke-tests-and-CATs
+  - smoke-tests-and-cats
   - ship-what
   - create-final-release
 - name: bump-go
@@ -56,7 +56,7 @@ resources:
 - name: cf-deployment
   type: git
   source:
-    branch: master
+    branch: main
     uri: https://github.com/cloudfoundry/cf-deployment.git
 
 - name: networking-oss-deployments
@@ -82,7 +82,7 @@ resources:
 - name: cf-deployment-concourse-tasks
   type: git
   source:
-    branch: master
+    branch: main
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
 
 - name: weekly
@@ -122,7 +122,7 @@ jobs:
       repository: modified-release
       rebase: true
 
-- name: smoke-tests-and-CATs
+- name: smoke-tests-and-cats
   plan:
   - in_parallel:
     - do:
@@ -132,7 +132,7 @@ jobs:
       - task: claim-cf-deployment-environment
         file: routing-release-ci/ci/tasks/claim-cf-deployment-environment/task.yml
         tags:
-        - vsphere-cf-networking
+        - jrussett-networking-oss-external-worker
         params:
           ENVIRONMENT_TYPE: cf-deployment
           ENVIRONMENT_NOTES: nats-cf-deployment-cats
@@ -202,7 +202,7 @@ jobs:
   - task: release-pooled-environment
     file: routing-release-ci/ci/tasks/unclaim-cf-deployment-environment/task.yml
     tags:
-    - vsphere-cf-networking
+    - jrussett-networking-oss-external-worker
     params:
       TOOLSMITHS_API_TOKEN: ((toolsmiths_api_key))
 
@@ -214,7 +214,7 @@ jobs:
       params:
         submodules: all
       trigger: true
-      passed: [smoke-tests-and-CATs]
+      passed: [smoke-tests-and-cats]
     - get: nats-release-ci
       params:
         submodules: none
