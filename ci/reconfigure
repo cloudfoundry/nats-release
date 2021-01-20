@@ -5,7 +5,7 @@ set -euo pipefail
 PIPELINE_DIR="$(dirname $0)/pipelines"
 
 fly \
-  --target ga \
+  --target net-lts \
   set-pipeline \
   --pipeline "nats-release" \
   --config "${PIPELINE_DIR}/nats-release.yml"

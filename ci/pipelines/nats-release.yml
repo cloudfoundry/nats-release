@@ -26,7 +26,7 @@ resources:
       - releases/**
       - ci
     branch: develop
-    private_key: ((read_write_deploy_key.private_key))
+    private_key: ((routing-ci-bot-ssh-key.private_key))
     uri: git@github.com:cloudfoundry/nats-release.git
 
 - name: nats-release-ci
@@ -35,7 +35,7 @@ resources:
     paths:
       - ci
     branch: develop
-    private_key: ((read_write_deploy_key.private_key))
+    private_key: ((routing-ci-bot-ssh-key.private_key))
     uri: git@github.com:cloudfoundry/nats-release.git
 
 - name: routing-release-ci
@@ -50,7 +50,7 @@ resources:
   type: git
   source:
     branch: release
-    private_key: ((read_write_deploy_key.private_key))
+    private_key: ((routing-ci-bot-ssh-key.private_key))
     uri: git@github.com:cloudfoundry/nats-release.git
 
 - name: cf-deployment
@@ -63,14 +63,14 @@ resources:
   type: git
   source:
     branch: main
-    private_key: ((networking_oss_deployments_github_key_pair.private_key))
+    private_key: ((routing-ci-bot-ssh-key.private_key))
     uri: git@github.com:cloudfoundry/networking-oss-deployments.git
 
 - name: we-dont-use-vars-files
   type: git
   source:
     branch: main
-    private_key: ((networking_oss_deployments_github_key_pair.private_key))
+    private_key: ((routing-ci-bot-ssh-key.private_key))
     uri: git@github.com:cloudfoundry/networking-oss-deployments.git
 
 - name: cf-acceptance-tests
@@ -132,11 +132,11 @@ jobs:
       - task: claim-cf-deployment-environment
         file: routing-release-ci/ci/tasks/claim-cf-deployment-environment/task.yml
         tags:
-        - jrussett-networking-oss-external-worker
+        - jrussett-networking-lts-external-worker
         params:
           ENVIRONMENT_TYPE: cf-deployment
           ENVIRONMENT_NOTES: nats-cf-deployment-cats
-          TOOLSMITHS_API_TOKEN: ((toolsmiths_api_key))
+          TOOLSMITHS_API_TOKEN: ((toolsmiths_api_token))
     - get: cf-acceptance-tests
     - get: nats-release-ci
     - get: networking-oss-deployments
@@ -202,9 +202,9 @@ jobs:
   - task: release-pooled-environment
     file: routing-release-ci/ci/tasks/unclaim-cf-deployment-environment/task.yml
     tags:
-    - jrussett-networking-oss-external-worker
+    - jrussett-networking-lts-external-worker
     params:
-      TOOLSMITHS_API_TOKEN: ((toolsmiths_api_key))
+      TOOLSMITHS_API_TOKEN: ((toolsmiths_api_token))
 
 - name: ship-what
   serial: true
