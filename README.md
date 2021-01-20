@@ -44,6 +44,16 @@ Also, there is an ops file called `enable_nats_tl_for_cf.yml` which can be used
 to add `nats` and `nats-tls` jobs with the `smoke-test` errand to the CF
 deployment.
 
+
+## Config Tests
+If you add a spec value, please add a corresponding test to
+[spec/nats/nats_config_spec.rb](spec/nats/nats_config_spec.rb) and
+[spec/nats-tls/nats_tls_config_spec.rb](spec/nats-tls/nats_tls_config_spec.rb)
+
+To run these tests:
+```
+./scripts/docker_run_job_property_tests
+```
 ## File a Bug
 
 Bugs can be filed using
