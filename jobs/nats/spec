@@ -74,6 +74,10 @@ properties:
   nats.write_deadline:
     description: "Maximum number of seconds the server will block when writing. Once this threshold is exceeded the connection will be closed and the client will be considered as Slow Consumer."
     default: 2s
+  nats.net:
+    description: "Client listening interface, defaults to spec.address"
+  nats.cluster_host:
+    description: "Clustering listening interface, defaults to spec.address"
   nats.internal.tls.enabled:
     description: "Enable mutually authenticated TLS for NATS cluster-internal traffic."
     default: false
