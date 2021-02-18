@@ -84,6 +84,7 @@ net: "10.0.0.1"
 port: 4222
 prof_port: 0
 http: "0.0.0.0:0"
+write_deadline: "2s"
 
 debug: false
 trace: false
@@ -152,6 +153,7 @@ cluster \{
           describe 'nats machine ips are provided' do
             before do
               merged_manifest_properties['nats']['machines'] = ['192.0.0.1', '198.5.4.3']
+              merged_manifest_properties['nats']['nontls_cluster_port'] = 1234
             end
 
             it 'renders the template with the provided manifest properties' do
@@ -161,6 +163,7 @@ net: "10.0.0.1"
 port: 4222
 prof_port: 0
 http: "0.0.0.0:0"
+write_deadline: "2s"
 
 debug: false
 trace: false
@@ -220,6 +223,10 @@ cluster \{
     nats-route://my-user:my-password@192.0.0.1:4223
     
     nats-route://my-user:my-password@198.5.4.3:4223
+    
+    nats-route://my-user:my-password@192.0.0.1:1234
+    
+    nats-route://my-user:my-password@198.5.4.3:1234
     
   \]
 \}
