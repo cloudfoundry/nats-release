@@ -158,8 +158,6 @@ jobs:
           submodules: none
       - task: claim-cf-deployment-environment
         file: routing-release-ci/ci/tasks/claim-cf-deployment-environment/task.yml
-        tags:
-        - jrussett-networking-oss-external-worker
         params:
           ENVIRONMENT_TYPE: cf-deployment
           ENVIRONMENT_NOTES: nats-cf-deployment-cats
@@ -230,8 +228,6 @@ jobs:
       CONFIG_FILE_PATH: cats_integration_config.json
   - task: release-pooled-environment
     file: routing-release-ci/ci/tasks/unclaim-cf-deployment-environment/task.yml
-    tags:
-    - jrussett-networking-oss-external-worker
     params:
       TOOLSMITHS_API_TOKEN: ((networking-toolsmiths-api-token))
 
