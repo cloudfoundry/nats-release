@@ -6,6 +6,8 @@ mkdir -p "${BOSH_INSTALL_TARGET}/bin"
 
 source /var/vcap/packages/golang-*-linux/bosh/compile.env
 
+export GO111MODULE=auto
+
 mkdir -p "${GOPATH}/src/github.com/nats-io"
 
 mv github.com/nats-io/gnatsd/ "${GOPATH}/src/github.com/nats-io/gnatsd"
