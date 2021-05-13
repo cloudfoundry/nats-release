@@ -3,24 +3,22 @@
   config_json = {}
 
   nats_hosts = nil
+  nats_user = nil
+  nats_password = nil
+  nats_port = nil
+
   if_p("nats.hostname") { |hostname| nats_hosts = hostname }
   unless nats_hosts
     if_p("nats.machines") { |ips| nats_hosts = ips }
   end
-  nats_user = nil
   if_p("nats.user") { |user| nats_user = user }
-  nats_password = nil
   if_p("nats.password") { |password| nats_password = password }
-  nats_port = nil
   if_p("nats.port") { |port| nats_port = port }
 
   if_link('nats') do |nats_link|
-    unless nats_hosts
-      nats_link.if_p("nats.hostname") do |hostname|
+    nats_link.if_p("nats.hostname") do |hostname|
         nats_hosts = [hostname]
-      end
     end
-
     unless nats_hosts
       nats_hosts = nats_link.instances.map(&:address)
     end
