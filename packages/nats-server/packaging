@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -eux
+
+mkdir -p "${BOSH_INSTALL_TARGET}/bin"
+source /var/vcap/packages/golang-*-linux/bosh/compile.env
+
+mkdir -p "${GOPATH}/src"
+mv github.com "${GOPATH}/src"
+
+pushd "${GOPATH}/src/github.com/nats-io/nats-server"
+  go build -o "${BOSH_INSTALL_TARGET}/bin/nats-server" .
+popd

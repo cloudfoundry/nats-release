@@ -17,7 +17,7 @@ templates:
   external_tls/private_key.pem.erb: config/external_tls/private_key.pem
 
 packages:
-  - gnatsd
+  - nats-server
 
 provides:
 - name: nats-tls
