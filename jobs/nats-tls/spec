@@ -20,7 +20,7 @@ templates:
   client_tls/private_key.pem.erb: config/client_tls/private_key.pem
 
 packages:
-  - gnatsd
+  - nats-server
   - nats-tls-healthcheck
 
 provides:
