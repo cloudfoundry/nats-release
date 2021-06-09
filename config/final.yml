@@ -1,5 +1,5 @@
 ---
-final_name: nats
+final_name: nats-second
 blobstore:
   provider: gcs
   options:

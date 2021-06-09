@@ -20,8 +20,8 @@ packages:
   - nats-server
 
 provides:
-- name: nats-tls
-  type: nats-tls
+- name: nats-tls-2
+  type: nats-tls-2
   properties:
   - nats.user
   - nats.password

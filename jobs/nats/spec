@@ -16,8 +16,8 @@ packages:
   - nats-server
 
 provides:
-- name: nats
-  type: nats
+- name: nats-2
+  type: nats-2
   properties:
   - nats.user
   - nats.password
