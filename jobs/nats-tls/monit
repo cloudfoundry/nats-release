@@ -5,4 +5,6 @@ check process nats-tls
   group vcap
   if totalmem > 500 Mb for 2 cycles then alert
   if totalmem > 3000 Mb then restart
-  if failed host <%= spec.address %> port <%= p("nats.port") %> type tcp then alert
+<% if p("nats.monitor_port") != 0 -%>
+  if failed host <%= spec.address %> port <%= p("nats.monitor_port") %> type tcp then alert
+<% end -%>
