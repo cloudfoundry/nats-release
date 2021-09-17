@@ -2,7 +2,7 @@
 name: nats-smoke
 
 dependencies:
-  - golang-1-linux
+  - golang-1.16-linux
 
 files:
   - nats-smoke/**/*
