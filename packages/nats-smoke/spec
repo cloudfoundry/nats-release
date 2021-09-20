@@ -5,4 +5,8 @@ dependencies:
   - golang-1.16-linux
 
 files:
-  - nats-smoke/**/*
+  - go.mod
+  - go.sum
+  - vendor/modules.txt
+  - vendor/**/*
+  - nats-smoke/*.go
