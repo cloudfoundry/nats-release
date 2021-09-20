@@ -5,5 +5,7 @@ dependencies:
   - golang-1.16-linux
 
 files:
-  - github.com/nats-io/gnatsd/**/*.go
-  - github.com/nats-io/gnatsd/LICENSE
+  - go.mod
+  - go.sum
+  - vendor/modules.txt
+  - vendor/**/*

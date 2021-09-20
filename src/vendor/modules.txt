@@ -1,0 +1,31 @@
+# code.cloudfoundry.org/tlsconfig v0.0.0-20200131000646-bbe0f8da39b3
+## explicit
+code.cloudfoundry.org/tlsconfig
+# github.com/golang/protobuf v1.5.2
+## explicit
+# github.com/nats-io/gnatsd v1.4.1 => github.com/nats-io/gnatsd v1.4.1
+## explicit
+github.com/nats-io/gnatsd
+github.com/nats-io/gnatsd/conf
+github.com/nats-io/gnatsd/logger
+github.com/nats-io/gnatsd/server
+github.com/nats-io/gnatsd/server/pse
+# github.com/nats-io/go-nats v1.4.0
+## explicit
+github.com/nats-io/go-nats
+github.com/nats-io/go-nats/encoders/builtin
+github.com/nats-io/go-nats/util
+# github.com/nats-io/nuid v1.0.1
+## explicit
+github.com/nats-io/nuid
+# golang.org/x/crypto v0.0.0-20181127143415-eb0de9b17e85
+golang.org/x/crypto/bcrypt
+golang.org/x/crypto/blowfish
+# golang.org/x/sys v0.0.0-20181128092732-4ed8d59d0b35
+golang.org/x/sys/windows
+golang.org/x/sys/windows/registry
+golang.org/x/sys/windows/svc
+golang.org/x/sys/windows/svc/debug
+golang.org/x/sys/windows/svc/eventlog
+golang.org/x/sys/windows/svc/mgr
+# github.com/nats-io/gnatsd => github.com/nats-io/gnatsd v1.4.1
