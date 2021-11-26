@@ -315,6 +315,35 @@ cluster \{
               expect(rendered_template).to include(expected_template)
             end
           end
+          describe 'password authentication is disabled' do
+            before do
+              merged_manifest_properties['nats']['user'] = nil
+              merged_manifest_properties['nats']['password'] = nil
+            end
+
+            it 'renders the template without password authentication properties' do
+              rendered_template = template.render(merged_manifest_properties, consumes: links, spec: spec)
+unexpected_authorization = %{
+  authorization \{
+    user: "my-user"
+    password: "my-password"
+    timeout: 15
+  \}
+}
+unexpected_auth_url = %{
+  routes = \[
+
+    nats-route://my-user:my-password@meowmeowmeow.my-host:4223
+
+    nats-route://my-user:my-password@a-b-c-d.my-host:4223
+
+  \]
+}
+
+              expect(rendered_template).not_to include(unexpected_authorization)
+              expect(rendered_template).not_to include(unexpected_auth_url)
+            end
+          end
         end
       end
     end
