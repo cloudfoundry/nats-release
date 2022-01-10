@@ -16,8 +16,12 @@ templates:
   external_tls/certificate.pem.erb: config/external_tls/certificate.pem
   external_tls/private_key.pem.erb: config/external_tls/private_key.pem
 
+  client_tls/certificate.pem.erb: config/client_tls/certificate.pem
+  client_tls/private_key.pem.erb: config/client_tls/private_key.pem
+
 packages:
   - gnatsd
+  - nats-tls-healthcheck
 
 provides:
 - name: nats-tls
@@ -96,3 +100,8 @@ properties:
     description: "Certificate for cluster-internal traffic. In PEM format."
   nats.internal.tls.private_key:
     description: "Private key for cluster-internal traffic. In PEM format."
+
+  nats.client.tls.certificate:
+    description: "The PEM-encoded certificate to use for verifying the TLS connection to the server (used for local healthchecks)."
+  nats.client.tls.private_key:
+    description: "The PEM-encoded private key to use for verifying the TLS connection to the server (used for local healthchecks)."
