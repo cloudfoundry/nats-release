@@ -37,6 +37,12 @@ module Bosh::Template::Test
                 'certificate' => 'internal-tls-cert',
                 'private_key' => 'internal-tls-key'
               }
+            },
+            'client' => {
+              'tls' => {
+                'certificate' => 'client-tls-cert',
+                'private_key' => 'client-tls-key'
+              }
             }
           }
         }
@@ -315,6 +321,7 @@ cluster \{
               expect(rendered_template).to include(expected_template)
             end
           end
+
           describe 'password authentication is disabled' do
             before do
               merged_manifest_properties['nats']['user'] = nil
@@ -345,7 +352,94 @@ unexpected_auth_url = %{
             end
           end
         end
-      end
+
+        describe 'config/bpm.yml' do
+          let(:template) { job.template('config/bpm.yml') }
+
+          it 'renders the template with the provided manifest properties' do
+            rendered_template = YAML.load(template.render(merged_manifest_properties, consumes: links, spec: spec))
+            expected_template = {
+              'processes' => [
+                {
+                  'name' => 'nats-tls',
+                  'limits' => {
+                    'open_files' => 100000
+                  },
+                  'executable' => '/var/vcap/packages/gnatsd/bin/gnatsd',
+                  'args' => ['-c', '/var/vcap/jobs/nats-tls/config/nats-tls.conf']
+                },
+                {
+                  'name' => 'healthcheck',
+                  'executable' => '/var/vcap/packages/nats-tls-healthcheck/bin/nats-tls-healthcheck',
+                  'args' => [
+                    '--address',
+                    '10.0.0.1',
+                    '--port',
+                    4222,
+                    '--server-ca',
+                    '/var/vcap/jobs/nats-tls/config/external_tls/ca.pem',
+                    '--server-hostname',
+                    'my-host',
+                    '--client-certificate',
+                    '/var/vcap/jobs/nats-tls/config/client_tls/certificate.pem',
+                    '--client-private-key',
+                    '/var/vcap/jobs/nats-tls/config/client_tls/private_key.pem',
+                    '--user',
+                    'my-user',
+                    '--password',
+                    'my-password'
+                  ]
+                }
+              ]
+            }
+
+            expect(rendered_template).to eq(expected_template)
+          end
+
+          describe 'password authentication is disabled' do
+            before do
+              merged_manifest_properties['nats']['user'] = nil
+              merged_manifest_properties['nats']['password'] = nil
+            end
+
+            it 'renders the template without password authentication properties' do
+              rendered_template = YAML.load(template.render(merged_manifest_properties, consumes: links, spec: spec))
+              expected_template = {
+                'processes' => [
+                  {
+                    'name' => 'nats-tls',
+                    'limits' => {
+                      'open_files' => 100000
+                    },
+                    'executable' => '/var/vcap/packages/gnatsd/bin/gnatsd',
+                    'args' => ['-c', '/var/vcap/jobs/nats-tls/config/nats-tls.conf']
+                  },
+                  {
+                    'name' => 'healthcheck',
+                    'executable' => '/var/vcap/packages/nats-tls-healthcheck/bin/nats-tls-healthcheck',
+                    'args' => [
+                      '--address',
+                      '10.0.0.1',
+                      '--port',
+                      4222,
+                      '--server-ca',
+                      '/var/vcap/jobs/nats-tls/config/external_tls/ca.pem',
+                      '--server-hostname',
+                      'my-host',
+                      '--client-certificate',
+                      '/var/vcap/jobs/nats-tls/config/client_tls/certificate.pem',
+                      '--client-private-key',
+                      '/var/vcap/jobs/nats-tls/config/client_tls/private_key.pem',
+                    ]
+                  }
+                ]
+              }
+
+              expect(rendered_template).to eq(expected_template)
+            end
+          end
+        end
+     end
     end
   end
 end

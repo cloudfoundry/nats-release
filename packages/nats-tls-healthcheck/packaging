@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -ex
+
+mkdir -p ${BOSH_INSTALL_TARGET}/src
+mv * ${BOSH_INSTALL_TARGET}/src
+mv ${BOSH_INSTALL_TARGET}/src .
+
+export GOBIN=${BOSH_INSTALL_TARGET}/bin
+mkdir -p "${GOBIN}"
+
+source /var/vcap/packages/golang-*-linux/bosh/compile.env
+
+pushd "src"
+  go build -o "${GOBIN}/nats-tls-healthcheck" code.cloudfoundry.org/nats-release/nats-tls-healthcheck
+popd
