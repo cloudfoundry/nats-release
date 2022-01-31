@@ -439,7 +439,52 @@ unexpected_auth_url = %{
             end
           end
         end
-     end
+
+        describe 'config/client_tls/certificate.pem' do
+          let(:template) { job.template('config/client_tls/certificate.pem') }
+
+          it 'renders the certificate correctly' do
+            output = YAML.load(template.render(merged_manifest_properties, consumes: links, spec: spec))
+            expect(output).to eq('client-tls-cert')
+          end
+
+          describe 'when a client certificate is not provided in the manifest' do
+            let(:merged_manifest_properties_without_certificate) do
+              merged_manifest_properties.tap do |props|
+                props['nats']['client']['tls'].delete('certificate')
+              end
+            end
+
+            it 'fails with a meaningful error message' do
+              expect do
+                YAML.load(template.render(merged_manifest_properties_without_certificate, consumes: links, spec: spec))
+              end.to raise_error(/nats.client.tls.certificate not provided in nats-tls job properties/)
+            end
+          end
+        end
+        describe 'config/client_tls/private_key.pem' do
+          let(:template) { job.template('config/client_tls/private_key.pem') }
+
+          it 'renders the private key correctly' do
+            output = YAML.load(template.render(merged_manifest_properties, consumes: links, spec: spec))
+            expect(output).to eq('client-tls-key')
+          end
+
+          describe 'when a client private_key is not provided in the manifest' do
+            let(:merged_manifest_properties_without_private_key) do
+              merged_manifest_properties.tap do |props|
+                props['nats']['client']['tls'].delete('private_key')
+              end
+            end
+
+            it 'fails with a meaningful error message' do
+              expect do
+                YAML.load(template.render(merged_manifest_properties_without_private_key, consumes: links, spec: spec))
+              end.to raise_error(/nats.client.tls.private_key not provided in nats-tls job properties/)
+            end
+          end
+        end
+      end
     end
   end
 end
