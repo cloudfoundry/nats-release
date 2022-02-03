@@ -351,6 +351,25 @@ unexpected_auth_url = %{
               expect(rendered_template).not_to include(unexpected_auth_url)
             end
           end
+          
+          describe 'password authentication is disabled due to auth_required = false' do
+            before do
+              merged_manifest_properties['nats']['auth_required'] = false
+            end
+  
+            it 'renders the template without password authentication properties' do
+              rendered_template = template.render(merged_manifest_properties, consumes: links, spec: spec)
+  unexpected_authorization = %{
+  authorization \{
+    user: "my-user"
+    password: "my-password"
+    timeout: 15
+  \}
+  }
+  
+              expect(rendered_template).not_to include(unexpected_authorization)
+            end
+          end
         end
 
         describe 'config/bpm.yml' do

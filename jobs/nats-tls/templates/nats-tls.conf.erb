@@ -24,11 +24,15 @@
   nats_peers = nil
   nats_user = nil
   nats_password = nil
+  nats_auth_required = true
   if_p("nats.user") do |user|
     nats_user = user
   end
   if_p("nats.password") do |password|
     nats_password = password
+  end
+  if_p("nats.auth_required") do |auth_required|
+    nats_auth_required = auth_required
   end
 
   if_p("nats.machines") do |ips|
@@ -76,7 +80,7 @@ debug: <%= p("nats.debug") %>
 trace: <%= p("nats.trace") %>
 logtime: true
 
-<%- if nats_user and nats_password -%>
+<%- if nats_auth_required and nats_user and nats_password -%>
 authorization {
   user: "<%= nats_user %>"
   password: "<%= nats_password %>"
@@ -104,7 +108,7 @@ cluster {
   host: "<%= p("nats.cluster_host", spec.address) %>"
   port: <%= p("nats.cluster_port") %>
 
-<%- if nats_user and nats_password -%>
+  <%- if nats_auth_required and nats_user and nats_password -%>
   authorization {
     user: "<%= nats_user %>"
     password: "<%= nats_password %>"
