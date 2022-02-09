@@ -359,13 +359,13 @@ unexpected_auth_url = %{
   
             it 'renders the template without password authentication properties' do
               rendered_template = template.render(merged_manifest_properties, consumes: links, spec: spec)
-  unexpected_authorization = %{
+unexpected_authorization = %{
   authorization \{
     user: "my-user"
     password: "my-password"
     timeout: 15
   \}
-  }
+}
   
               expect(rendered_template).not_to include(unexpected_authorization)
             end

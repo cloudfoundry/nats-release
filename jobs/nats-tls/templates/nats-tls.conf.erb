@@ -24,17 +24,13 @@
   nats_peers = nil
   nats_user = nil
   nats_password = nil
-  nats_auth_required = true
   if_p("nats.user") do |user|
     nats_user = user
   end
   if_p("nats.password") do |password|
     nats_password = password
   end
-  if_p("nats.auth_required") do |auth_required|
-    nats_auth_required = auth_required
-  end
-
+  nats_auth_required = p("nats.auth_required")
   if_p("nats.machines") do |ips|
     nats_peers = ips.map do |ip|
       NatsPeer.new(nil, ip, p("nats.cluster_port"), nats_user, nats_password)
