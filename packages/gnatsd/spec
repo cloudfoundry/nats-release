@@ -1,0 +1,12 @@
+---
+name: gnatsd
+
+dependencies:
+  - golang-1.17-linux
+
+files:
+  - go.mod
+  - go.sum
+  - gnatsd/**/*.go
+  - vendor/modules.txt
+  - vendor/**/*
