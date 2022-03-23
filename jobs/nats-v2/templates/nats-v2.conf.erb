@@ -1,0 +1,111 @@
+<%
+  class NatsPeer
+    def initialize(instance_id, address, cluster_port, username, password)
+      @instance_id = instance_id
+      @address = address
+      @cluster_port = cluster_port
+      @username = username
+      @password = password
+    end
+
+    def url
+      if @instance_id == nil
+        "nats-route://#{@username}:#{@password}@#{@address}:#{@cluster_port}"
+      else
+        "nats-route://#{@username}:#{@password}@#{@instance_id}.#{@address}:#{@cluster_port}"
+      end
+    end
+  end
+
+  nats_peers = nil
+
+  if_p("nats.machines") do |ips|
+    nats_peers = ips.map do |ip|
+      NatsPeer.new(nil, ip, p("nats.cluster_port"), p("nats.user"), p("nats.password"))
+    end
+    if_p("nats.tls_cluster_port") do |tls_cluster_port|
+      nats_peers += ips.map do |ip|
+        NatsPeer.new(nil, ip, tls_cluster_port, p("nats.user"), p("nats.password"))
+      end
+    end
+  end
+
+  unless nats_peers
+    nats_peers = []
+    if_link("nats") do |nats_link|
+      nats_peers += nats_link.instances.map do |instance|
+        NatsPeer.new(instance.id, nats_link.p("nats.hostname"), nats_link.p("nats.cluster_port"), nats_link.p("nats.user"), nats_link.p("nats.password"))
+      end
+    end
+
+    if_link("nats-v2-tls") do |nats_tls_link|
+      nats_tls_link_user = nil
+      nats_tls_link_password = nil
+      nats_tls_link.if_p("nats.user") do |user|
+        nats_tls_link_user = user
+      end
+      nats_tls_link.if_p("nats.password") do |password|
+        nats_tls_link_password = password
+      end
+      nats_peers += nats_tls_link.instances.map do |instance|
+        NatsPeer.new(instance.id, nats_tls_link.p("nats.hostname"), nats_tls_link.p("nats.cluster_port"), nats_tls_link_user, nats_tls_link_password)
+      end
+    end
+  end
+%>
+
+net: "<%= p("nats.net", spec.address) %>"
+port: <%= p("nats.port") %>
+prof_port: <%= p("nats.prof_port") %>
+http: "0.0.0.0:<%= p("nats.monitor_port") %>"
+write_deadline: "<%= p("nats.write_deadline") %>"
+
+debug: <%= p("nats.debug") %>
+trace: <%= p("nats.trace") %>
+logtime: true
+
+<%- if nats_auth_required and nats_user and nats_password -%>
+authorization {
+  user: "<%= nats_user %>"
+  password: "<%= nats_password %>"
+  timeout: <%= p("nats.authorization_timeout") %>
+  user: "<%= p("nats.user") %>"
+  password: "<%= p("nats.password") %>"
+}
+
+cluster {
+  no_advertise: <%= p("nats.no_advertise") %>
+  host: "<%= p("nats.cluster_host", spec.address) %>"
+  port: <%= p("nats.cluster_port") %>
+
+  authorization {
+    user: "<%= p("nats.user") %>"
+    password: "<%= p("nats.password") %>"
+    timeout: <%= p("nats.authorization_timeout") %>
+  }
+
+  <% if p("nats.internal.tls.enabled") %>
+  tls {
+    ca_file: "/var/vcap/jobs/nats/config/internal_tls/ca.pem"
+    cert_file: "/var/vcap/jobs/nats/config/internal_tls/certificate.pem"
+    key_file: "/var/vcap/jobs/nats/config/internal_tls/private_key.pem"
+    cipher_suites: [
+      "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+      "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+    ]
+    curve_preferences: [
+      "CurveP384"
+    ]
+    timeout: 5 # seconds
+    verify: true
+  }
+  <% end %>
+
+  routes = [
+    <% nats_peers.each do |peer| %>
+    <%= peer.url %>
+    <% end %>
+  ]
+}
+
+no_sys_acc: true

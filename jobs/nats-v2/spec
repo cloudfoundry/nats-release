@@ -1,10 +1,10 @@
 ---
-name: nats-v2-tls
+name: nats-v2
 
-description: "TLS-secured NATS server providing a publish-subscribe messaging system for Cloud Foundry components."
+description: "NATS server providing a publish-subscribe messaging system for Cloud Foundry components."
 
 templates:
-  nats-v2-tls.conf.erb: config/nats-v2-tls.conf
+  nats-v2.conf.erb: config/nats-v2.conf
   pre-start.erb: bin/pre-start
   bpm.erb.yml: config/bpm.yml
 
@@ -12,20 +12,12 @@ templates:
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
   internal_tls/private_key.pem.erb: config/internal_tls/private_key.pem
 
-  external_tls/ca.pem.erb: config/external_tls/ca.pem
-  external_tls/certificate.pem.erb: config/external_tls/certificate.pem
-  external_tls/private_key.pem.erb: config/external_tls/private_key.pem
-
-  client_tls/certificate.pem.erb: config/client_tls/certificate.pem
-  client_tls/private_key.pem.erb: config/client_tls/private_key.pem
-
 packages:
   - nats-server
-  - nats-tls-healthcheck
 
 provides:
-- name: nats-v2-tls
-  type: nats-tls
+- name: nats-v2
+  type: nats
   properties:
   - nats.user
   - nats.password
@@ -33,7 +25,6 @@ provides:
   - nats.port
   - nats.monitor_port
   - nats.cluster_port
-  - nats.external.tls.ca
   - nats.write_deadline
 
 consumes:
@@ -52,15 +43,12 @@ properties:
   nats.hostname:
     description: "Hostname for nats cluster. Set this to the value of your bosh-dns-alias."
     example: "nats.service.cf.internal"
-  nats.auth_required:
-    desription: "Use username and password for authorization for NATS cluster-internal traffic as well for external traffic"
-    default: true
   nats.port:
     description: "The port for the NATS server to listen on."
-    default: 4224
+    default: 4222
   nats.cluster_port:
     description: "The port for the NATS servers to communicate with other servers in the cluster."
-    default: 4225
+    default: 4223
   nats.nontls_cluster_port:
     description: "The port for the NATS servers to communicate with other servers in the cluster. No default but usually 4223."
   nats.authorization_timeout:
@@ -90,14 +78,6 @@ properties:
     description: "Client listening interface, defaults to spec.address"
   nats.cluster_host:
     description: "Clustering listening interface, defaults to spec.address"
-
-  nats.external.tls.ca:
-    description: "Certificate of the CA for publisher/subscriber traffic. In PEM format."
-  nats.external.tls.certificate:
-    description: "Certificate for publisher/subscriber traffic. In PEM format."
-  nats.external.tls.private_key:
-    description: "Private key for publisher/subscriber traffic. In PEM format."
-
   nats.internal.tls.enabled:
     description: "Enable mutually authenticated TLS for NATS cluster-internal traffic."
     default: false
@@ -108,7 +88,3 @@ properties:
   nats.internal.tls.private_key:
     description: "Private key for cluster-internal traffic. In PEM format."
 
-  nats.client.tls.certificate:
-    description: "The PEM-encoded certificate to use for verifying the TLS connection to the server (used for local healthchecks)."
-  nats.client.tls.private_key:
-    description: "The PEM-encoded private key to use for verifying the TLS connection to the server (used for local healthchecks)."
