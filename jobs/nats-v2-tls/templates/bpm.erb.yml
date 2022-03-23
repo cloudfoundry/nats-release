@@ -39,17 +39,7 @@
           '--client-private-key',
           '/var/vcap/jobs/nats-v2-tls/config/client_tls/private_key.pem'
         ] + healthcheck_auth_args
-      },{
-        'name' => 'nats-tls-cluster-migration',
-        'executable' => '/var/vcap/jobs/nats-v2-tls/bin/migrate-cluster-traffic',
-        'capabilities' => [
-          'NET_RAW',
-          'NET_ADMIN',
-        ],
-        'unsafe' => {
-          'privileged' => true,
-          },
-    },
-    ],
+      }
+    ]
   })
 %>

@@ -7,7 +7,6 @@ templates:
   nats-v2-tls.conf.erb: config/nats-v2-tls.conf
   pre-start.erb: bin/pre-start
   bpm.erb.yml: config/bpm.yml
-  migrate-cluster-traffic.erb: bin/migrate-cluster-traffic
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
@@ -113,8 +112,3 @@ properties:
     description: "The PEM-encoded certificate to use for verifying the TLS connection to the server (used for local healthchecks)."
   nats.client.tls.private_key:
     description: "The PEM-encoded private key to use for verifying the TLS connection to the server (used for local healthchecks)."
-
-
-  nats.cluster_migration.from_port:
-    description: "Port to migrate previous cluster's traffic from (e.g. nats-v1). 0 indicates no migration rules should be written"
-    default: 4224
