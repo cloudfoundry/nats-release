@@ -25,7 +25,7 @@ packages:
 
 provides:
 - name: nats-v2-tls
-  type: nats-v2-tls
+  type: nats-tls
   properties:
   - nats.user
   - nats.password
@@ -41,7 +41,7 @@ consumes:
   type: nats
   optional: true
 - name: nats-v2-tls
-  type: nats-v2-tls
+  type: nats-tls
   optional: true
 
 properties:
