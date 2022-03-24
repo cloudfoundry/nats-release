@@ -84,6 +84,16 @@ authorization {
 }
 <%- end -%>
 
+accounts {
+  SYS {
+    users [
+      { user: "admin", password: "changeme" }
+    ]
+  }
+}
+
+system_account = "SYS"
+
 tls {
   ca_file: "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem"
   cert_file: "/var/vcap/jobs/nats-tls/config/external_tls/certificate.pem"

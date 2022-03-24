@@ -6,9 +6,8 @@ description: "TLS-secured NATS server providing a publish-subscribe messaging sy
 templates:
   nats-tls.conf.erb: config/nats-tls.conf
   pre-start.erb: bin/pre-start
-  bpm.erb.yml: config/bpm.yml
-  run.erb: bin/run
-  bpm.v2.erb.yml: config/bpm.v2.yml
+  bpm.yml.erb: config/bpm.yml
+  bpm.v1.yml.erb: config/bpm.v1.yml
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
@@ -27,7 +26,7 @@ packages:
   - nats-tls-healthcheck
 
 provides:
-- name: nats-tls
+- name: nats-v2-tls
   type: nats-tls
   properties:
   - nats.user
@@ -40,10 +39,10 @@ provides:
   - nats.write_deadline
 
 consumes:
-- name: nats
+- name: nats-v2
   type: nats
   optional: true
-- name: nats-tls
+- name: nats-v2-tls
   type: nats-tls
   optional: true
 
@@ -115,3 +114,8 @@ properties:
     description: "The PEM-encoded certificate to use for verifying the TLS connection to the server (used for local healthchecks)."
   nats.client.tls.private_key:
     description: "The PEM-encoded private key to use for verifying the TLS connection to the server (used for local healthchecks)."
+
+
+  nats.cluster_migration.from_port:
+    description: "Port to migrate previous cluster's traffic from (e.g. nats-v1). 0 indicates no migration rules should be written"
+    default: 4224

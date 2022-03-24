@@ -12,14 +12,14 @@
   YAML.dump({
     'processes' => [
       {
-        'name' => 'nats-v2-tls',
+        'name' => 'nats-tls',
         'limits' => {
           'open_files' => 100000
         },
         'executable' => '/var/vcap/packages/nats-server/bin/nats-server',
         'args' => [
           '-c',
-          '/var/vcap/jobs/nats-v2-tls/config/nats-v2-tls.conf'
+          '/var/vcap/jobs/nats-tls/config/nats-tls.conf'
         ]
       },
       {
@@ -31,13 +31,13 @@
           '--port',
           p('nats.port'),
           '--server-ca',
-          '/var/vcap/jobs/nats-v2-tls/config/external_tls/ca.pem',
+          '/var/vcap/jobs/nats-tls/config/external_tls/ca.pem',
           '--server-hostname',
           p('nats.hostname'),
           '--client-certificate',
-          '/var/vcap/jobs/nats-v2-tls/config/client_tls/certificate.pem',
+          '/var/vcap/jobs/nats-tls/config/client_tls/certificate.pem',
           '--client-private-key',
-          '/var/vcap/jobs/nats-v2-tls/config/client_tls/private_key.pem'
+          '/var/vcap/jobs/nats-tls/config/client_tls/private_key.pem'
         ] + healthcheck_auth_args
       }
     ]

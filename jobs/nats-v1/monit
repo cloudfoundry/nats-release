@@ -1,0 +1,8 @@
+check process nats
+  with pidfile /var/vcap/sys/run/bpm/nats/nats.pid
+  start program "/var/vcap/jobs/bpm/bin/bpm start nats"
+  stop program "/var/vcap/jobs/bpm/bin/bpm stop nats"
+  group vcap
+  if totalmem > 500 Mb for 2 cycles then alert
+  if totalmem > 3000 Mb then restart
+  if failed host <%= spec.address %> port <%= p("nats.port") %> type tcp then alert

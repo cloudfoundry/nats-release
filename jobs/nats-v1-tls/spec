@@ -1,10 +1,10 @@
 ---
-name: nats-v2-tls
+name: nats-v1-tls
 
 description: "TLS-secured NATS server providing a publish-subscribe messaging system for Cloud Foundry components."
 
 templates:
-  nats-v2-tls.conf.erb: config/nats-v2-tls.conf
+  nats-tls.conf.erb: config/nats-tls.conf
   pre-start.erb: bin/pre-start
   bpm.erb.yml: config/bpm.yml
 
@@ -20,11 +20,11 @@ templates:
   client_tls/private_key.pem.erb: config/client_tls/private_key.pem
 
 packages:
-  - nats-server
+  - gnatsd
   - nats-tls-healthcheck
 
 provides:
-- name: nats-v2-tls
+- name: nats-tls
   type: nats-tls
   properties:
   - nats.user
@@ -37,10 +37,10 @@ provides:
   - nats.write_deadline
 
 consumes:
-- name: nats-v2
+- name: nats
   type: nats
   optional: true
-- name: nats-v2-tls
+- name: nats-tls
   type: nats-tls
   optional: true
 

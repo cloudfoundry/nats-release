@@ -1,22 +1,22 @@
 ---
-name: nats-v2
+name: nats-v1
 
 description: "NATS server providing a publish-subscribe messaging system for Cloud Foundry components."
 
 templates:
-  nats-v2.conf.erb: config/nats-v2.conf
+  nats.conf.erb: config/nats.conf
   pre-start.erb: bin/pre-start
-  bpm.erb.yml: config/bpm.yml
+  bpm.yml.erb: config/bpm.yml
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
   internal_tls/private_key.pem.erb: config/internal_tls/private_key.pem
 
 packages:
-  - nats-server
+  - gnatsd
 
 provides:
-- name: nats-v2
+- name: nats
   type: nats
   properties:
   - nats.user
@@ -28,10 +28,10 @@ provides:
   - nats.write_deadline
 
 consumes:
-- name: nats-v2
+- name: nats
   type: nats
   optional: true
-- name: nats-v2-tls
+- name: nats-tls
   type: nats-tls
   optional: true
 
@@ -49,8 +49,8 @@ properties:
   nats.cluster_port:
     description: "The port for the NATS servers to communicate with other servers in the cluster."
     default: 4223
-  nats.nontls_cluster_port:
-    description: "The port for the NATS servers to communicate with other servers in the cluster. No default but usually 4223."
+  nats.tls_cluster_port:
+    description: "The port for the NATS servers to communicate with other servers in the cluster. No default but usually 4225."
   nats.authorization_timeout:
     description: "After accepting a connection, wait up to this many seconds for credentials."
     default: 15
@@ -69,11 +69,11 @@ properties:
     description: "Port for pprof. 0 means disabled."
     default: 0
   nats.no_advertise:
-    description: "When configured to true, this nats server will not be advertised to any nats clients."
-    default: true
+    description: "When configured to true, this nats server will not be advertised to any nats clients. This is defaulted to false for backwards compatability."
+    default: false
   nats.write_deadline:
     description: "Maximum number of seconds the server will block when writing. Once this threshold is exceeded the connection will be closed and the client will be considered as Slow Consumer."
-    default: "2s"
+    default: 2s
   nats.net:
     description: "Client listening interface, defaults to spec.address"
   nats.cluster_host:

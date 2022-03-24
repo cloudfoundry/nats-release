@@ -7,5 +7,4 @@ dependencies:
 files:
   - github.com/nats-io/nats-server/**/*.go
   - github.com/nats-io/nats-server/go.*
-  - github.com/nats-io/nats-server/vendor/**/*
   - github.com/nats-io/nats-server/LICENSE

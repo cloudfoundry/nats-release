@@ -1,0 +1,14 @@
+check process nats-tls
+  with pidfile /var/vcap/sys/run/bpm/nats-tls/nats-tls.pid
+  start program "/var/vcap/jobs/bpm/bin/bpm start nats-tls -p nats-tls"
+  stop program "/var/vcap/jobs/bpm/bin/bpm stop nats-tls -p nats-tls"
+  group vcap
+  if totalmem > 500 Mb for 2 cycles then alert
+  if totalmem > 3000 Mb then restart
+
+check process nats-tls-healthcheck
+  with pidfile /var/vcap/sys/run/bpm/nats-tls/healthcheck.pid
+  start program "/var/vcap/jobs/bpm/bin/bpm start nats-tls -p healthcheck"
+  stop program "/var/vcap/jobs/bpm/bin/bpm stop nats-tls -p healthcheck"
+  depends on nats-tls
+  group vcap
