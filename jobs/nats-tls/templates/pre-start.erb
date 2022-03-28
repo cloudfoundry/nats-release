@@ -8,8 +8,3 @@ set +e
 sysctl -w net.ipv4.neigh.default.gc_thresh3=4096
 sysctl -w net.ipv4.neigh.default.gc_thresh2=2048
 set -e
-
-
-# enumerate nats peers and check versions
-# # if any are nats v1, copy in the nats v1 bpm script:
-# # # cp /var/vcap/jobs/config/bpm.v1.yml /var/vcap/jobs/config/bpm.yml
