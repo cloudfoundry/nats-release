@@ -1,6 +1,0 @@
----
-name: migrate-nats
-
-templates:
-  run.erb: bin/run
-

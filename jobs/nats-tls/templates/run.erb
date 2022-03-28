@@ -1,4 +1,12 @@
+#!/bin/bash
 
-cp /var/vcap/jobs/nats-tls/config/bpm.v2.yml /var/vcap/jobs/nats-tls/config/bpm.yml
-monit restart nats-tls
+whoami
 
+# make this job depend on the monit task for nats-tls
+# replace with go program that listens on a port, and pulls in all the nats machines.
+# connect to local nats - if v1:
+#   open a port and wait for peers to all be up? (do we need to worry about FW rules + new ports?)
+    #  once all are up, 
+          cp /var/vcap/jobs/nats-tls/config/bpm.v2.yml /var/vcap/jobs/nats-tls/config/bpm.yml
+          /var/vcap/bosh/bin/monit restart nats-tls
+# go into a deadlock infinite select/infinite sleep loop 

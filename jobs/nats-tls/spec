@@ -8,6 +8,7 @@ templates:
   pre-start.erb: bin/pre-start
   bpm.yml.erb: config/bpm.yml
   bpm.v1.yml.erb: config/bpm.v1.yml
+  bpm.v2.yml.erb: config/bpm.v2.yml
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
@@ -26,7 +27,7 @@ packages:
   - nats-tls-healthcheck
 
 provides:
-- name: nats-v2-tls
+- name: nats-tls
   type: nats-tls
   properties:
   - nats.user
@@ -39,10 +40,10 @@ provides:
   - nats.write_deadline
 
 consumes:
-- name: nats-v2
+- name: nats
   type: nats
   optional: true
-- name: nats-v2-tls
+- name: nats-tls
   type: nats-tls
   optional: true
 
@@ -114,8 +115,3 @@ properties:
     description: "The PEM-encoded certificate to use for verifying the TLS connection to the server (used for local healthchecks)."
   nats.client.tls.private_key:
     description: "The PEM-encoded private key to use for verifying the TLS connection to the server (used for local healthchecks)."
-
-
-  nats.cluster_migration.from_port:
-    description: "Port to migrate previous cluster's traffic from (e.g. nats-v1). 0 indicates no migration rules should be written"
-    default: 4224

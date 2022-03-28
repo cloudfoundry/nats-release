@@ -1,9 +1,0 @@
-{
-	"nats_machines": [
-		"001e5372-75f2-4045-81e3-92566335a44b.nats.service.cf.internal:4224",
-		"084f6022-14f1-4ef4-bf75-0849af507213.nats.service.cf.internal:4226",
-		"b69da4b2-e617-4219-9e28-4b3725fc1a87.nats.service.cf.internal:4226"
-	],
-	"nats_bpm_config_path": "/var/vcap/jobs/nats-tls/config/bpm.yml",
-	"v1_bpm_config_path": "/var/vcap/jobs/nats-tls/config/bpm.v1.yml"
-}
