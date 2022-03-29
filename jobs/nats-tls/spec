@@ -9,6 +9,7 @@ templates:
   bpm.yml.erb: config/bpm.yml
   bpm.v1.yml.erb: config/bpm.v1.yml
   bpm.v2.yml.erb: config/bpm.v2.yml
+  migrator-config.json.erb: config/migrator-config.json
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
@@ -25,6 +26,7 @@ packages:
   - gnatsd
   - nats-server
   - nats-tls-healthcheck
+  - nats-migrator
 
 provides:
 - name: nats-tls
