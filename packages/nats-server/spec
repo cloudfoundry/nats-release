@@ -1,0 +1,11 @@
+---
+name: nats-server
+
+dependencies:
+  - golang-1.17-linux
+
+files:
+  - go.mod
+  - go.sum
+  - vendor/modules.txt
+  - vendor/**/*
