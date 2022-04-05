@@ -89,6 +89,15 @@ authorization \{
   timeout: 15
 \}
 
+accounts \{
+  SYS \{
+    users \[
+    { user: "my-user", password: "my-password" }
+    \]
+  \}
+\}
+system_account = "SYS"
+
 cluster \{
   no_advertise: true
   host: "10.0.0.1"
@@ -151,6 +160,15 @@ authorization \{
   password: "my-password"
   timeout: 15
 \}
+
+accounts \{
+  SYS \{
+    users \[
+    { user: "my-user", password: "my-password" }
+    \]
+  \}
+\}
+system_account = "SYS"
 
 cluster \{
   no_advertise: true
@@ -217,6 +235,15 @@ authorization \{
   password: "my-password"
   timeout: 15
 \}
+
+accounts \{
+  SYS \{
+    users \[
+    { user: "my-user", password: "my-password" }
+    \]
+  \}
+\}
+system_account = "SYS"
 
 cluster \{
   no_advertise: true

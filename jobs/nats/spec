@@ -7,6 +7,8 @@ templates:
   nats.conf.erb: config/nats.conf
   pre-start.erb: bin/pre-start
   bpm.yml.erb: config/bpm.yml
+  bpm.v1.yml.erb: config/bpm.v1.yml
+  bpm.v2.yml.erb: config/bpm.v2.yml
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
@@ -14,6 +16,7 @@ templates:
 
 packages:
   - gnatsd
+  - nats-server
 
 provides:
 - name: nats

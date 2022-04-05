@@ -62,6 +62,15 @@ authorization {
   timeout: <%= p("nats.authorization_timeout") %>
 }
 
+accounts {
+  SYS {
+    users [
+    { user: "<%= p("nats.user") %>", password: "<%= p("nats.password") %>" }
+    ]
+  }
+}
+system_account = "SYS"
+
 cluster {
   no_advertise: <%= p("nats.no_advertise") %>
   host: "<%= p("nats.cluster_host", spec.address) %>"

@@ -7,6 +7,8 @@ templates:
   nats-tls.conf.erb: config/nats-tls.conf
   pre-start.erb: bin/pre-start
   bpm.erb.yml: config/bpm.yml
+  bpm.v1.erb.yml: config/bpm.v1.yml
+  bpm.v2.erb.yml: config/bpm.v2.yml
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
@@ -21,6 +23,7 @@ templates:
 
 packages:
   - gnatsd
+  - nats-server
   - nats-tls-healthcheck
 
 provides:

@@ -102,6 +102,16 @@ authorization \{
   timeout: 15
 \}
 
+accounts \{
+  SYS \{
+    users \[
+      { user: "my-user", password: "my-password" }
+    \]
+  \}
+\}
+
+system_account = "SYS"
+
 tls \{
   ca_file: "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem"
   cert_file: "/var/vcap/jobs/nats-tls/config/external_tls/certificate.pem"
@@ -179,6 +189,16 @@ authorization \{
   password: "my-password"
   timeout: 15
 \}
+
+accounts \{
+  SYS \{
+    users \[
+      { user: "my-user", password: "my-password" }
+    \]
+  \}
+\}
+
+system_account = "SYS"
 
 tls \{
   ca_file: "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem"
@@ -260,6 +280,16 @@ authorization \{
   password: "my-password"
   timeout: 15
 \}
+
+accounts \{
+  SYS \{
+    users \[
+      { user: "my-user", password: "my-password" }
+    \]
+  \}
+\}
+
+system_account = "SYS"
 
 tls \{
   ca_file: "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem"
@@ -384,7 +414,7 @@ unexpected_authorization = %{
                   'limits' => {
                     'open_files' => 100000
                   },
-                  'executable' => '/var/vcap/packages/gnatsd/bin/gnatsd',
+                  'executable' => '/var/vcap/packages/nats-server/bin/server',
                   'args' => ['-c', '/var/vcap/jobs/nats-tls/config/nats-tls.conf']
                 },
                 {
@@ -430,7 +460,7 @@ unexpected_authorization = %{
                     'limits' => {
                       'open_files' => 100000
                     },
-                    'executable' => '/var/vcap/packages/gnatsd/bin/gnatsd',
+                    'executable' => '/var/vcap/packages/nats-server/bin/server',
                     'args' => ['-c', '/var/vcap/jobs/nats-tls/config/nats-tls.conf']
                   },
                   {
@@ -459,6 +489,48 @@ unexpected_authorization = %{
           end
         end
 
+      describe 'config/bpm.v1.yml' do
+        let(:template) { job.template('config/bpm.v1.yml') }
+
+        it 'renders the template with the provided manifest properties' do
+          rendered_template = YAML.load(template.render(merged_manifest_properties, consumes: links, spec: spec))
+          expected_template = {
+            'processes' => [
+              {
+                'name' => 'nats-tls',
+                'limits' => {
+                  'open_files' => 100000
+                },
+                'executable' => '/var/vcap/packages/gnatsd/bin/gnatsd',
+                'args' => ['-c', '/var/vcap/jobs/nats-tls/config/nats-tls.conf']
+              },
+              {
+                'name' => 'healthcheck',
+                'executable' => '/var/vcap/packages/nats-tls-healthcheck/bin/nats-tls-healthcheck',
+                'args' => [
+                  '--address',
+                  '10.0.0.1',
+                  '--port',
+                  4222,
+                  '--server-ca',
+                  '/var/vcap/jobs/nats-tls/config/external_tls/ca.pem',
+                  '--server-hostname',
+                  'my-host',
+                  '--client-certificate',
+                  '/var/vcap/jobs/nats-tls/config/client_tls/certificate.pem',
+                  '--client-private-key',
+                  '/var/vcap/jobs/nats-tls/config/client_tls/private_key.pem',
+                  '--user',
+                  'my-user',
+                  '--password',
+                  'my-password'
+                ]
+              }
+            ]
+          }
+          expect(rendered_template).to eq(expected_template)
+        end
+      end
         describe 'config/client_tls/certificate.pem' do
           let(:template) { job.template('config/client_tls/certificate.pem') }
 
