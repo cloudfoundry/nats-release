@@ -77,12 +77,6 @@ trace: <%= p("nats.trace") %>
 logtime: true
 
 <%- if nats_auth_required and nats_user and nats_password -%>
-authorization {
-  user: "<%= nats_user %>"
-  password: "<%= nats_password %>"
-  timeout: <%= p("nats.authorization_timeout") %>
-}
-
 accounts {
   SYS {
     users [

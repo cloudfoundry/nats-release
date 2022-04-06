@@ -56,12 +56,6 @@ debug: <%= p("nats.debug") %>
 trace: <%= p("nats.trace") %>
 logtime: true
 
-authorization {
-  user: "<%= p("nats.user") %>"
-  password: "<%= p("nats.password") %>"
-  timeout: <%= p("nats.authorization_timeout") %>
-}
-
 accounts {
   SYS {
     users [

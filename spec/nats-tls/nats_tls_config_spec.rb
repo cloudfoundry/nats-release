@@ -96,12 +96,6 @@ debug: false
 trace: false
 logtime: true
 
-authorization \{
-  user: "my-user"
-  password: "my-password"
-  timeout: 15
-\}
-
 accounts \{
   SYS \{
     users \[
@@ -183,12 +177,6 @@ write_deadline: "2s"
 debug: false
 trace: false
 logtime: true
-
-authorization \{
-  user: "my-user"
-  password: "my-password"
-  timeout: 15
-\}
 
 accounts \{
   SYS \{
@@ -274,12 +262,6 @@ write_deadline: "2s"
 debug: false
 trace: false
 logtime: true
-
-authorization \{
-  user: "my-user"
-  password: "my-password"
-  timeout: 15
-\}
 
 accounts \{
   SYS \{
