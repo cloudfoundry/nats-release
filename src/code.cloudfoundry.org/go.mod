@@ -1,4 +1,4 @@
-module code.cloudfoundry.org/nats-release
+module code.cloudfoundry.org
 
 go 1.17
 
