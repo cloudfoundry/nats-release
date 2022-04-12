@@ -1,7 +1,6 @@
 package pre_migrate_test
 
 import (
-	pre_migrate "code.cloudfoundry.org/nats-release/nats-v2-migrate/pre-migrate"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -22,43 +21,42 @@ var _ = Describe("PreMigrator", func() {
 		natsV1BPMPath = "/var/vcap/jobs/nats-tls/config/bpm.v1.yml"
 	})
 
-	Describe("NewPreMigrator", func() {
-		pre_migrator := pre_migrate.NewPreMigrator(natsMachines, natsBPMPath, natsV1BPMPath)
+	// Describe("NewPreMigrator", func() {
 
-		Expect(pre_migrator).To(Equal(pre_migrate.PreMigrator{
-			NatsMachines:  natsMachines,
-			NatsBpmPath:   natsBPMPath,
-			NatsV1BpmPath: natsV1BPMPath,
-		}))
-	})
+	// 	pre_migrator := pre_migrate.NewPreMigrator(natsMachines, natsBPMPath, natsV1BPMPath)
 
-	Describe("PrepareForMigration", func() {
-		Context("There are nats v1 machines in the cluster", func() {
-			It("does replace the bpm config", func() {
-				
-			})
-			})
-		)
-		Context("There are no nats v1 machines in the cluster", func() {
-			It("does not replace the bpm config", func() {
-				
-			})
-			})
-		)
-		Context("Error contacting nats cluster", func() {
-			It("does not replace the bpm config", func() {
-				
-			})
-			})
-		)
-		Context("Error replacing bpm config", func() {
-			It("Merp", func() {
-				
-			})
-			})
-		)
-	})
-		
-	})
-	)
+	// 	Expect(pre_migrator).To(Equal(pre_migrate.PreMigrator{
+	// 		NatsMachines:  natsMachines,
+	// 		NatsBpmPath:   natsBPMPath,
+	// 		NatsV1BpmPath: natsV1BPMPath,
+	// 	}))
+	// })
+
+	// Describe("PrepareForMigration", func() {
+	// 	Context("There are nats v1 machines in the cluster", func() {
+	// 		It("does replace the bpm config", func() {
+
+	// 		})
+	// 	})
+
+	// 	Context("There are no nats v1 machines in the cluster", func() {
+	// 		It("does not replace the bpm config", func() {
+
+	// 		})
+	// 	})
+
+	// 	Context("Error contacting nats cluster", func() {
+	// 		It("does not replace the bpm config", func() {
+
+	// 		})
+	// 	})
+
+	// 	Context("Error replacing bpm config", func() {
+	// 		It("Merp", func() {
+
+	// 		})
+	// 	})
+
+	// })
+
 })
