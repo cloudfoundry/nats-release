@@ -1,7 +1,7 @@
 package pre_migrate
 
 import (
-	"code.cloudfoundry.org/nats-release/nats-v2-migrate/nats_client"
+	"code.cloudfoundry.org/nats-v2-migrate/nats_client"
 )
 
 type PreMigrator struct {
