@@ -5,8 +5,8 @@ dependencies:
   - golang-1.17-linux
 
 files:
-  - go.mod
-  - go.sum
-  - vendor/modules.txt
-  - vendor/**/*
-  - nats-smoke/*.go
+  - code.cloudfoundry.org/go.mod
+  - code.cloudfoundry.org/go.sum
+  - code.cloudfoundry.org/vendor/modules.txt
+  - code.cloudfoundry.org/vendor/**/*
+  - code.cloudfoundry.org/nats-smoke/*.go
