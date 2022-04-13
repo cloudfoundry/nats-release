@@ -11,6 +11,6 @@ mkdir -p "${GOBIN}"
 
 source /var/vcap/packages/golang-*-linux/bosh/compile.env
 
-pushd "src"
+pushd "src/code.cloudfoundry.org"
   go build -o "${GOBIN}/server" github.com/nats-io/nats-server/v2
 popd
