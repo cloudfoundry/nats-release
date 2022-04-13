@@ -33,11 +33,6 @@ github.com/nats-io/nats-server/v2/logger
 github.com/nats-io/nats-server/v2/server
 github.com/nats-io/nats-server/v2/server/pse
 github.com/nats-io/nats-server/v2/server/sysmem
-# github.com/nats-io/nats.go v1.13.1-0.20220308171302-2f2f6968e98d
-## explicit; go 1.16
-github.com/nats-io/nats.go
-github.com/nats-io/nats.go/encoders/builtin
-github.com/nats-io/nats.go/util
 # github.com/nats-io/nkeys v0.3.0
 ## explicit; go 1.16
 github.com/nats-io/nkeys
