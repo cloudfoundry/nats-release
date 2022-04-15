@@ -5,6 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+
+	bpm_rewriter "code.cloudfoundry.org/nats-v2-migrate/bpm-rewriter"
+	"code.cloudfoundry.org/nats-v2-migrate/nats"
+	natsClient "github.com/nats-io/nats.go"
 )
 
 type Config struct {
@@ -30,7 +34,17 @@ func main() {
 		return
 	}
 
-	natsClient := NatsClient
-	preMigrator := NewPreMigrator(config.NATSMachines, natsClient, config.V1BPMConfigPath, config.NATSBPMConfigPath)
+	var natsConns []nats.NatsConn
+	for _, url := range config.NATSMachines {
+		natsConn, err := natsClient.Connect(url)
+		if err != nil {
+			fmt.Sprintf("Error connecting to nats sever: %s ", err)
+		}
+		natsConns = append(natsConns, natsConn)
+	}
+
+	rewriter := bpm_rewriter.BPMRewriter{}
+
+	preMigrator := NewPreMigrator(natsConns, &rewriter, config.V1BPMConfigPath, config.NATSBPMConfigPath)
 	preMigrator.PrepareForMigration()
 }
