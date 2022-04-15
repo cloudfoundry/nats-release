@@ -9,6 +9,7 @@ templates:
   bpm.erb.yml: config/bpm.yml
   bpm.v1.erb.yml: config/bpm.v1.yml
   bpm.v2.erb.yml: config/bpm.v2.yml
+  nats-premigrate.conf.erg: config/pre-migrate.conf
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
