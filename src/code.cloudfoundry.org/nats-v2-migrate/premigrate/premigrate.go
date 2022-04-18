@@ -1,4 +1,4 @@
-package pre_migrate
+package premigrate
 
 import (
 	"encoding/json"
@@ -13,7 +13,7 @@ import (
 
 type Config struct {
 	NATSMachines      []string `json:"nats_machines"`
-	V1BPMConfigPath   string   `json:"v1_bpm_config_path"`
+	V1BPMConfigPath   string   `json:"nats_v1_bpm_config_path"`
 	NATSBPMConfigPath string   `json:"nats_bpm_config_path"`
 }
 

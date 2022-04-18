@@ -32,14 +32,10 @@ module Bosh::Template::Test
         ]
       end
 
-      let(:spec) do
-        {
-          'address' => '10.0.0.1'
-        }
-      end
+      let(:spec) do { 'address' => '10.0.0.1' } end
 
-    describe "premigrate config for nats-tls" do
-     let(:job) {release.job('nats-tls')}
+    describe "premigrate config for nats" do
+     let(:job) {release.job('nats')}
      let(:template) { job.template('config/premigrate.conf') }
 
       it 'renders the template with the provided manifest properties' do

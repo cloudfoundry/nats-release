@@ -1,4 +1,4 @@
-package pre_migrate_test
+package premigrate_test
 
 import (
 	. "github.com/onsi/ginkgo"

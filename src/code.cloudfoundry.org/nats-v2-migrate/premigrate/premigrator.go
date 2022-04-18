@@ -1,4 +1,4 @@
-package pre_migrate
+package premigrate
 
 import (
 	"fmt"

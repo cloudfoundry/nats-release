@@ -9,6 +9,7 @@ templates:
   bpm.yml.erb: config/bpm.yml
   bpm.v1.yml.erb: config/bpm.v1.yml
   bpm.v2.yml.erb: config/bpm.v2.yml
+  premigrate.conf.erb: config/premigrate.conf
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
@@ -17,6 +18,7 @@ templates:
 packages:
   - gnatsd
   - nats-server
+  - nats-v2-migrate
 
 provides:
 - name: nats
