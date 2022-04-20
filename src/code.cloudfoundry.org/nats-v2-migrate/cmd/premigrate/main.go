@@ -23,9 +23,9 @@ type Config struct {
 	NatsPort          string   `json:"nats_port"`
 	V1BPMConfigPath   string   `json:"nats_v1_bpm_config_path"`
 	NATSBPMConfigPath string   `json:"nats_bpm_config_path"`
-	CertFile          string   `json:"nats_external_cert_path"`
-	KeyFile           string   `json:"nats_external_key_path"`
-	CaFile            string   `json:"nats_external_ca_path"`
+	CertFile          string   `json:"nats_cert_path"`
+	KeyFile           string   `json:"nats_key_path"`
+	CaFile            string   `json:"nats_ca_path"`
 }
 
 func main() {

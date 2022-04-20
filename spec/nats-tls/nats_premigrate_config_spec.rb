@@ -48,6 +48,9 @@ module Bosh::Template::Test
 
         expect(rendered_struct["nats_machines"]). to eq(["abc123.nats.service.cf.internal", "def456.nats.service.cf.internal"])
         expect(rendered_struct["nats_port"]). to eq(4224)
+        expect(rendered_struct["nats_cert_path"]). to eq("/var/vcap/jobs/nats-tls/config/client_tls/certificate.pem")
+        expect(rendered_struct["nats_key_path"]). to eq("/var/vcap/jobs/nats-tls/config/client_tls/private_key.pem")
+        expect(rendered_struct["nats_ca_path"]). to eq("/var/vcap/jobs/nats-tls/config/external_tls/ca.pem")
         expect(rendered_struct["nats_bpm_config_path"]). to eq("/var/vcap/jobs/nats-tls/config/bpm.yml")
         expect(rendered_struct["nats_v1_bpm_config_path"]). to eq("/var/vcap/jobs/nats-tls/config/bpm.v1.yml")
       end
