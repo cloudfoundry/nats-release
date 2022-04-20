@@ -5,6 +5,7 @@ go 1.17
 replace github.com/nats-io/gnatsd => github.com/nats-io/gnatsd v1.4.1
 
 require (
+	code.cloudfoundry.org/lager v2.0.0+incompatible
 	code.cloudfoundry.org/tlsconfig v0.0.0-20200131000646-bbe0f8da39b3
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.5.0
 	github.com/nats-io/gnatsd v1.4.1

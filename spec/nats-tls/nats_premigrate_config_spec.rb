@@ -46,7 +46,8 @@ module Bosh::Template::Test
         rendered_template = template.render(merged_manifest_properties, consumes: links, spec: spec)
         rendered_struct = JSON.parse(rendered_template)
 
-        expect(rendered_struct["nats_machines"]). to eq(["abc123.nats.service.cf.internal:4224", "def456.nats.service.cf.internal:4224"])
+        expect(rendered_struct["nats_machines"]). to eq(["abc123.nats.service.cf.internal", "def456.nats.service.cf.internal"])
+        expect(rendered_struct["nats_port"]). to eq(4224)
         expect(rendered_struct["nats_bpm_config_path"]). to eq("/var/vcap/jobs/nats-tls/config/bpm.yml")
         expect(rendered_struct["nats_v1_bpm_config_path"]). to eq("/var/vcap/jobs/nats-tls/config/bpm.v1.yml")
       end

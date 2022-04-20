@@ -13,7 +13,7 @@ module Bosh::Template::Test
       let(:links) do
         [
           Link.new(
-            name: 'nats-tls',
+            name: 'nats',
             instances: [
               LinkInstance.new(id: 'abc123'),
               LinkInstance.new(id: 'def456')
@@ -23,8 +23,8 @@ module Bosh::Template::Test
                 'user' => 'my-user',
                 'password' => 'my-password',
                 'hostname' => 'nats.service.cf.internal',
-                'port' => 4224,
-                'cluster_port' => 4225,
+                'port' => 4222,
+                'cluster_port' => 4223,
                 'http' => '0.0.0.0:0'
               }
             }
@@ -42,9 +42,10 @@ module Bosh::Template::Test
         rendered_template = template.render(merged_manifest_properties, consumes: links, spec: spec)
         rendered_struct = JSON.parse(rendered_template)
 
-        expect(rendered_struct["nats_machines"]). to eq(["abc123.nats.service.cf.internal:4224", "def456.nats.service.cf.internal:4224"])
-        expect(rendered_struct["nats_bpm_config_path"]). to eq("/var/vcap/jobs/nats-tls/config/bpm.yml")
-        expect(rendered_struct["nats_v1_bpm_config_path"]). to eq("/var/vcap/jobs/nats-tls/config/bpm.v1.yml")
+        expect(rendered_struct["nats_machines"]). to eq(["abc123.nats.service.cf.internal", "def456.nats.service.cf.internal"])
+        expect(rendered_struct["nats_port"]). to eq(4222)
+        expect(rendered_struct["nats_bpm_config_path"]). to eq("/var/vcap/jobs/nats/config/bpm.yml")
+        expect(rendered_struct["nats_v1_bpm_config_path"]). to eq("/var/vcap/jobs/nats/config/bpm.v1.yml")
       end
     end
     end

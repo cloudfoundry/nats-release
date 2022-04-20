@@ -5,8 +5,8 @@ import (
 	. "github.com/onsi/gomega"
 
 	"code.cloudfoundry.org/nats-v2-migrate/fakes"
-	"code.cloudfoundry.org/nats-v2-migrate/nats"
-	pre_migrate "code.cloudfoundry.org/nats-v2-migrate/pre-migrate"
+	nats "code.cloudfoundry.org/nats-v2-migrate/nats-interface"
+	"code.cloudfoundry.org/nats-v2-migrate/premigrate"
 )
 
 var _ = Describe("PreMigrator", func() {
@@ -18,7 +18,7 @@ var _ = Describe("PreMigrator", func() {
 		rewriter      *fakes.Rewriter
 		natsBPMPath   string
 		natsV1BPMPath string
-		pre_migrator  *pre_migrate.PreMigrator
+		premigrator   *premigrate.PreMigrator
 	)
 	BeforeEach(func() {
 		natsBPMPath = "/var/vcap/jobs/nats-tls/config/bpm.yml"
@@ -34,8 +34,8 @@ var _ = Describe("PreMigrator", func() {
 
 			natsConns = []nats.NatsConn{natsConn1, natsConn2, natsConn3}
 			rewriter = &fakes.Rewriter{}
-			pre_migrator = pre_migrate.NewPreMigrator(natsConns, rewriter, natsV1BPMPath, natsBPMPath)
-			Expect(pre_migrator).To(Equal(&pre_migrate.PreMigrator{
+			premigrator = premigrate.NewPreMigrator(natsConns, rewriter, natsV1BPMPath, natsBPMPath)
+			Expect(premigrator).To(Equal(&premigrate.PreMigrator{
 				NatsConns:     natsConns,
 				BpmRewriter:   rewriter,
 				NatsV1BpmPath: natsV1BPMPath,
@@ -47,7 +47,7 @@ var _ = Describe("PreMigrator", func() {
 	Describe("PrepareForMigration", func() {
 		JustBeforeEach(func() {
 			natsConns = []nats.NatsConn{natsConn1, natsConn2, natsConn3}
-			pre_migrator = pre_migrate.NewPreMigrator(natsConns, rewriter, natsV1BPMPath, natsBPMPath)
+			premigrator = premigrate.NewPreMigrator(natsConns, rewriter, natsV1BPMPath, natsBPMPath)
 		})
 
 		Context("There are nats v1 machines in the cluster", func() {
@@ -56,7 +56,7 @@ var _ = Describe("PreMigrator", func() {
 			})
 
 			It("does replace the bpm config", func() {
-				err := pre_migrator.PrepareForMigration()
+				err := premigrator.PrepareForMigration()
 				Expect(err).NotTo(HaveOccurred())
 
 				Expect(natsConn1.ConnectedServerVersionCallCount()).To(Equal(1))
@@ -77,7 +77,7 @@ var _ = Describe("PreMigrator", func() {
 			})
 
 			It("does replace the bpm config", func() {
-				err := pre_migrator.PrepareForMigration()
+				err := premigrator.PrepareForMigration()
 				Expect(err).NotTo(HaveOccurred())
 
 				Expect(natsConn1.ConnectedServerVersionCallCount()).To(Equal(1))
@@ -99,7 +99,7 @@ var _ = Describe("PreMigrator", func() {
 			})
 
 			It("does replace the bpm config", func() {
-				err := pre_migrator.PrepareForMigration()
+				err := premigrator.PrepareForMigration()
 				Expect(err).NotTo(HaveOccurred())
 
 				Expect(natsConn1.ConnectedServerVersionCallCount()).To(Equal(1))
@@ -115,7 +115,7 @@ var _ = Describe("PreMigrator", func() {
 			})
 			It("does not replace the bpm config", func() {
 
-				err := pre_migrator.PrepareForMigration()
+				err := premigrator.PrepareForMigration()
 				Expect(err).To(HaveOccurred())
 
 				Expect(natsConn1.ConnectedServerVersionCallCount()).To(Equal(1))
@@ -132,7 +132,7 @@ var _ = Describe("PreMigrator", func() {
 			})
 			It("does not replace the bpm config", func() {
 
-				err := pre_migrator.PrepareForMigration()
+				err := premigrator.PrepareForMigration()
 				Expect(err).To(HaveOccurred())
 
 				Expect(natsConn1.ConnectedServerVersionCallCount()).To(Equal(1))

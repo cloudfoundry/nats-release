@@ -1,13 +1,16 @@
 <%
     nats_peers = []
-    if_link("nats-tls") do |nats_tls_link|
-      nats_peers += nats_tls_link.instances.map do |instance|
-       "#{instance.id}.#{nats_tls_link.p("nats.hostname")}:#{nats_tls_link.p("nats.port")}" 
+    nats_port = ""
+    if_link("nats") do |nats_link|
+      nats_port = nats_link.p("nats.port")
+      nats_peers += nats_link.instances.map do |instance|
+       "#{instance.id}.#{nats_link.p("nats.hostname")}"
       end
     end
     %>
   {      
       "nats_machines": [ <%= '"' + nats_peers.join('", "') + '"' %> ],
-       "nats_bpm_config_path": "/var/vcap/jobs/nats-tls/config/bpm.yml",
-       "nats_v1_bpm_config_path": "/var/vcap/jobs/nats-tls/config/bpm.v1.yml"
+      "nats_port": <%= nats_port %>,
+      "nats_bpm_config_path": "/var/vcap/jobs/nats/config/bpm.yml",
+      "nats_v1_bpm_config_path": "/var/vcap/jobs/nats/config/bpm.v1.yml"
 }

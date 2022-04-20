@@ -4,7 +4,7 @@ package fakes
 import (
 	"sync"
 
-	"code.cloudfoundry.org/nats-v2-migrate/nats"
+	nats_interface "code.cloudfoundry.org/nats-v2-migrate/nats-interface"
 )
 
 type NatsConn struct {
@@ -99,4 +99,4 @@ func (fake *NatsConn) recordInvocation(key string, args []interface{}) {
 	fake.invocations[key] = append(fake.invocations[key], args)
 }
 
-var _ nats.NatsConn = new(NatsConn)
+var _ nats_interface.NatsConn = new(NatsConn)
