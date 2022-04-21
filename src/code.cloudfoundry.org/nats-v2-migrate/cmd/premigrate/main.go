@@ -20,12 +20,19 @@ import (
 
 type Config struct {
 	NATSMachines      []string `json:"nats_machines"`
-	NatsPort          string   `json:"nats_port"`
+	NatsUser          string   `json:"nats_user"`
+	NatsPassword      string   `json:"nats_password"`
+	NatsPort          int      `json:"nats_port"`
 	V1BPMConfigPath   string   `json:"nats_v1_bpm_config_path"`
 	NATSBPMConfigPath string   `json:"nats_bpm_config_path"`
 	CertFile          string   `json:"nats_cert_path"`
 	KeyFile           string   `json:"nats_key_path"`
 	CaFile            string   `json:"nats_ca_path"`
+}
+
+type NatsServerInfo struct {
+	Version string `json:"version"`
+	Host    string `host:"host"`
 }
 
 func main() {
@@ -45,7 +52,13 @@ func main() {
 		return
 	}
 
-	logger, _ := lagerflags.NewFromConfig(fmt.Sprintf("nats-v2-migrate"), lagerflags.DefaultLagerConfig())
+	logConfig := lagerflags.LagerConfig{
+		LogLevel:      string(lagerflags.INFO),
+		RedactSecrets: false,
+		TimeFormat:    lagerflags.FormatRFC3339,
+	}
+
+	logger, _ := lagerflags.NewFromConfig(fmt.Sprintf("nats-v2-migrate"), logConfig)
 	logger.Info(fmt.Sprintf("Starting premigration. Nats instances: %s", config.NATSMachines))
 	tlsConfig, err := makeTLSConfig(config, logger)
 	if err != nil {
@@ -54,12 +67,16 @@ func main() {
 	}
 
 	var natsConns []nats.NatsConn
+
 	for _, url := range config.NATSMachines {
 
+		logger.Info(fmt.Sprintf("Connecting to url %s", url))
+
 		tlsConfig.ServerName = url
-		natsConn, err := natsClient.Connect(fmt.Sprintf("%s:%s", url, config.NatsPort), natsClient.Secure(tlsConfig))
+		natsConn, err := natsClient.Connect(fmt.Sprintf("%s:%s@%s:%d", config.NatsUser, config.NatsPassword, url, config.NatsPort), natsClient.Secure(tlsConfig))
 		if err != nil {
 			logger.Error("Error connecting to nats server:", err)
+			continue
 		}
 		natsConns = append(natsConns, natsConn)
 	}

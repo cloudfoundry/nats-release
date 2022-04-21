@@ -31,6 +31,8 @@ func NewPreMigrator(natsConns []nats.NatsConn, bpmRewriter bpm_rewriter.Rewriter
 func (pm *PreMigrator) PrepareForMigration() error {
 	for _, conn := range pm.NatsConns {
 		version := conn.ConnectedServerVersion()
+
+		pm.Logger.Info(fmt.Sprintf("Finding server version: %s", version))
 		semanticVersions := strings.Split(version, ".")
 		if len(semanticVersions) < 3 {
 			return fmt.Errorf("Unable to determine nats server version: %s", version)
@@ -44,9 +46,9 @@ func (pm *PreMigrator) PrepareForMigration() error {
 		if majorVersion < 2 {
 			pm.Logger.Info("Cluster contains at least 1 NATS v1 node. Adding v1 executable.")
 
-			err = pm.BpmRewriter.Rewrite(pm.NatsBpmPath, pm.NatsV1BpmPath)
+			err = pm.BpmRewriter.Rewrite(pm.NatsV1BpmPath, pm.NatsBpmPath)
 			if err != nil {
-				return fmt.Errorf("Error replacing bpm config", err)
+				return fmt.Errorf("Error replacing bpm config %s", err)
 			}
 			break
 		}

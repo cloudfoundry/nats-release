@@ -4,6 +4,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"code.cloudfoundry.org/lager"
 	"code.cloudfoundry.org/nats-v2-migrate/fakes"
 	nats "code.cloudfoundry.org/nats-v2-migrate/nats-interface"
 	"code.cloudfoundry.org/nats-v2-migrate/premigrate"
@@ -19,6 +20,7 @@ var _ = Describe("PreMigrator", func() {
 		natsBPMPath   string
 		natsV1BPMPath string
 		premigrator   *premigrate.PreMigrator
+		logger        lager.Logger
 	)
 	BeforeEach(func() {
 		natsBPMPath = "/var/vcap/jobs/nats-tls/config/bpm.yml"
@@ -27,6 +29,7 @@ var _ = Describe("PreMigrator", func() {
 		natsConn2 = &fakes.NatsConn{}
 		natsConn3 = &fakes.NatsConn{}
 		rewriter = &fakes.Rewriter{}
+		logger = lager.NewLogger("nats-test-logger")
 	})
 
 	Describe("NewPreMigrator", func() {
@@ -34,7 +37,7 @@ var _ = Describe("PreMigrator", func() {
 
 			natsConns = []nats.NatsConn{natsConn1, natsConn2, natsConn3}
 			rewriter = &fakes.Rewriter{}
-			premigrator = premigrate.NewPreMigrator(natsConns, rewriter, natsV1BPMPath, natsBPMPath)
+			premigrator = premigrate.NewPreMigrator(natsConns, rewriter, natsV1BPMPath, natsBPMPath, logger)
 			Expect(premigrator).To(Equal(&premigrate.PreMigrator{
 				NatsConns:     natsConns,
 				BpmRewriter:   rewriter,
@@ -47,7 +50,7 @@ var _ = Describe("PreMigrator", func() {
 	Describe("PrepareForMigration", func() {
 		JustBeforeEach(func() {
 			natsConns = []nats.NatsConn{natsConn1, natsConn2, natsConn3}
-			premigrator = premigrate.NewPreMigrator(natsConns, rewriter, natsV1BPMPath, natsBPMPath)
+			premigrator = premigrate.NewPreMigrator(natsConns, rewriter, natsV1BPMPath, natsBPMPath, logger)
 		})
 
 		Context("There are nats v1 machines in the cluster", func() {
@@ -65,8 +68,8 @@ var _ = Describe("PreMigrator", func() {
 
 				Expect(rewriter.RewriteCallCount()).To(Equal(1))
 				arg1, arg2 := rewriter.RewriteArgsForCall(0)
-				Expect(arg1).To(Equal("/var/vcap/jobs/nats-tls/config/bpm.yml"))
-				Expect(arg2).To(Equal("/var/vcap/jobs/nats-tls/config/bpm.v1.yml"))
+				Expect(arg1).To(Equal("/var/vcap/jobs/nats-tls/config/bpm.v1.yml"))
+				Expect(arg2).To(Equal("/var/vcap/jobs/nats-tls/config/bpm.yml"))
 			})
 		})
 
@@ -86,8 +89,8 @@ var _ = Describe("PreMigrator", func() {
 
 				Expect(rewriter.RewriteCallCount()).To(Equal(1))
 				arg1, arg2 := rewriter.RewriteArgsForCall(0)
-				Expect(arg1).To(Equal("/var/vcap/jobs/nats-tls/config/bpm.yml"))
-				Expect(arg2).To(Equal("/var/vcap/jobs/nats-tls/config/bpm.v1.yml"))
+				Expect(arg1).To(Equal("/var/vcap/jobs/nats-tls/config/bpm.v1.yml"))
+				Expect(arg2).To(Equal("/var/vcap/jobs/nats-tls/config/bpm.yml"))
 			})
 		})
 

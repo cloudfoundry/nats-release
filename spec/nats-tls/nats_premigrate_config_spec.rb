@@ -16,7 +16,8 @@ module Bosh::Template::Test
             name: 'nats-tls',
             instances: [
               LinkInstance.new(id: 'abc123'),
-              LinkInstance.new(id: 'def456')
+              LinkInstance.new(id: 'def456'),
+              LinkInstance.new(id: 'aee789')
             ],
             properties: {
               'nats' => {
@@ -34,7 +35,8 @@ module Bosh::Template::Test
 
       let(:spec) do
         {
-          'address' => '10.0.0.1'
+          'address' => '10.0.0.1',
+          'id' => 'aee789' 
         }
       end
 
@@ -47,6 +49,8 @@ module Bosh::Template::Test
         rendered_struct = JSON.parse(rendered_template)
 
         expect(rendered_struct["nats_machines"]). to eq(["abc123.nats.service.cf.internal", "def456.nats.service.cf.internal"])
+        expect(rendered_struct["nats_user"]). to eq("my-user")
+        expect(rendered_struct["nats_password"]). to eq("my-password")
         expect(rendered_struct["nats_port"]). to eq(4224)
         expect(rendered_struct["nats_cert_path"]). to eq("/var/vcap/jobs/nats-tls/config/client_tls/certificate.pem")
         expect(rendered_struct["nats_key_path"]). to eq("/var/vcap/jobs/nats-tls/config/client_tls/private_key.pem")
