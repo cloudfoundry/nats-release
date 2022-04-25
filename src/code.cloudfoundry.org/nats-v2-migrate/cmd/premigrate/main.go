@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -11,6 +10,7 @@ import (
 
 	"code.cloudfoundry.org/lager"
 	"code.cloudfoundry.org/lager/lagerflags"
+	"code.cloudfoundry.org/nats-v2-migrate/config"
 
 	bpm_rewriter "code.cloudfoundry.org/nats-v2-migrate/bpm-rewriter"
 	nats "code.cloudfoundry.org/nats-v2-migrate/nats-interface"
@@ -18,18 +18,7 @@ import (
 	natsClient "github.com/nats-io/nats.go"
 )
 
-type Config struct {
-	NATSMachines      []string `json:"nats_machines"`
-	NatsUser          string   `json:"nats_user"`
-	NatsPassword      string   `json:"nats_password"`
-	NatsPort          int      `json:"nats_port"`
-	V1BPMConfigPath   string   `json:"nats_v1_bpm_config_path"`
-	NATSBPMConfigPath string   `json:"nats_bpm_config_path"`
-	CertFile          string   `json:"nats_cert_path"`
-	KeyFile           string   `json:"nats_key_path"`
-	CaFile            string   `json:"nats_ca_path"`
-}
-
+// TODO: is this used?
 type NatsServerInfo struct {
 	Version string `json:"version"`
 	Host    string `host:"host"`
@@ -39,19 +28,6 @@ func main() {
 	configFilePath := flag.String("config-file", "", "path to config file")
 	flag.Parse()
 
-	var config Config
-	configBytes, err := ioutil.ReadFile(*configFilePath)
-	if err != nil {
-		fmt.Printf("Error reading config file: %v\n", err)
-		return
-	}
-
-	err = json.Unmarshal(configBytes, &config)
-	if err != nil {
-		fmt.Printf("Error unmarshalling config file: %v\n", err)
-		return
-	}
-
 	logConfig := lagerflags.LagerConfig{
 		LogLevel:      string(lagerflags.INFO),
 		RedactSecrets: false,
@@ -59,8 +35,16 @@ func main() {
 	}
 
 	logger, _ := lagerflags.NewFromConfig(fmt.Sprintf("nats-v2-migrate"), logConfig)
-	logger.Info(fmt.Sprintf("Starting premigration. Nats instances: %s", config.NATSMachines))
-	tlsConfig, err := makeTLSConfig(config, logger)
+
+	c, err := config.InitConfigFromFile(*configFilePath)
+	if err != nil {
+		logger.Error("Error reading config: ", err)
+		return
+	}
+
+	logger.Info(fmt.Sprintf("Starting premigration. Nats instances: %s", c.NATSMachines))
+
+	tlsConfig, err := makeTLSConfig(c, logger)
 	if err != nil {
 		logger.Error("Error making TLS Config", err)
 		return
@@ -68,12 +52,12 @@ func main() {
 
 	var natsConns []nats.NatsConn
 
-	for _, url := range config.NATSMachines {
+	for _, url := range c.NATSMachines {
 
 		logger.Info(fmt.Sprintf("Connecting to url %s", url))
 
 		tlsConfig.ServerName = url
-		natsConn, err := natsClient.Connect(fmt.Sprintf("%s:%s@%s:%d", config.NatsUser, config.NatsPassword, url, config.NatsPort), natsClient.Secure(tlsConfig))
+		natsConn, err := natsClient.Connect(fmt.Sprintf("%s:%s@%s:%d", c.NatsUser, c.NatsPassword, url, c.NatsPort), natsClient.Secure(tlsConfig))
 		if err != nil {
 			logger.Error("Error connecting to nats server:", err)
 			continue
@@ -83,7 +67,7 @@ func main() {
 
 	rewriter := bpm_rewriter.BPMRewriter{}
 
-	preMigrator := premigrate.NewPreMigrator(natsConns, &rewriter, config.V1BPMConfigPath, config.NATSBPMConfigPath, logger)
+	preMigrator := premigrate.NewPreMigrator(natsConns, &rewriter, c, logger)
 	err = preMigrator.PrepareForMigration()
 
 	if err != nil {
@@ -91,16 +75,16 @@ func main() {
 	}
 }
 
-func makeTLSConfig(config Config, logger lager.Logger) (*tls.Config, error) {
-	certFile := config.CertFile
-	keyFile := config.KeyFile
+func makeTLSConfig(c *config.Config, logger lager.Logger) (*tls.Config, error) {
+	certFile := c.CertFile
+	keyFile := c.KeyFile
 
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
 		return nil, err
 	}
 
-	caFile := config.CaFile
+	caFile := c.CaFile
 
 	caCerts, err := ioutil.ReadFile(caFile)
 	if err != nil {

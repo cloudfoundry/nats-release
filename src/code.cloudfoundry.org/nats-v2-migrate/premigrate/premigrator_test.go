@@ -5,6 +5,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"code.cloudfoundry.org/lager"
+	"code.cloudfoundry.org/nats-v2-migrate/config"
 	"code.cloudfoundry.org/nats-v2-migrate/fakes"
 	nats "code.cloudfoundry.org/nats-v2-migrate/nats-interface"
 	"code.cloudfoundry.org/nats-v2-migrate/premigrate"
@@ -12,19 +13,20 @@ import (
 
 var _ = Describe("PreMigrator", func() {
 	var (
-		natsConn1     *fakes.NatsConn
-		natsConn2     *fakes.NatsConn
-		natsConn3     *fakes.NatsConn
-		natsConns     []nats.NatsConn
-		rewriter      *fakes.Rewriter
-		natsBPMPath   string
-		natsV1BPMPath string
-		premigrator   *premigrate.PreMigrator
-		logger        lager.Logger
+		natsConn1   *fakes.NatsConn
+		natsConn2   *fakes.NatsConn
+		natsConn3   *fakes.NatsConn
+		natsConns   []nats.NatsConn
+		rewriter    *fakes.Rewriter
+		c           config.Config
+		premigrator *premigrate.PreMigrator
+		logger      lager.Logger
 	)
 	BeforeEach(func() {
-		natsBPMPath = "/var/vcap/jobs/nats-tls/config/bpm.yml"
-		natsV1BPMPath = "/var/vcap/jobs/nats-tls/config/bpm.v1.yml"
+		c = config.Config{
+			V1BPMConfigPath:   "/var/vcap/jobs/nats-tls/config/bpm.v1.yml",
+			NATSBPMConfigPath: "/var/vcap/jobs/nats-tls/config/bpm.yml",
+		}
 		natsConn1 = &fakes.NatsConn{}
 		natsConn2 = &fakes.NatsConn{}
 		natsConn3 = &fakes.NatsConn{}
@@ -37,12 +39,11 @@ var _ = Describe("PreMigrator", func() {
 
 			natsConns = []nats.NatsConn{natsConn1, natsConn2, natsConn3}
 			rewriter = &fakes.Rewriter{}
-			premigrator = premigrate.NewPreMigrator(natsConns, rewriter, natsV1BPMPath, natsBPMPath, logger)
+			premigrator = premigrate.NewPreMigrator(natsConns, rewriter, &c, logger)
 			Expect(premigrator).To(Equal(&premigrate.PreMigrator{
-				NatsConns:     natsConns,
-				BpmRewriter:   rewriter,
-				NatsV1BpmPath: natsV1BPMPath,
-				NatsBpmPath:   natsBPMPath,
+				NatsConns:   natsConns,
+				BpmRewriter: rewriter,
+				Config:      &c,
 			}))
 		})
 	})
@@ -50,7 +51,7 @@ var _ = Describe("PreMigrator", func() {
 	Describe("PrepareForMigration", func() {
 		JustBeforeEach(func() {
 			natsConns = []nats.NatsConn{natsConn1, natsConn2, natsConn3}
-			premigrator = premigrate.NewPreMigrator(natsConns, rewriter, natsV1BPMPath, natsBPMPath, logger)
+			premigrator = premigrate.NewPreMigrator(natsConns, rewriter, &c, logger)
 		})
 
 		Context("There are nats v1 machines in the cluster", func() {

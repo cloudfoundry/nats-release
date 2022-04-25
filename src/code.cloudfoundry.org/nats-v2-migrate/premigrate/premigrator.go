@@ -7,24 +7,23 @@ import (
 
 	"code.cloudfoundry.org/lager"
 	bpm_rewriter "code.cloudfoundry.org/nats-v2-migrate/bpm-rewriter"
+	"code.cloudfoundry.org/nats-v2-migrate/config"
 	nats "code.cloudfoundry.org/nats-v2-migrate/nats-interface"
 )
 
 type PreMigrator struct {
-	NatsConns     []nats.NatsConn
-	BpmRewriter   bpm_rewriter.Rewriter
-	NatsV1BpmPath string
-	NatsBpmPath   string
-	Logger        lager.Logger
+	BpmRewriter bpm_rewriter.Rewriter
+	Config      *config.Config
+	Logger      lager.Logger
+	NatsConns   []nats.NatsConn
 }
 
-func NewPreMigrator(natsConns []nats.NatsConn, bpmRewriter bpm_rewriter.Rewriter, natsV1BpmPath string, natsBpmPath string, logger lager.Logger) *PreMigrator {
+func NewPreMigrator(natsConns []nats.NatsConn, bpmRewriter bpm_rewriter.Rewriter, config *config.Config, logger lager.Logger) *PreMigrator {
 	return &PreMigrator{
-		NatsConns:     natsConns,
-		BpmRewriter:   bpmRewriter,
-		NatsV1BpmPath: natsV1BpmPath,
-		NatsBpmPath:   natsBpmPath,
-		Logger:        logger,
+		NatsConns:   natsConns,
+		BpmRewriter: bpmRewriter,
+		Config:      config,
+		Logger:      logger,
 	}
 }
 
@@ -46,7 +45,7 @@ func (pm *PreMigrator) PrepareForMigration() error {
 		if majorVersion < 2 {
 			pm.Logger.Info("Cluster contains at least 1 NATS v1 node. Adding v1 executable.")
 
-			err = pm.BpmRewriter.Rewrite(pm.NatsV1BpmPath, pm.NatsBpmPath)
+			err = pm.BpmRewriter.Rewrite(pm.Config.V1BPMConfigPath, pm.Config.NATSBPMConfigPath)
 			if err != nil {
 				return fmt.Errorf("Error replacing bpm config %s", err)
 			}
