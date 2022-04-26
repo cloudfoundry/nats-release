@@ -1,0 +1,10 @@
+{
+      "nats_machines": [ "772882e1-ea1e-4b0c-b010-5dfd41e680d1.nats.service.cf.internal", "c4e7c684-b986-48b8-8339-38989a6fed67.nats.service.cf.internal" ],
+      "nats_user": "nats",
+      "nats_password": "s72cHitFzjvFVtGfJXQVG91Q7X7Jpl",
+      "nats_port": 4224,
+      "nats_cert_path": "/var/vcap/jobs/nats-tls/config/client_tls/certificate.pem",
+      "nats_key_path": "/var/vcap/jobs/nats-tls/config/client_tls/private_key.pem",
+      "nats_ca_path": "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem",
+      "nats_bpm_config_path": "/var/vcap/jobs/nats-tls/config/bpm.yml",
+      "nats_v1_bpm_config_path": "/var/vcap/jobs/nats-tls/config/bpm.v1.yml"

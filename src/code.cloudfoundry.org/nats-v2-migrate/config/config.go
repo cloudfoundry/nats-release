@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"reflect"
 )
 
 type Config struct {
@@ -20,16 +21,21 @@ type Config struct {
 }
 
 func InitConfigFromFile(path string) (*Config, error) {
-	var config *Config
+	var config Config
+
 	configBytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("Error reading config file: %v\n", err))
 	}
 
-	err = json.Unmarshal(configBytes, config)
+	err = json.Unmarshal(configBytes, &config)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("Error unmarshalling config file: %v\n", err))
 	}
 
-	return config, nil
+	if reflect.DeepEqual(config, Config{}) {
+		return nil, errors.New("Config file cannot be empty")
+	}
+
+	return &config, nil
 }
