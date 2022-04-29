@@ -1,6 +1,7 @@
 package premigrate
 
 import (
+	"crypto/tls"
 	"fmt"
 	"strconv"
 	"strings"
@@ -9,7 +10,23 @@ import (
 	bpm_rewriter "code.cloudfoundry.org/nats-v2-migrate/bpm-rewriter"
 	"code.cloudfoundry.org/nats-v2-migrate/config"
 	nats "code.cloudfoundry.org/nats-v2-migrate/nats-interface"
+
+	natsClient "github.com/nats-io/nats.go"
 )
+
+func EnsureNatsConnections(c *config.Config, tlsConfig *tls.Config) ([]nats.NatsConn, error) {
+	var natsConns []nats.NatsConn
+
+	for _, url := range c.NATSMachines {
+		tlsConfig.ServerName = url
+		natsConn, err := natsClient.Connect(fmt.Sprintf("%s:%s@%s:%d", c.NatsUser, c.NatsPassword, url, c.NatsPort), natsClient.Secure(tlsConfig))
+		if err != nil {
+			return nil, err
+		}
+		natsConns = append(natsConns, natsConn)
+	}
+	return natsConns, nil
+}
 
 type PreMigrator struct {
 	BpmRewriter bpm_rewriter.Rewriter
@@ -39,7 +56,7 @@ func (pm *PreMigrator) PrepareForMigration() error {
 
 		majorVersion, err := strconv.Atoi(semanticVersions[0])
 		if err != nil {
-			fmt.Printf("Error parsing semantic version: %v\n", err)
+			return fmt.Errorf("Error parsing semantic version: %v\n", err)
 		}
 
 		if majorVersion < 2 {
@@ -51,7 +68,8 @@ func (pm *PreMigrator) PrepareForMigration() error {
 			}
 			break
 		}
-		fmt.Println("Cluster does not contain any NATS v1 nodes. Using v2 executable.")
 	}
+
+	pm.Logger.Info("Cluster does not contain any NATS v1 nodes. Using v2 executable.")
 	return nil
 }

@@ -2,27 +2,17 @@ package main
 
 import (
 	"crypto/tls"
-	"crypto/x509"
-	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"os"
 
-	"code.cloudfoundry.org/lager"
+	"code.cloudfoundry.org/cf-networking-helpers/mutualtls"
 	"code.cloudfoundry.org/lager/lagerflags"
 	"code.cloudfoundry.org/nats-v2-migrate/config"
 
 	bpm_rewriter "code.cloudfoundry.org/nats-v2-migrate/bpm-rewriter"
-	nats "code.cloudfoundry.org/nats-v2-migrate/nats-interface"
 	"code.cloudfoundry.org/nats-v2-migrate/premigrate"
-	natsClient "github.com/nats-io/nats.go"
 )
-
-// TODO: is this used?
-type NatsServerInfo struct {
-	Version string `json:"version"`
-	Host    string `host:"host"`
-}
 
 func main() {
 	configFilePath := flag.String("config-file", "", "path to config file")
@@ -39,30 +29,44 @@ func main() {
 	c, err := config.InitConfigFromFile(*configFilePath)
 	if err != nil {
 		logger.Error("Error reading config: ", err)
-		return
+		os.Exit(1)
 	}
 
 	logger.Info(fmt.Sprintf("Starting premigration. Nats instances: %s", c.NATSMachines))
 
-	tlsConfig, err := makeTLSConfig(c, logger)
-	if err != nil {
-		logger.Error("Error making TLS Config", err)
+	var tlsConfig *tls.Config
+	if c.CertFile != "" {
+		tlsConfig, err = mutualtls.NewClientTLSConfig(c.CertFile, c.KeyFile, c.CaFile)
+		if err != nil {
+			logger.Error("Error creating TLS config for nats client", err)
+			os.Exit(1)
+		}
+	}
+	if len(c.NATSMachines) == 0 {
+		logger.Info("Single-instance NATS cluster. Restarting as v2")
 		return
 	}
 
-	var natsConns []nats.NatsConn
+	if c.CertFile != "" {
 
-	for _, url := range c.NATSMachines {
-
-		logger.Info(fmt.Sprintf("Connecting to url %s", url))
-
-		tlsConfig.ServerName = url
-		natsConn, err := natsClient.Connect(fmt.Sprintf("%s:%s@%s:%d", c.NatsUser, c.NatsPassword, url, c.NatsPort), natsClient.Secure(tlsConfig))
+		natsConns, err := premigrate.EnsureNatsConnections(c)
 		if err != nil {
-			logger.Error("Error connecting to nats server:", err)
-			continue
+			logger.Error("Unable to connect to NATs peers to verify existing server version", err)
+			os.Exit(1)
 		}
-		natsConns = append(natsConns, natsConn)
+	} else {
+
+		natsConns, err := premigrate.EnsureNatsConnections(c, tlsConfig)
+		if err != nil {
+			logger.Error("Unable to connect to NATs peers to verify existing server version", err)
+			os.Exit(1)
+		}
+
+	}
+	natsConns, err := premigrate.EnsureNatsConnections(c, tlsConfig)
+	if err != nil {
+		logger.Error("Unable to connect to NATs peers to verify existing server version", err)
+		os.Exit(1)
 	}
 
 	rewriter := bpm_rewriter.BPMRewriter{}
@@ -72,36 +76,6 @@ func main() {
 
 	if err != nil {
 		logger.Error("Premigrate failure: ", err)
+		os.Exit(1)
 	}
-}
-
-func makeTLSConfig(c *config.Config, logger lager.Logger) (*tls.Config, error) {
-	certFile := c.CertFile
-	keyFile := c.KeyFile
-
-	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
-	if err != nil {
-		return nil, err
-	}
-
-	caFile := c.CaFile
-
-	caCerts, err := ioutil.ReadFile(caFile)
-	if err != nil {
-		return nil, err
-	}
-
-	caPool := x509.NewCertPool()
-
-	if ok := caPool.AppendCertsFromPEM(caCerts); !ok {
-		return nil, errors.New("No ca certs appended. Must supply valid CA cert.")
-
-	}
-
-	tlsConfig := &tls.Config{
-		Certificates: []tls.Certificate{cert},
-		RootCAs:      caPool,
-		MinVersion:   tls.VersionTLS12,
-	}
-	return tlsConfig, nil
 }

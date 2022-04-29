@@ -15,9 +15,9 @@ type Config struct {
 	NatsPort          int      `json:"nats_port"`
 	V1BPMConfigPath   string   `json:"nats_v1_bpm_config_path"`
 	NATSBPMConfigPath string   `json:"nats_bpm_config_path"`
-	CertFile          string   `json:"nats_cert_path"`
-	KeyFile           string   `json:"nats_key_path"`
-	CaFile            string   `json:"nats_ca_path"`
+	CertFile          string   `json:"nats_cert_path,omitempty"`
+	KeyFile           string   `json:"nats_key_path,omitempty"`
+	CaFile            string   `json:"nats_ca_path,omitempty"`
 }
 
 func InitConfigFromFile(path string) (*Config, error) {

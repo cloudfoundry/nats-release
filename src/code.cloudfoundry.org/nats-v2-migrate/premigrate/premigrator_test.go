@@ -1,6 +1,7 @@
 package premigrate_test
 
 import (
+	"crypto/tls"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -10,6 +11,53 @@ import (
 	nats "code.cloudfoundry.org/nats-v2-migrate/nats-interface"
 	"code.cloudfoundry.org/nats-v2-migrate/premigrate"
 )
+var _ Describe("EnsureNatsConnections", func(){
+	var (
+		config config.Config
+		tlsConfig tls.Config 
+		
+		nc *fakes.NatsClient
+
+		natsConn1 nats.NatsConn
+		natsConn1 nats.NatsConn
+	)
+	BeforeEach(func() {
+		config = config.Config{
+			NATSMachines: []string{"1.nats.url", "2.nats.url"}
+			NatsUser: "nats",
+			NatsPassword: "some-password",
+			NatsPort: 4224,
+		}
+		tlsConfig = &tls.Config{}
+		
+		nc = &fakes.NatsClient{}
+	})
+
+	Context("When every connection is successful", func() {
+		BeforeEach(func() {
+			nc.ConnectedReturnsOnCall(0, natsConn1)
+			nc.ConnectedReturnsOnCall(1, natsConn2)
+		})
+	
+		It("returns the array of connection objects", func() {
+			result, err = premigrate.EnsureNatsConnections(config, tlsConfig)
+			Expect(result[0]).To(Equal(&natsConn1)
+			Expect(result[1]).To(Equal(&natsConn2)
+				
+			Expect(err).To(NotTo(HaveOccurred()))
+		
+			Expect(nc.ConnectCallCount).To(Equal(2))		
+		})	
+		
+
+	})
+	Context("When at least one connection is unsuccessful", func() {
+		It("returns an error", func() {
+		)
+
+	})
+})
+
 
 var _ = Describe("PreMigrator", func() {
 	var (

@@ -59,6 +59,44 @@ module Bosh::Template::Test
         expect(rendered_struct["nats_v1_bpm_config_path"]). to eq("/var/vcap/jobs/nats-tls/config/bpm.v1.yml")
       end
     end
+    
+    describe "premigrate config for nats-tls with no peers" do
+      let(:links) do
+        [
+          Link.new(
+            name: 'nats-tls',
+            instances: [],
+            properties: {
+              'nats' => {
+                'user' => 'my-user',
+                'password' => 'my-password',
+                'hostname' => 'nats.service.cf.internal',
+                'port' => 4224,
+                'cluster_port' => 4225,
+                'http' => '0.0.0.0:0'
+              }
+            }
+          )
+        ]
+      end
+     let(:job) {release.job('nats-tls')}
+     let(:template) { job.template('config/premigrate.conf') }
+
+      it 'renders the template with the provided manifest properties' do
+        rendered_template = template.render(merged_manifest_properties, consumes: links, spec: spec)
+        rendered_struct = JSON.parse(rendered_template)
+
+        expect(rendered_struct["nats_machines"]). to eq([])
+        expect(rendered_struct["nats_user"]). to eq("my-user")
+        expect(rendered_struct["nats_password"]). to eq("my-password")
+        expect(rendered_struct["nats_port"]). to eq(4224)
+        expect(rendered_struct["nats_cert_path"]). to eq("/var/vcap/jobs/nats-tls/config/client_tls/certificate.pem")
+        expect(rendered_struct["nats_key_path"]). to eq("/var/vcap/jobs/nats-tls/config/client_tls/private_key.pem")
+        expect(rendered_struct["nats_ca_path"]). to eq("/var/vcap/jobs/nats-tls/config/external_tls/ca.pem")
+        expect(rendered_struct["nats_bpm_config_path"]). to eq("/var/vcap/jobs/nats-tls/config/bpm.yml")
+        expect(rendered_struct["nats_v1_bpm_config_path"]). to eq("/var/vcap/jobs/nats-tls/config/bpm.v1.yml")
+      end
+    end
     end
   end
 end

@@ -28,6 +28,24 @@ var _ = Describe("Config", func() {
 			Expect(actual).To(Equal(&expected))
 		})
 
+		It("Works for no nats peers", func() {
+			expected := config.Config{
+				NATSMachines:      []string{},
+				NatsUser:          "nats",
+				NatsPassword:      "s72cHitFzjvFVtGfJXQVG91Q7X7Jpl",
+				NatsPort:          4224,
+				V1BPMConfigPath:   "/var/vcap/jobs/nats-tls/config/bpm.v1.yml",
+				NATSBPMConfigPath: "/var/vcap/jobs/nats-tls/config/bpm.yml",
+				CertFile:          "/var/vcap/jobs/nats-tls/config/client_tls/certificate.pem",
+				KeyFile:           "/var/vcap/jobs/nats-tls/config/client_tls/private_key.pem",
+				CaFile:            "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem",
+			}
+
+			configPath := "./empty_peers_config.json"
+			actual, err := config.InitConfigFromFile(configPath)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(actual).To(Equal(&expected))
+		})
 		Context("when it fails to read the file", func() {
 			It("returns an error", func() {
 				configPath := "./does_not_exist.json"
