@@ -2,7 +2,7 @@
 name: nats-tls-healthcheck
 
 dependencies:
-  - golang-1.17-linux
+  - golang-1-linux
 
 files:
   - code.cloudfoundry.org/go.mod

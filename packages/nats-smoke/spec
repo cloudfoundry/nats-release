@@ -2,7 +2,7 @@
 name: nats-smoke
 
 dependencies:
-  - golang-1.17-linux
+  - golang-1-linux
 
 files:
   - code.cloudfoundry.org/go.mod
