@@ -34,36 +34,30 @@ func main() {
 
 	logger.Info(fmt.Sprintf("Starting premigration. Nats instances: %s", c.NATSMachines))
 
-	var tlsConfig *tls.Config
-	if c.CertFile != "" {
+	if len(c.NATSMachines) == 0 {
+		logger.Info("Single-instance NATS cluster. Restarting as v2")
+		return
+	}
+
+	var tlsConfig *tls.Config = nil
+
+	if c.InternalTLSEnabled {
 		tlsConfig, err = mutualtls.NewClientTLSConfig(c.CertFile, c.KeyFile, c.CaFile)
 		if err != nil {
 			logger.Error("Error creating TLS config for nats client", err)
 			os.Exit(1)
 		}
 	}
-	if len(c.NATSMachines) == 0 {
-		logger.Info("Single-instance NATS cluster. Restarting as v2")
-		return
+
+	//TODO: remove this
+	tlsIsNil := tlsConfig == nil
+	logger.Info(fmt.Sprintf("TLS NIL: %t", tlsIsNil))
+	natsConns, err := premigrate.EnsureNatsConnections(c, tlsConfig, logger)
+	if err != nil {
+		logger.Error("Unable to connect to NATs peers to verify existing server version", err)
+		os.Exit(1)
 	}
 
-	if c.CertFile != "" {
-
-		natsConns, err := premigrate.EnsureNatsConnections(c)
-		if err != nil {
-			logger.Error("Unable to connect to NATs peers to verify existing server version", err)
-			os.Exit(1)
-		}
-	} else {
-
-		natsConns, err := premigrate.EnsureNatsConnections(c, tlsConfig)
-		if err != nil {
-			logger.Error("Unable to connect to NATs peers to verify existing server version", err)
-			os.Exit(1)
-		}
-
-	}
-	natsConns, err := premigrate.EnsureNatsConnections(c, tlsConfig)
 	if err != nil {
 		logger.Error("Unable to connect to NATs peers to verify existing server version", err)
 		os.Exit(1)

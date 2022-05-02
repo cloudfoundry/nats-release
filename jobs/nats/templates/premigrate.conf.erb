@@ -3,14 +3,20 @@
     nats_port = ""
     if_link("nats") do |nats_link|
       nats_port = nats_link.p("nats.port")
-      nats_peers += nats_link.instances.map do |instance|
-       "#{instance.id}.#{nats_link.p("nats.hostname")}"
+      nats_link.instances.map do |instance|
+        if instance.id == spec.id 
+            next
+        end
+        nats_peers.push("#{instance.id}.#{nats_link.p("nats.hostname")}")
       end
     end
     %>
   {      
       "nats_machines": [ <%= '"' + nats_peers.join('", "') + '"' %> ],
+      "nats_user": "<%= p("nats.user") %>",
+      "nats_password": "<%= p("nats.password") %>",
       "nats_port": <%= nats_port %>,
+      "nats_internal_tls_enabled": <%= p("nats.internal.tls.enabled") %>,
       "nats_bpm_config_path": "/var/vcap/jobs/nats/config/bpm.yml",
       "nats_v1_bpm_config_path": "/var/vcap/jobs/nats/config/bpm.v1.yml"
 }

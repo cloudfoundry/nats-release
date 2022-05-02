@@ -14,18 +14,39 @@ import (
 	natsClient "github.com/nats-io/nats.go"
 )
 
-func EnsureNatsConnections(c *config.Config, tlsConfig *tls.Config) ([]nats.NatsConn, error) {
+func EnsureNatsConnections(c *config.Config, tlsConfig *tls.Config, logger lager.Logger) ([]nats.NatsConn, error) {
 	var natsConns []nats.NatsConn
+	var optionFunc natsClient.Option
 
 	for _, url := range c.NATSMachines {
-		tlsConfig.ServerName = url
-		natsConn, err := natsClient.Connect(fmt.Sprintf("%s:%s@%s:%d", c.NatsUser, c.NatsPassword, url, c.NatsPort), natsClient.Secure(tlsConfig))
+		//TODO: remove this
+		tlsIsNil := tlsConfig == nil
+		logger.Info(fmt.Sprintf("TLS NIL: %t", tlsIsNil))
+
+		logger.Info(fmt.Sprintf("TLS Enabled: %t", c.InternalTLSEnabled))
+		if c.InternalTLSEnabled && tlsConfig != nil {
+			tlsConfig.ServerName = url
+			if optionFunc == nil {
+				optionFunc = AddTLSConfig(tlsConfig, logger)
+			}
+		}
+		natsConn, err := natsClient.Connect(fmt.Sprintf("%s:%s@%s:%d", c.NatsUser, c.NatsPassword, url, c.NatsPort), optionFunc)
 		if err != nil {
 			return nil, err
 		}
 		natsConns = append(natsConns, natsConn)
 	}
 	return natsConns, nil
+}
+
+func AddTLSConfig(tls *tls.Config, logger lager.Logger) natsClient.Option {
+	return func(o *natsClient.Options) error {
+		if tls != nil {
+			o.TLSConfig = tls
+			logger.Info(fmt.Sprintf("is server name on tls config? %s", o.TLSConfig.ServerName))
+		}
+		return nil
+	}
 }
 
 type PreMigrator struct {
