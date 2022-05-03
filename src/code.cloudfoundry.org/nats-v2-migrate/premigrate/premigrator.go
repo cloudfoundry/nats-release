@@ -19,11 +19,6 @@ func EnsureNatsConnections(c *config.Config, tlsConfig *tls.Config, logger lager
 	var optionFunc natsClient.Option
 
 	for _, url := range c.NATSMachines {
-		//TODO: remove this
-		tlsIsNil := tlsConfig == nil
-		logger.Info(fmt.Sprintf("TLS NIL: %t", tlsIsNil))
-
-		logger.Info(fmt.Sprintf("TLS Enabled: %t", c.InternalTLSEnabled))
 		if c.InternalTLSEnabled && tlsConfig != nil {
 			tlsConfig.ServerName = url
 			if optionFunc == nil {
@@ -43,7 +38,6 @@ func AddTLSConfig(tls *tls.Config, logger lager.Logger) natsClient.Option {
 	return func(o *natsClient.Options) error {
 		if tls != nil {
 			o.TLSConfig = tls
-			logger.Info(fmt.Sprintf("is server name on tls config? %s", o.TLSConfig.ServerName))
 		}
 		return nil
 	}

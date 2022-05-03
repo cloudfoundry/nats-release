@@ -49,9 +49,6 @@ func main() {
 		}
 	}
 
-	//TODO: remove this
-	tlsIsNil := tlsConfig == nil
-	logger.Info(fmt.Sprintf("TLS NIL: %t", tlsIsNil))
 	natsConns, err := premigrate.EnsureNatsConnections(c, tlsConfig, logger)
 	if err != nil {
 		logger.Error("Unable to connect to NATs peers to verify existing server version", err)
