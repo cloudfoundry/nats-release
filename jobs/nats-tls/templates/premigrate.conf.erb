@@ -21,6 +21,7 @@
       "nats_user": "<%= nats_user %>",
       "nats_password": "<%= nats_password %>",
       "nats_port": <%= nats_port %>,
+      "nats_internal_tls_enabled": <%= p("nats.internal.tls.enabled") %>,
       "nats_cert_path": "/var/vcap/jobs/nats-tls/config/client_tls/certificate.pem",
       "nats_key_path": "/var/vcap/jobs/nats-tls/config/client_tls/private_key.pem",
       "nats_ca_path": "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem",
