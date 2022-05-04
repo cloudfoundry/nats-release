@@ -2,11 +2,10 @@
 name: gnatsd
 
 dependencies:
-  - golang-1.17-linux
+  - golang-1-linux
 
 files:
-  - go.mod
-  - go.sum
-  - gnatsd/**/*.go
-  - vendor/modules.txt
-  - vendor/**/*
+  - code.cloudfoundry.org/go.mod
+  - code.cloudfoundry.org/go.sum
+  - code.cloudfoundry.org/vendor/modules.txt
+  - code.cloudfoundry.org/vendor/**/*

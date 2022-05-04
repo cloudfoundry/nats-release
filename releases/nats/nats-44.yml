@@ -1,0 +1,52 @@
+name: nats
+version: "44"
+commit_hash: aa1f2fd
+uncommitted_changes: false
+jobs:
+- name: nats
+  version: 5bfc2c2583700332bd59d9f80a4a210f136ea622a63a70dc78b162c79705c87e
+  fingerprint: 5bfc2c2583700332bd59d9f80a4a210f136ea622a63a70dc78b162c79705c87e
+  sha1: sha256:002055de7b5a5d5c61703ee730cfa52de16ed0c11777507fc5a77445b2171ed8
+  packages:
+  - gnatsd
+- name: nats-tls
+  version: ae316fb0c846f0fff0360a307d4dce8303f7907870e58c3660278aea3ccef7b1
+  fingerprint: ae316fb0c846f0fff0360a307d4dce8303f7907870e58c3660278aea3ccef7b1
+  sha1: sha256:67746c9da563d7c221d46ee085725991b62bfacf6aad4234f7cfe2b2878b7aca
+  packages:
+  - gnatsd
+  - nats-tls-healthcheck
+- name: smoke-tests
+  version: d0171675435288c416a6b680c158ae57e29f2ff0c91648581090f8e1039b23b2
+  fingerprint: d0171675435288c416a6b680c158ae57e29f2ff0c91648581090f8e1039b23b2
+  sha1: sha256:547bca14b390e6249fb4b2b38b0773e6d0e55546f4d616d4685f2a800e8b3439
+  packages:
+  - nats-smoke
+packages:
+- name: gnatsd
+  version: 23bf5fb5581666c6bbd4d79715958121df478b651becb755b54052e7d7f429bc
+  fingerprint: 23bf5fb5581666c6bbd4d79715958121df478b651becb755b54052e7d7f429bc
+  sha1: sha256:c453a81b5b13bec138c4a761acbfc8769777bb6967003fb9bcd2e65fe24d0503
+  dependencies:
+  - golang-1-linux
+- name: golang-1-linux
+  version: b8021c5bdc377a4807fb1caad8416215032698ae356825afb427c7efc5ef76c1
+  fingerprint: b8021c5bdc377a4807fb1caad8416215032698ae356825afb427c7efc5ef76c1
+  sha1: sha256:2a2785460af04aee276c3c2b38dd914c8e1cbefbf52cb14da130207e82e86289
+  dependencies: []
+- name: nats-smoke
+  version: 352276c95e32b7e4d4fc39166454f4ce48af370682d3aca4e2e860cbdab294d6
+  fingerprint: 352276c95e32b7e4d4fc39166454f4ce48af370682d3aca4e2e860cbdab294d6
+  sha1: sha256:ace5aebcab69d82a5a9bf21e217f73a753f8d4c55abf582a316eda7eee95152d
+  dependencies:
+  - golang-1-linux
+- name: nats-tls-healthcheck
+  version: 88e6f2566d2fe5015e176e54edab24cbf91ab503b2f0ee020299c3fb6f523ca2
+  fingerprint: 88e6f2566d2fe5015e176e54edab24cbf91ab503b2f0ee020299c3fb6f523ca2
+  sha1: sha256:c2cf6db7a25aca98b3b086de81703e5c31fd0bde72b685e04fcea404ac96fa16
+  dependencies:
+  - golang-1-linux
+license:
+  version: 03d3298216ff6caa85c599c878020012fbf74adf4ab427407f7585d005b2c4b5
+  fingerprint: 03d3298216ff6caa85c599c878020012fbf74adf4ab427407f7585d005b2c4b5
+  sha1: sha256:2b36f342a58d00279fd1752c08bec85ced5f6b68e474ac99a0c5338770d0bf87
