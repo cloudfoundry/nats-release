@@ -1,16 +1,13 @@
 package main
 
 import (
-	"crypto/tls"
 	"flag"
 	"fmt"
 	"os"
 
-	"code.cloudfoundry.org/cf-networking-helpers/mutualtls"
 	"code.cloudfoundry.org/lager/lagerflags"
 	"code.cloudfoundry.org/nats-v2-migrate/config"
 
-	bpm_rewriter "code.cloudfoundry.org/nats-v2-migrate/bpm-rewriter"
 	"code.cloudfoundry.org/nats-v2-migrate/premigrate"
 )
 
@@ -32,37 +29,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	logger.Info(fmt.Sprintf("Starting premigration. Nats instances: %s", c.NATSMachines))
-
-	if len(c.NATSMachines) == 0 {
-		logger.Info("Single-instance NATS cluster. Restarting as v2")
-		return
-	}
-
-	var tlsConfig *tls.Config = nil
-
-	if c.InternalTLSEnabled {
-		tlsConfig, err = mutualtls.NewClientTLSConfig(c.CertFile, c.KeyFile, c.CaFile)
-		if err != nil {
-			logger.Error("Error creating TLS config for nats client", err)
-			os.Exit(1)
-		}
-	}
-
-	natsConns, err := premigrate.EnsureNatsConnections(c, tlsConfig, logger)
-	if err != nil {
-		logger.Error("Unable to connect to NATs peers to verify existing server version", err)
-		os.Exit(1)
-	}
-
-	if err != nil {
-		logger.Error("Unable to connect to NATs peers to verify existing server version", err)
-		os.Exit(1)
-	}
-
-	rewriter := bpm_rewriter.BPMRewriter{}
-
-	preMigrator := premigrate.NewPreMigrator(natsConns, &rewriter, c, logger)
+	preMigrator := premigrate.NewPreMigrator(c, logger)
 	err = preMigrator.PrepareForMigration()
 
 	if err != nil {
