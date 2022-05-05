@@ -29,7 +29,36 @@ A path pointing to this binary is returned.
 Build uses the $GOPATH set in your environment. If $GOPATH is not set and you are using Go 1.8+,
 it will use the default GOPATH instead.  It passes the variadic args on to `go build`.
 */
-fv = append(build.Env, env...)
+func Build(packagePath string, args ...string) (compiledPath string, err error) {
+	return doBuild(build.Default.GOPATH, packagePath, nil, args...)
+}
+
+/*
+BuildWithEnvironment is identical to Build but allows you to specify env vars to be set at build time.
+*/
+func BuildWithEnvironment(packagePath string, env []string, args ...string) (compiledPath string, err error) {
+	return doBuild(build.Default.GOPATH, packagePath, env, args...)
+}
+
+/*
+BuildIn is identical to Build but allows you to specify a custom $GOPATH (the first argument).
+*/
+func BuildIn(gopath string, packagePath string, args ...string) (compiledPath string, err error) {
+	return doBuild(gopath, packagePath, nil, args...)
+}
+
+func doBuild(gopath, packagePath string, env []string, args ...string) (compiledPath string, err error) {
+	executable, err := newExecutablePath(gopath, packagePath)
+	if err != nil {
+		return "", err
+	}
+
+	cmdArgs := append([]string{"build"}, args...)
+	cmdArgs = append(cmdArgs, "-o", executable, packagePath)
+
+	build := exec.Command("go", cmdArgs...)
+	build.Env = replaceGoPath(os.Environ(), gopath)
+	build.Env = append(build.Env, env...)
 
 	output, err := build.CombinedOutput()
 	if err != nil {
