@@ -38,6 +38,10 @@ func main() {
 		return
 	}
 
+	if len(config.NATSMachines) == 0 {
+		fmt.Printf("Single instance NATs cluster. Deploying as V2")
+		return
+	}
 	for _, natsMachineUrl := range config.NATSMachines {
 		version, err := getNatsServerVersion(natsMachineUrl)
 		if err != nil {

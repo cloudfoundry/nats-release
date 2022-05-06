@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 
-set -eux
+set -ex
 
-mkdir -p "${BOSH_INSTALL_TARGET}/bin"
+mkdir -p ${BOSH_INSTALL_TARGET}/src
+mv * ${BOSH_INSTALL_TARGET}/src
+mv ${BOSH_INSTALL_TARGET}/src .
+
+export GOBIN=${BOSH_INSTALL_TARGET}/bin
+mkdir -p "${GOBIN}"
+
 source /var/vcap/packages/golang-*-linux/bosh/compile.env
 
-mkdir -p "${GOPATH}/src"
-mv github.com "${GOPATH}/src"
-
-pushd "${GOPATH}/src/github.com/nats-io/nats-server"
-  go build -o "${BOSH_INSTALL_TARGET}/bin/nats-server" .
+pushd "src/code.cloudfoundry.org"
+  go build -o "${GOBIN}/nats-server" github.com/nats-io/nats-server/v2
 popd

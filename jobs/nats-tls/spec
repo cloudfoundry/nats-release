@@ -26,7 +26,7 @@ packages:
   - gnatsd
   - nats-server
   - nats-tls-healthcheck
-  - nats-migrator
+  - nats-v2-migrate
 
 provides:
 - name: nats-tls

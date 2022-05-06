@@ -108,7 +108,7 @@ var _ = Describe("Premigrate", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			version := conn.ConnectedServerVersion()
-			Expect(version).To(Equal("3.0"))
+			Expect(version).To(Equal("2.8.2"))
 
 		})
 		// It("Keeps v2 bpm config in place", func() {
@@ -116,13 +116,39 @@ var _ = Describe("Premigrate", func() {
 		// 	Start(premigrateCmd, GinkgoWriter, GinkgoWriter)
 
 	})
-	Context("With nats-server running v1", func() {
+	FContext("With nats-server running v1", func() {
 
 		BeforeEach(func() {
 			natsRunner.StartV1()
 		})
 
 		It("confirms a nats server is running", func() {
+			conn, err := nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", natsRunner.port))
+			Expect(err).ToNot(HaveOccurred())
+
+			version := conn.ConnectedServerVersion()
+			Expect(version).To(Equal("1.4.1"))
+
+		})
+		// It("Keeps v2 bpm config in place", func() {
+		// 	premigrateCmd := exec.Command("premigrate", "-c", cfgFile)
+		// 	Start(premigrateCmd, GinkgoWriter, GinkgoWriter)
+
+	})
+	Context("Running the premigrate script", func() {
+
+		BeforeEach(func() {
+			natsRunner.StartV1()
+
+			gexec.Build("/home/pivotal/workspace/nats-release/src/code.cloudfoundry.org/nats-v2-migrate/premigrate")
+			cmd = exec.Cmd("premigrate", "-c", "/fix/path")
+			sess, err := gexec.Start(cmd,
+				gexec.NewPrefixedWriter("\x1b[32m[o]\x1b[34m[nats-server]\x1b[0m ", ginkgo.GinkgoWriter),
+				gexec.NewPrefixedWriter("\x1b[91m[e]\x1b[34m[nats-server]\x1b[0m ", ginkgo.GinkgoWriter))
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("is able to talk to the nats server", func() {
 			conn, err := nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", natsRunner.port))
 			Expect(err).ToNot(HaveOccurred())
 
