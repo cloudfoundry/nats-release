@@ -7,12 +7,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/nats-io/go-nats"
+	"github.com/nats-io/nats.go"
 	"github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
-	. "github.com/onsi/gomega/gexec"
 )
 
 type NATSRunner struct {
@@ -37,13 +36,24 @@ func (runner *NATSRunner) KillWithFire() {
 	}
 }
 
-func (runner *NATSRunner) Start() {
+func (runner *NATSRunner) StartV1() {
+	runner.Start("v1")
+}
+
+func (runner *NATSRunner) Start(version ...string) {
 	if runner.natsSession != nil {
 		panic("starting an already started NATS runner!!!")
 	}
 
-	gexec.Build("github.com/nats-io/nats-server/v2")
-	cmd := exec.Command("nats-server", "-p", strconv.Itoa(runner.port))
+	var cmd *exec.Cmd
+
+	if version != nil && version[0] == "v1" {
+		gexec.Build("github.com/nats-io/gnatsd")
+		cmd = exec.Command("gnatsd", "-p", strconv.Itoa(runner.port))
+	} else {
+		gexec.Build("github.com/nats-io/nats-server")
+		cmd = exec.Command("nats-server", "-p", strconv.Itoa(runner.port))
+	}
 
 	sess, err := gexec.Start(cmd,
 		gexec.NewPrefixedWriter("\x1b[32m[o]\x1b[34m[nats-server]\x1b[0m ", ginkgo.GinkgoWriter),
@@ -65,7 +75,6 @@ var _ = Describe("Premigrate", func() {
 
 	var (
 		// cfg                             *Config
-		cfgFile    string
 		tmpdir     string
 		natsPort   uint16
 		natsRunner *NATSRunner
@@ -76,9 +85,7 @@ var _ = Describe("Premigrate", func() {
 		// cfgFile = filepath.Join(tmpdir, "config.yml")
 
 		natsPort = 4224
-
 		natsRunner = NewNATSRunner(int(natsPort))
-		natsRunner.Start()
 	})
 
 	AfterEach(func() {
@@ -89,13 +96,43 @@ var _ = Describe("Premigrate", func() {
 		os.RemoveAll(tmpdir)
 	})
 
-	Context("With nats-server running v2", func() {
+	FContext("With nats-server running v2", func() {
 
-		It("Keeps v2 bpm config in place", func() {
-			premigrateCmd := exec.Command("premigrate", "-c", cfgFile)
-			Start(premigrateCmd, GinkgoWriter, GinkgoWriter)
+		BeforeEach(func() {
 
-			Expect(1).To(Equal(2))
+			natsRunner.Start()
 		})
+
+		It("confirms a nats server is running", func() {
+			conn, err := nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", natsRunner.port))
+			Expect(err).ToNot(HaveOccurred())
+
+			version := conn.ConnectedServerVersion()
+			Expect(version).To(Equal("3.0"))
+
+		})
+		// It("Keeps v2 bpm config in place", func() {
+		// 	premigrateCmd := exec.Command("premigrate", "-c", cfgFile)
+		// 	Start(premigrateCmd, GinkgoWriter, GinkgoWriter)
+
+	})
+	Context("With nats-server running v1", func() {
+
+		BeforeEach(func() {
+			natsRunner.StartV1()
+		})
+
+		It("confirms a nats server is running", func() {
+			conn, err := nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", natsRunner.port))
+			Expect(err).ToNot(HaveOccurred())
+
+			version := conn.ConnectedServerVersion()
+			Expect(version).To(Equal("3.0"))
+
+		})
+		// It("Keeps v2 bpm config in place", func() {
+		// 	premigrateCmd := exec.Command("premigrate", "-c", cfgFile)
+		// 	Start(premigrateCmd, GinkgoWriter, GinkgoWriter)
+
 	})
 })
