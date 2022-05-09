@@ -7,14 +7,21 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net"
+	"os"
 	"strconv"
 	"strings"
+	"time"
+)
+
+const (
+	NATSConnectionTimeout       = 10 * time.Second
+	NATSConnectionRetryInterval = 1 * time.Second
 )
 
 type Config struct {
-	NATSMachines      []string `json:"nats_machines"`
-	V1BPMConfigPath   string   `json:"v1_bpm_config_path"`
-	NATSBPMConfigPath string   `json:"nats_bpm_config_path"`
+	NATSMachines        []string `json:"nats_machines"`
+	NATSV1BPMConfigPath string   `json:"nats_v1_bpm_config_path"`
+	NATSBPMConfigPath   string   `json:"nats_bpm_config_path"`
 }
 
 type NatsServerInfo struct {
@@ -28,42 +35,43 @@ func main() {
 	var config Config
 	configBytes, err := ioutil.ReadFile(*configFilePath)
 	if err != nil {
-		fmt.Printf("Error reading config file: %v\n", err)
-		return
+		fmt.Fprintf(os.Stderr, "Error reading config file: %v\n", err)
+		os.Exit(1)
 	}
 
 	err = json.Unmarshal(configBytes, &config)
 	if err != nil {
-		fmt.Printf("Error unmarshalling config file: %v\n", err)
-		return
+		fmt.Fprintf(os.Stderr, "Error unmarshalling config file: %v\n", err)
+		os.Exit(1)
 	}
 
 	if len(config.NATSMachines) == 0 {
-		fmt.Printf("Single instance NATs cluster. Deploying as V2")
-		return
+		fmt.Fprintf(os.Stderr, "Single instance NATs cluster. Deploying as V2")
+		os.Exit(1)
 	}
 	for _, natsMachineUrl := range config.NATSMachines {
 		version, err := getNatsServerVersion(natsMachineUrl)
 		if err != nil {
-			fmt.Printf("Error getting nats version: %v\n", err)
-			return
+			fmt.Fprintf(os.Stderr, "Error getting nats version: %v\n", err)
+			os.Exit(1)
 		}
 		semanticVersions := strings.Split(version, ".")
 		if len(semanticVersions) < 3 {
-			fmt.Printf("Version is not normal semantic version\n")
-			return
+			fmt.Fprintf(os.Stderr, "Version is not normal semantic version\n")
+			os.Exit(1)
 		}
 
 		majorVersion, err := strconv.Atoi(semanticVersions[0])
 		if err != nil {
-			fmt.Printf("Error parsing semantic version: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Error parsing semantic version: %v\n", err)
+			os.Exit(1)
 		}
 
 		if majorVersion < 2 {
-			err = replaceBPMConfig(config.V1BPMConfigPath, config.NATSBPMConfigPath)
+			err = replaceBPMConfig(config.NATSV1BPMConfigPath, config.NATSBPMConfigPath)
 			if err != nil {
-				fmt.Printf("Error replacing bpm config: %v\n", err)
-				return
+				fmt.Fprintf(os.Stderr, "Error replacing bpm config: %v\n", err)
+				os.Exit(1)
 			}
 			break
 		}
@@ -71,7 +79,7 @@ func main() {
 }
 
 func getNatsServerVersion(natsMachineUrl string) (string, error) {
-	conn, err := net.Dial("tcp", natsMachineUrl)
+	conn, err := connectWithRetry(natsMachineUrl)
 	if err != nil {
 		return "", fmt.Errorf("Error connecting: %v", err)
 	}
@@ -88,6 +96,18 @@ func getNatsServerVersion(natsMachineUrl string) (string, error) {
 	}
 
 	return natsServerInfo.Version, nil
+}
+
+func connectWithRetry(natsMachineUrl string) (conn net.Conn, err error) {
+	attempts := int(NATSConnectionTimeout / NATSConnectionRetryInterval)
+	for i := 0; i < attempts; i++ {
+		conn, err = net.Dial("tcp", natsMachineUrl)
+		if err == nil {
+			return conn, nil
+		}
+		time.Sleep(NATSConnectionRetryInterval)
+	}
+	return nil, err
 }
 
 func replaceBPMConfig(sourcePath, destinationPath string) error {
