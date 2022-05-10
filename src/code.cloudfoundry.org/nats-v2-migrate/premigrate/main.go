@@ -46,12 +46,16 @@ func main() {
 	}
 
 	if len(config.NATSMachines) == 0 {
-		fmt.Fprintf(os.Stderr, "Single instance NATs cluster. Deploying as V2")
+		fmt.Fprintf(os.Stdout, "Single instance NATs cluster. Deploying as V2")
 		return
 	}
 	for _, natsMachineUrl := range config.NATSMachines {
 		version, err := getNatsServerVersion(natsMachineUrl)
 		if err != nil {
+			if _, ok := err.(*ErrConnectingToNATS); ok {
+				fmt.Fprintf(os.Stdout, "Ignoring machine %s due to connection error: %v\n", natsMachineUrl, err)
+				continue
+			}
 			fmt.Fprintf(os.Stderr, "Error getting nats version: %v\n", err)
 			os.Exit(1)
 		}
@@ -78,10 +82,18 @@ func main() {
 	}
 }
 
+type ErrConnectingToNATS struct {
+	err error
+}
+
+func (e *ErrConnectingToNATS) Error() string {
+	return fmt.Sprintf("Error connecting: %v", e.err)
+}
+
 func getNatsServerVersion(natsMachineUrl string) (string, error) {
 	conn, err := connectWithRetry(natsMachineUrl)
 	if err != nil {
-		return "", fmt.Errorf("Error connecting: %v", err)
+		return "", &ErrConnectingToNATS{err}
 	}
 	status, err := bufio.NewReader(conn).ReadString('\n')
 	if err != nil {

@@ -272,22 +272,22 @@ var _ = Describe("Premigrate", func() {
 				Expect(version).To(Equal("2.8.2"))
 			})
 
-			It("retries", func() {
+			It("retries for the timeout period", func() {
 				premigrateCmd := exec.Command(premmigrateBin, "-config-file", configFile.Name())
 				sess, err := gexec.Start(premigrateCmd, GinkgoWriter, GinkgoWriter)
 				Expect(err).NotTo(HaveOccurred())
 				Consistently(sess).WithTimeout(5 * time.Second).ShouldNot(gexec.Exit())
 
-				natsRunner2.Start()
+				natsRunner2.StartV1()
 				conn, err := nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", natsRunner2.port))
 				Expect(err).ToNot(HaveOccurred())
 				version := conn.ConnectedServerVersion()
-				Expect(version).To(Equal("2.8.2"))
+				Expect(version).To(Equal("1.4.1"))
 				Eventually(sess).WithTimeout(10 * time.Second).Should(gexec.Exit(0))
 
 				bpmConfigContents, err := os.ReadFile(natsBPMConfigFile.Name())
 				Expect(err).NotTo(HaveOccurred())
-				Expect(bpmConfigContents).To(Equal([]byte("v2-bpm-config")))
+				Expect(bpmConfigContents).To(Equal([]byte("v1-bpm-config")))
 			})
 		})
 
@@ -306,11 +306,15 @@ var _ = Describe("Premigrate", func() {
 				Expect(version).To(Equal("2.8.2"))
 			})
 
-			It("exits with failure", func() {
+			It("keeps v2 bpm config", func() {
 				premigrateCmd := exec.Command(premmigrateBin, "-config-file", configFile.Name())
 				sess, err := gexec.Start(premigrateCmd, GinkgoWriter, GinkgoWriter)
 				Expect(err).NotTo(HaveOccurred())
-				Eventually(sess).WithTimeout(12 * time.Second).Should(gexec.Exit(1))
+				Eventually(sess).WithTimeout(12 * time.Second).Should(gexec.Exit(0))
+
+				bpmConfigContents, err := os.ReadFile(natsBPMConfigFile.Name())
+				Expect(err).NotTo(HaveOccurred())
+				Expect(bpmConfigContents).To(Equal([]byte("v2-bpm-config")))
 			})
 		})
 	})

@@ -17,7 +17,7 @@
     end
     %>
 {      
-    "nats_machines": [ <%= nats_peers.map { |e| "\"#{e}\""}.join(", ")  %> ],
+    "nats_machines": [ <%= nats_peers.map { |e| "\"#{e}:#{nats_port}\""}.join(", ")  %> ],
     "nats_user": "<%= nats_user %>",
     "nats_password": "<%= nats_password %>",
     "nats_port": <%= nats_port %>,
