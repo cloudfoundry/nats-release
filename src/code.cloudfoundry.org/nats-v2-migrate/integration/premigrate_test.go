@@ -151,7 +151,7 @@ var _ = Describe("Premigrate", func() {
 				premigrateCmd := exec.Command(premmigrateBin, "-config-file", configFile.Name())
 				sess, err := gexec.Start(premigrateCmd, GinkgoWriter, GinkgoWriter)
 				Expect(err).NotTo(HaveOccurred())
-				Eventually(sess).Should(gexec.Exit())
+				Eventually(sess).Should(gexec.Exit(0))
 
 				bpmConfigContents, err := os.ReadFile(natsBPMConfigFile.Name())
 				Expect(err).NotTo(HaveOccurred())
@@ -216,7 +216,7 @@ var _ = Describe("Premigrate", func() {
 				premigrateCmd := exec.Command(premmigrateBin, "-config-file", configFile.Name())
 				sess, err := gexec.Start(premigrateCmd, GinkgoWriter, GinkgoWriter)
 				Expect(err).NotTo(HaveOccurred())
-				Eventually(sess).Should(gexec.Exit())
+				Eventually(sess).Should(gexec.Exit(0))
 
 				bpmConfigContents, err := os.ReadFile(natsBPMConfigFile.Name())
 				Expect(err).NotTo(HaveOccurred())
