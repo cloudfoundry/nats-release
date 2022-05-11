@@ -1,14 +1,8 @@
 check process nats
   with pidfile /var/vcap/sys/run/bpm/nats/nats.pid
-  start program "/var/vcap/jobs/bpm/bin/bpm start nats -p nats"
-  stop program "/var/vcap/jobs/bpm/bin/bpm stop nats -p nats"
+  start program "/var/vcap/jobs/bpm/bin/bpm start nats"
+  stop program "/var/vcap/jobs/bpm/bin/bpm stop nats"
   group vcap
   if totalmem > 500 Mb for 2 cycles then alert
   if totalmem > 3000 Mb then restart
-
-check process nats-healthcheck
-  with pidfile /var/vcap/sys/run/bpm/nats/healthcheck.pid
-  start program "/var/vcap/jobs/bpm/bin/bpm start nats -p healthcheck"
-  stop program "/var/vcap/jobs/bpm/bin/bpm stop nats -p healthcheck"
-  depends on nats
-  group vcap
+  if failed host <%= spec.address %> port <%= p("nats.port") %> type tcp then alert
