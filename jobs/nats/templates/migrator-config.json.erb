@@ -1,0 +1,30 @@
+<%
+    nats_peers = []
+    nats_user = ""
+    nats_password = ""
+    nats_port = nil
+    if_link("nats") do |nats_link|
+    
+      nats_port = nats_link.p("nats.port")
+      nats_user = nats_link.p("nats.user")
+      nats_password = nats_link.p("nats.password")
+      nats_link.instances.map do |instance|
+        if instance.id == spec.id 
+            next
+        end
+        nats_peers.push("#{instance.id}.#{nats_link.p("nats.hostname")}")
+      end
+    end
+    %>
+{      
+    "nats_machines": [ <%= nats_peers.map { |e| "\"#{e}:#{nats_port}\""}.join(", ")  %> ],
+    "nats_user": "<%= nats_user %>",
+    "nats_password": "<%= nats_password %>",
+    "nats_port": <%= nats_port %>,
+    "nats_internal_tls_enabled": <%= p("nats.internal.tls.enabled") %>,
+    "nats_cert_path": "/var/vcap/jobs/nats/config/client_tls/certificate.pem",
+    "nats_key_path": "/var/vcap/jobs/nats/config/client_tls/private_key.pem",
+    "nats_ca_path": "/var/vcap/jobs/nats/config/external_tls/ca.pem",
+    "nats_bpm_config_path": "/var/vcap/jobs/nats/config/bpm.yml",
+    "nats_v1_bpm_config_path": "/var/vcap/jobs/nats/config/bpm.v1.yml"
+}

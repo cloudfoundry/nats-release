@@ -8,16 +8,20 @@ templates:
   pre-start.erb: bin/pre-start
   bpm.yml.erb: config/bpm.yml
   bpm.v1.yml.erb: config/bpm.v1.yml
+  bpm.v2.yml.erb: config/bpm.v2.yml
+  migrator-config.json.erb: config/migrator-config.json
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
   internal_tls/private_key.pem.erb: config/internal_tls/private_key.pem
 
 packages:
+  - gnatsd
   - nats-server
+  - nats-v2-migrate
 
 provides:
-- name: nats-v2
+- name: nats
   type: nats
   properties:
   - nats.user
@@ -29,10 +33,10 @@ provides:
   - nats.write_deadline
 
 consumes:
-- name: nats-v2
+- name: nats
   type: nats
   optional: true
-- name: nats-v2-tls
+- name: nats-tls
   type: nats-tls
   optional: true
 

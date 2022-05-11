@@ -8,3 +8,5 @@ set +e
 sysctl -w net.ipv4.neigh.default.gc_thresh3=4096
 sysctl -w net.ipv4.neigh.default.gc_thresh2=2048
 set -e
+
+/var/vcap/packages/nats-v2-migrate/bin/premigrate --config-file /var/vcap/jobs/nats/config/migrator-config.json

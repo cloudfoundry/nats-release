@@ -38,17 +38,9 @@
       end
     end
 
-    if_link("nats-v2-tls") do |nats_tls_link|
-      nats_tls_link_user = nil
-      nats_tls_link_password = nil
-      nats_tls_link.if_p("nats.user") do |user|
-        nats_tls_link_user = user
-      end
-      nats_tls_link.if_p("nats.password") do |password|
-        nats_tls_link_password = password
-      end
+    if_link("nats-tls") do |nats_tls_link|
       nats_peers += nats_tls_link.instances.map do |instance|
-        NatsPeer.new(instance.id, nats_tls_link.p("nats.hostname"), nats_tls_link.p("nats.cluster_port"), nats_tls_link_user, nats_tls_link_password)
+        NatsPeer.new(instance.id, nats_tls_link.p("nats.hostname"), nats_tls_link.p("nats.cluster_port"), nats_tls_link.p("nats.user"), nats_tls_link.p("nats.password"))
       end
     end
   end
@@ -64,13 +56,10 @@ debug: <%= p("nats.debug") %>
 trace: <%= p("nats.trace") %>
 logtime: true
 
-<%- if nats_auth_required and nats_user and nats_password -%>
 authorization {
-  user: "<%= nats_user %>"
-  password: "<%= nats_password %>"
-  timeout: <%= p("nats.authorization_timeout") %>
   user: "<%= p("nats.user") %>"
   password: "<%= p("nats.password") %>"
+  timeout: <%= p("nats.authorization_timeout") %>
 }
 
 cluster {
@@ -107,5 +96,3 @@ cluster {
     <% end %>
   ]
 }
-
-no_sys_acc: true
