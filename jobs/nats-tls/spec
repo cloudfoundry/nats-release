@@ -6,6 +6,7 @@ description: "TLS-secured NATS server providing a publish-subscribe messaging sy
 templates:
   nats-tls.conf.erb: config/nats-tls.conf
   pre-start.erb: bin/pre-start
+  post-start.erb: bin/post-start
   bpm.yml.erb: config/bpm.yml
   bpm.v1.yml.erb: config/bpm.v1.yml
   bpm.v2.yml.erb: config/bpm.v2.yml

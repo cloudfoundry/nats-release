@@ -2,76 +2,18 @@ package integration
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/fs"
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"strconv"
 	"time"
 
+	"code.cloudfoundry.org/nats-v2-migrate/integration/helpers"
 	"github.com/nats-io/nats.go"
-	"github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
 )
-
-type NATSRunner struct {
-	port        int
-	natsSession *gexec.Session
-}
-
-func NewNATSRunner(port int) *NATSRunner {
-	return &NATSRunner{
-		port: port,
-	}
-}
-
-func (runner *NATSRunner) Stop() {
-	runner.KillWithFire()
-}
-
-func (runner *NATSRunner) KillWithFire() {
-	if runner.natsSession != nil {
-		runner.natsSession.Kill().Wait(5 * time.Second)
-		runner.natsSession = nil
-	}
-}
-
-func (runner *NATSRunner) StartV1() {
-	runner.Start("v1")
-}
-
-func (runner *NATSRunner) Start(version ...string) {
-	if runner.natsSession != nil {
-		panic("starting an already started NATS runner!!!")
-	}
-
-	var cmd *exec.Cmd
-
-	if version != nil && version[0] == "v1" {
-		gnatsdBin, err := gexec.Build("github.com/nats-io/gnatsd")
-		Expect(err).NotTo(HaveOccurred())
-		cmd = exec.Command(gnatsdBin, "-p", strconv.Itoa(runner.port))
-	} else {
-		natsServerBin, err := gexec.Build("github.com/nats-io/nats-server/v2")
-		Expect(err).NotTo(HaveOccurred())
-		cmd = exec.Command(natsServerBin, "-p", strconv.Itoa(runner.port))
-	}
-
-	sess, err := gexec.Start(cmd,
-		gexec.NewPrefixedWriter("\x1b[32m[o]\x1b[34m[nats-server]\x1b[0m ", ginkgo.GinkgoWriter),
-		gexec.NewPrefixedWriter("\x1b[91m[e]\x1b[34m[nats-server]\x1b[0m ", ginkgo.GinkgoWriter))
-	Expect(err).NotTo(HaveOccurred())
-
-	runner.natsSession = sess
-
-	Eventually(func() error {
-		_, err = nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", runner.port))
-		return err
-	}, 5, 0.1).ShouldNot(HaveOccurred())
-}
 
 var _ = Describe("Premigrate", func() {
 	type PremigrateConfig struct {
@@ -87,7 +29,7 @@ var _ = Describe("Premigrate", func() {
 		natsBPMConfigFile   *os.File
 		premmigrateBin      string
 		natsPort            uint16
-		natsRunner          *NATSRunner
+		natsRunner          *helpers.NATSRunner
 	)
 
 	BeforeEach(func() {
@@ -121,7 +63,7 @@ var _ = Describe("Premigrate", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		natsPort = 4224
-		natsRunner = NewNATSRunner(int(natsPort))
+		natsRunner = helpers.NewNATSRunner(int(natsPort))
 	})
 
 	AfterEach(func() {
@@ -134,7 +76,7 @@ var _ = Describe("Premigrate", func() {
 		Context("with nats-server running v2", func() {
 			BeforeEach(func() {
 				natsRunner.Start()
-				conn, err := nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", natsRunner.port))
+				conn, err := nats.Connect(natsRunner.URL())
 				Expect(err).ToNot(HaveOccurred())
 
 				version := conn.ConnectedServerVersion()
@@ -161,14 +103,14 @@ var _ = Describe("Premigrate", func() {
 	})
 
 	Context("when there are multiple nats-servers", func() {
-		var natsRunner2, natsRunner3 *NATSRunner
+		var natsRunner2, natsRunner3 *helpers.NATSRunner
 
 		BeforeEach(func() {
-			natsRunner2 = NewNATSRunner(int(4225))
-			natsRunner3 = NewNATSRunner(int(4226))
+			natsRunner2 = helpers.NewNATSRunner(int(4225))
+			natsRunner3 = helpers.NewNATSRunner(int(4226))
 			cfg.NATSMachines = []string{
-				fmt.Sprintf("127.0.0.1:%d", natsRunner2.port),
-				fmt.Sprintf("127.0.0.1:%d", natsRunner3.port),
+				natsRunner2.Addr(),
+				natsRunner3.Addr(),
 			}
 			cfgJSON, err := json.Marshal(cfg)
 			Expect(err).NotTo(HaveOccurred())
@@ -194,19 +136,19 @@ var _ = Describe("Premigrate", func() {
 		Context("with all nats-servers running v2", func() {
 			BeforeEach(func() {
 				natsRunner.Start()
-				conn, err := nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", natsRunner.port))
+				conn, err := nats.Connect(natsRunner.URL())
 				Expect(err).ToNot(HaveOccurred())
 				version := conn.ConnectedServerVersion()
 				Expect(version).To(Equal("2.8.2"))
 
 				natsRunner2.Start()
-				conn, err = nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", natsRunner2.port))
+				conn, err = nats.Connect(natsRunner2.URL())
 				Expect(err).ToNot(HaveOccurred())
 				version = conn.ConnectedServerVersion()
 				Expect(version).To(Equal("2.8.2"))
 
 				natsRunner3.Start()
-				conn, err = nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", natsRunner3.port))
+				conn, err = nats.Connect(natsRunner3.URL())
 				Expect(err).ToNot(HaveOccurred())
 				version = conn.ConnectedServerVersion()
 				Expect(version).To(Equal("2.8.2"))
@@ -227,19 +169,19 @@ var _ = Describe("Premigrate", func() {
 		Context("with one nats-server running v1", func() {
 			BeforeEach(func() {
 				natsRunner.Start()
-				conn, err := nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", natsRunner.port))
+				conn, err := nats.Connect(natsRunner.URL())
 				Expect(err).ToNot(HaveOccurred())
 				version := conn.ConnectedServerVersion()
 				Expect(version).To(Equal("2.8.2"))
 
 				natsRunner2.StartV1()
-				conn, err = nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", natsRunner2.port))
+				conn, err = nats.Connect(natsRunner2.URL())
 				Expect(err).ToNot(HaveOccurred())
 				version = conn.ConnectedServerVersion()
 				Expect(version).To(Equal("1.4.1"))
 
 				natsRunner3.Start()
-				conn, err = nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", natsRunner3.port))
+				conn, err = nats.Connect(natsRunner3.URL())
 				Expect(err).ToNot(HaveOccurred())
 				version = conn.ConnectedServerVersion()
 				Expect(version).To(Equal("2.8.2"))
@@ -260,13 +202,13 @@ var _ = Describe("Premigrate", func() {
 		Context("when it fails to connect to one nats server within the timeout", func() {
 			BeforeEach(func() {
 				natsRunner.Start()
-				conn, err := nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", natsRunner.port))
+				conn, err := nats.Connect(natsRunner.URL())
 				Expect(err).ToNot(HaveOccurred())
 				version := conn.ConnectedServerVersion()
 				Expect(version).To(Equal("2.8.2"))
 
 				natsRunner3.Start()
-				conn, err = nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", natsRunner3.port))
+				conn, err = nats.Connect(natsRunner3.URL())
 				Expect(err).ToNot(HaveOccurred())
 				version = conn.ConnectedServerVersion()
 				Expect(version).To(Equal("2.8.2"))
@@ -279,7 +221,7 @@ var _ = Describe("Premigrate", func() {
 				Consistently(sess).WithTimeout(5 * time.Second).ShouldNot(gexec.Exit())
 
 				natsRunner2.StartV1()
-				conn, err := nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", natsRunner2.port))
+				conn, err := nats.Connect(natsRunner2.URL())
 				Expect(err).ToNot(HaveOccurred())
 				version := conn.ConnectedServerVersion()
 				Expect(version).To(Equal("1.4.1"))
@@ -294,13 +236,13 @@ var _ = Describe("Premigrate", func() {
 		Context("when it fails to connect to one nats server and times out", func() {
 			BeforeEach(func() {
 				natsRunner.Start()
-				conn, err := nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", natsRunner.port))
+				conn, err := nats.Connect(natsRunner.URL())
 				Expect(err).ToNot(HaveOccurred())
 				version := conn.ConnectedServerVersion()
 				Expect(version).To(Equal("2.8.2"))
 
 				natsRunner3.Start()
-				conn, err = nats.Connect(fmt.Sprintf("nats://127.0.0.1:%d", natsRunner3.port))
+				conn, err = nats.Connect(natsRunner3.URL())
 				Expect(err).ToNot(HaveOccurred())
 				version = conn.ConnectedServerVersion()
 				Expect(version).To(Equal("2.8.2"))
