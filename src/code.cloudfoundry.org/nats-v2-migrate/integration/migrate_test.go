@@ -22,7 +22,7 @@ import (
 	"github.com/onsi/gomega/ghttp"
 )
 
-var _ = FDescribe("Migrate", func() {
+var _ = Describe("Migrate", func() {
 	var (
 		cfg         config.Config
 		configFile  *os.File

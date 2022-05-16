@@ -28,8 +28,6 @@ var _ = Describe("Premigrate", func() {
 		natsV1BPMConfigFile *os.File
 		natsBPMConfigFile   *os.File
 		premmigrateBin      string
-		natsPort            uint16
-		natsRunner          *helpers.NATSRunner
 	)
 
 	BeforeEach(func() {
@@ -59,11 +57,8 @@ var _ = Describe("Premigrate", func() {
 		_, err = configFile.Write(cfgJSON)
 		Expect(err).NotTo(HaveOccurred())
 
-		premmigrateBin, err = gexec.Build("code.cloudfoundry.org/nats-v2-migrate/premigrate")
+		premmigrateBin, err = gexec.Build("code.cloudfoundry.org/nats-v2-migrate/cmd/premigrate")
 		Expect(err).NotTo(HaveOccurred())
-
-		natsPort = 4224
-		natsRunner = helpers.NewNATSRunner(int(natsPort))
 	})
 
 	AfterEach(func() {
@@ -73,44 +68,27 @@ var _ = Describe("Premigrate", func() {
 	})
 
 	Context("when there is only one nats-server", func() {
-		Context("with nats-server running v2", func() {
-			BeforeEach(func() {
-				natsRunner.Start()
-				conn, err := nats.Connect(natsRunner.URL())
-				Expect(err).ToNot(HaveOccurred())
+		It("keeps original bpm config in place", func() {
+			premigrateCmd := exec.Command(premmigrateBin, "-config-file", configFile.Name())
+			sess, err := gexec.Start(premigrateCmd, GinkgoWriter, GinkgoWriter)
+			Expect(err).NotTo(HaveOccurred())
+			Eventually(sess).Should(gexec.Exit(0))
 
-				version := conn.ConnectedServerVersion()
-				Expect(version).To(Equal("2.8.2"))
-			})
-
-			AfterEach(func() {
-				if natsRunner != nil {
-					natsRunner.Stop()
-				}
-			})
-
-			It("keeps original bpm config in place", func() {
-				premigrateCmd := exec.Command(premmigrateBin, "-config-file", configFile.Name())
-				sess, err := gexec.Start(premigrateCmd, GinkgoWriter, GinkgoWriter)
-				Expect(err).NotTo(HaveOccurred())
-				Eventually(sess).Should(gexec.Exit(0))
-
-				bpmConfigContents, err := os.ReadFile(natsBPMConfigFile.Name())
-				Expect(err).NotTo(HaveOccurred())
-				Expect(bpmConfigContents).To(Equal([]byte("v2-bpm-config")))
-			})
+			bpmConfigContents, err := os.ReadFile(natsBPMConfigFile.Name())
+			Expect(err).NotTo(HaveOccurred())
+			Expect(bpmConfigContents).To(Equal([]byte("v2-bpm-config")))
 		})
 	})
 
 	Context("when there are multiple nats-servers", func() {
-		var natsRunner2, natsRunner3 *helpers.NATSRunner
+		var natsRunner1, natsRunner2 *helpers.NATSRunner
 
 		BeforeEach(func() {
-			natsRunner2 = helpers.NewNATSRunner(int(4225))
-			natsRunner3 = helpers.NewNATSRunner(int(4226))
+			natsRunner1 = helpers.NewNATSRunner(int(4225))
+			natsRunner2 = helpers.NewNATSRunner(int(4226))
 			cfg.NATSMachines = []string{
+				natsRunner1.Addr(),
 				natsRunner2.Addr(),
-				natsRunner3.Addr(),
 			}
 			cfgJSON, err := json.Marshal(cfg)
 			Expect(err).NotTo(HaveOccurred())
@@ -120,35 +98,25 @@ var _ = Describe("Premigrate", func() {
 		})
 
 		AfterEach(func() {
-			if natsRunner != nil {
-				natsRunner.Stop()
+			if natsRunner1 != nil {
+				natsRunner1.Stop()
 			}
 
 			if natsRunner2 != nil {
 				natsRunner2.Stop()
 			}
-
-			if natsRunner3 != nil {
-				natsRunner3.Stop()
-			}
 		})
 
 		Context("with all nats-servers running v2", func() {
 			BeforeEach(func() {
-				natsRunner.Start()
-				conn, err := nats.Connect(natsRunner.URL())
+				natsRunner1.Start()
+				conn, err := nats.Connect(natsRunner1.URL())
 				Expect(err).ToNot(HaveOccurred())
 				version := conn.ConnectedServerVersion()
 				Expect(version).To(Equal("2.8.2"))
 
 				natsRunner2.Start()
 				conn, err = nats.Connect(natsRunner2.URL())
-				Expect(err).ToNot(HaveOccurred())
-				version = conn.ConnectedServerVersion()
-				Expect(version).To(Equal("2.8.2"))
-
-				natsRunner3.Start()
-				conn, err = nats.Connect(natsRunner3.URL())
 				Expect(err).ToNot(HaveOccurred())
 				version = conn.ConnectedServerVersion()
 				Expect(version).To(Equal("2.8.2"))
@@ -168,20 +136,14 @@ var _ = Describe("Premigrate", func() {
 
 		Context("with one nats-server running v1", func() {
 			BeforeEach(func() {
-				natsRunner.Start()
-				conn, err := nats.Connect(natsRunner.URL())
+				natsRunner1.StartV1()
+				conn, err := nats.Connect(natsRunner1.URL())
 				Expect(err).ToNot(HaveOccurred())
 				version := conn.ConnectedServerVersion()
-				Expect(version).To(Equal("2.8.2"))
-
-				natsRunner2.StartV1()
-				conn, err = nats.Connect(natsRunner2.URL())
-				Expect(err).ToNot(HaveOccurred())
-				version = conn.ConnectedServerVersion()
 				Expect(version).To(Equal("1.4.1"))
 
-				natsRunner3.Start()
-				conn, err = nats.Connect(natsRunner3.URL())
+				natsRunner2.Start()
+				conn, err = nats.Connect(natsRunner2.URL())
 				Expect(err).ToNot(HaveOccurred())
 				version = conn.ConnectedServerVersion()
 				Expect(version).To(Equal("2.8.2"))
@@ -201,16 +163,10 @@ var _ = Describe("Premigrate", func() {
 
 		Context("when it fails to connect to one nats server within the timeout", func() {
 			BeforeEach(func() {
-				natsRunner.Start()
-				conn, err := nats.Connect(natsRunner.URL())
+				natsRunner2.Start()
+				conn, err := nats.Connect(natsRunner2.URL())
 				Expect(err).ToNot(HaveOccurred())
 				version := conn.ConnectedServerVersion()
-				Expect(version).To(Equal("2.8.2"))
-
-				natsRunner3.Start()
-				conn, err = nats.Connect(natsRunner3.URL())
-				Expect(err).ToNot(HaveOccurred())
-				version = conn.ConnectedServerVersion()
 				Expect(version).To(Equal("2.8.2"))
 			})
 
@@ -220,8 +176,8 @@ var _ = Describe("Premigrate", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Consistently(sess).WithTimeout(5 * time.Second).ShouldNot(gexec.Exit())
 
-				natsRunner2.StartV1()
-				conn, err := nats.Connect(natsRunner2.URL())
+				natsRunner1.StartV1()
+				conn, err := nats.Connect(natsRunner1.URL())
 				Expect(err).ToNot(HaveOccurred())
 				version := conn.ConnectedServerVersion()
 				Expect(version).To(Equal("1.4.1"))
@@ -235,16 +191,10 @@ var _ = Describe("Premigrate", func() {
 
 		Context("when it fails to connect to one nats server and times out", func() {
 			BeforeEach(func() {
-				natsRunner.Start()
-				conn, err := nats.Connect(natsRunner.URL())
+				natsRunner2.Start()
+				conn, err := nats.Connect(natsRunner2.URL())
 				Expect(err).ToNot(HaveOccurred())
 				version := conn.ConnectedServerVersion()
-				Expect(version).To(Equal("2.8.2"))
-
-				natsRunner3.Start()
-				conn, err = nats.Connect(natsRunner3.URL())
-				Expect(err).ToNot(HaveOccurred())
-				version = conn.ConnectedServerVersion()
 				Expect(version).To(Equal("2.8.2"))
 			})
 
