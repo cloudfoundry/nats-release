@@ -62,34 +62,34 @@ func main() {
 		os.Exit(1)
 	}
 
+	// TODO: set retryCount in config?
+	retryCount := 3
 	var bootstrapMigrateServer string
+
 	for _, natsMigrateServer := range cfg.NATSMigrateServers {
-		// TODO: maybe retry connecting?
-		resp, err := natsMigrateServerClient.Get(natsMigrateServer + "/info")
-		if err != nil {
-			logger.Info(
-				"Failed to connect to NATS migrate server. Assuming it does not have a new version of nats yet.",
-				lager.Data{"url": natsMigrateServer, "error": err},
-			)
-			return
-		}
-		defer resp.Body.Close()
-		var migrateServerResponse MigrateServerResponse
-		err = json.NewDecoder(resp.Body).Decode(&migrateServerResponse)
-		if err != nil {
-			logger.Info(
-				"Failed to parse response from NATS migrate server. Assuming it does not have a new version of nats yet.",
-				lager.Data{"url": natsMigrateServer, "error": err, "resp": resp},
-			)
-			return
-		}
 
-		if migrateServerResponse.Bootstrap {
-			bootstrapMigrateServer = natsMigrateServer
-		}
+		for i := 0; i < retryCount; i++ {
+			migrateServerResponse, err := CheckMigrationInfo(natsMigrateServerClient, natsMigrateServer)
+			if err != nil {
+				logger.Error("Error connecting to NATS server", err, lager.Data{"url": natsMigrateServer})
 
-		logger.Debug("Got response", lager.Data{"resp": migrateServerResponse, "url": natsMigrateServer})
+				if i == retryCount-1 {
+					// exceeded retry count, fail the deploy
+					os.Exit(1)
+				}
+				continue
+			} else {
+
+				if migrateServerResponse.Bootstrap {
+					bootstrapMigrateServer = natsMigrateServer
+				}
+
+				logger.Debug("Got response", lager.Data{"resp": migrateServerResponse, "url": natsMigrateServer})
+				break
+			}
+		}
 	}
+
 	if bootstrapMigrateServer == "" {
 		logger.Error("Can't migrate", errors.New("No bootstrap migrate server found"))
 		os.Exit(1)
@@ -97,14 +97,23 @@ func main() {
 
 	logger.Info("Migrating bootstrap server", lager.Data{"url": bootstrapMigrateServer})
 	// TODO: retry if post fails with err not unexpected status code
-	resp, err := natsMigrateServerClient.Post(bootstrapMigrateServer+"/migrate", "application/json", bytes.NewReader([]byte{}))
-	if err != nil {
-		logger.Error("Failed to migrate bootstrap NATS server", err, lager.Data{"url": bootstrapMigrateServer})
-		os.Exit(1)
-	}
-	if resp.StatusCode != http.StatusOK {
-		logger.Error("Failed to migrate bootstrap NATS server", errors.New("Unexpected status code"), lager.Data{"url": bootstrapMigrateServer, "code": resp.StatusCode})
-		os.Exit(1)
+
+	for i := 0; i < retryCount; i++ {
+		err = PerformMigration(natsMigrateServerClient, bootstrapMigrateServer)
+		if err == nil {
+			break
+		}
+
+		if i == retryCount-1 {
+			// exceeded retry count, fail the deploy
+			os.Exit(1)
+		}
+
+		usce, ok := err.(*UnexpectedStatusCodeError)
+		if ok {
+			logger.Error("Unexpected Status Code: ", err, lager.Data{"url": usce.ServerUrl, "code": usce.StatusCode})
+			os.Exit(1)
+		}
 	}
 
 	wg := sync.WaitGroup{}
@@ -121,28 +130,80 @@ func main() {
 			defer wg.Done()
 			logger.Info("Migrating server", lager.Data{"url": serverUrl})
 
-			// TODO: retry if post fails with err not unexpected status code
-			resp, err := natsMigrateServerClient.Post(serverUrl+"/migrate", "application/json", bytes.NewReader([]byte{}))
+			for i := 0; i < retryCount; i++ {
+				logger.Info(fmt.Sprintf("Try #%v", i))
+				err = PerformMigration(natsMigrateServerClient, serverUrl)
+				if err == nil {
+					break
+				}
 
-			if err != nil {
-				err := fmt.Errorf("Failed to migrate NATS server %s: %v", serverUrl, err)
-				aggregateError.Append(err)
-				return
-			}
+				if err != nil {
+					usce, ok := err.(*UnexpectedStatusCodeError)
+					if ok {
+						logger.Error("Unexpected Status Code: ", err, lager.Data{"url": usce.ServerUrl, "code": usce.StatusCode})
+						return
+					}
 
-			if resp.StatusCode != http.StatusOK {
-				err := fmt.Errorf("Failed to migrate NATS server %s: Unexpected status code %d", serverUrl, resp.StatusCode)
-				aggregateError.Append(err)
+					if i == retryCount-1 {
+						// exceeded retry count, fail the instance
+						logger.Error("Exceeded retrying count; failing this instances but other instances may migrate", err, lager.Data{"url": serverUrl})
+						return
+					}
+					logger.Error("Error migrating server, retrying: ", err, lager.Data{"url": serverUrl})
+					aggregateError.Append(err)
+				}
 			}
 		}(natsMigrateServerUrl)
 	}
 
 	wg.Wait()
 	if aggregateError != nil {
-		logger.Error("err", aggregateError)
+		logger.Error("Some nats instances failed to migrate. Re-start the following VMs to finish migraation: ", aggregateError)
 		os.Exit(1)
 	}
 	logger.Info("Finished migration")
+}
+
+func CheckMigrationInfo(natsMigrateServerClient *http.Client, serverUrl string) (*MigrateServerResponse, error) {
+	resp, err := natsMigrateServerClient.Get(serverUrl + "/info")
+
+	if err != nil {
+		return nil, errors.New("Failed to connect to NATS migrate server. Assuming it does not have a new version of nats yet.")
+	}
+	defer resp.Body.Close()
+
+	var migrateServerResponse MigrateServerResponse
+	err = json.NewDecoder(resp.Body).Decode(&migrateServerResponse)
+	if err != nil {
+		return nil, errors.New("Failed to parse response from NATS migrate server. Assuming it does not have a new version of nats yet.")
+	}
+
+	return &migrateServerResponse, nil
+}
+
+func PerformMigration(natsMigrateServerClient *http.Client, serverUrl string) error {
+	resp, err := natsMigrateServerClient.Post(serverUrl+"/migrate", "application/json", bytes.NewReader([]byte{}))
+	if err != nil {
+		return errors.New(fmt.Sprintf("Failed to migrate NATS server: %s", serverUrl))
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return &UnexpectedStatusCodeError{
+			ServerUrl:  serverUrl,
+			StatusCode: resp.StatusCode,
+		}
+	}
+
+	return nil
+}
+
+type UnexpectedStatusCodeError struct {
+	ServerUrl  string
+	StatusCode int
+}
+
+func (usce *UnexpectedStatusCodeError) Error() string {
+	return fmt.Sprintf("Failed to migrate NATS server (Unexpected status code): %s, %v", usce.ServerUrl, usce.StatusCode)
 }
 
 type AggregateError struct {

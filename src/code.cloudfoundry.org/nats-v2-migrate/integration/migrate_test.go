@@ -197,7 +197,7 @@ var _ = Describe("Migrate", func() {
 
 					Eventually(natsMigrateServer3.ReceivedRequests).Should(HaveLen(0))
 
-					Eventually(migrateSess).Should(gexec.Exit(0))
+					Eventually(migrateSess).Should(gexec.Exit(1))
 				})
 			})
 
@@ -276,7 +276,7 @@ var _ = Describe("Migrate", func() {
 						})
 
 						// it is the responsibility of migrate server itself to rollback to v1 if it fails to start as v2
-						Context("when the migration endpoint on bootstrap VM  fails with a non 200 status code", func() {
+						Context("when the migration endpoint on bootstrap VM fails with a non 200 status code", func() {
 							BeforeEach(func() {
 								natsMigrateServer2.RouteToHandler("POST", "/migrate", ghttp.CombineHandlers(
 									ghttp.VerifyRequest("POST", "/migrate"),
