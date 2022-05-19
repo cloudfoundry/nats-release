@@ -30,17 +30,15 @@ func main() {
 	http.HandleFunc("/info", info)
 	http.HandleFunc("/migrate", migrate)
 
+	fmt.Println("Server listening for migration...")
 	http.ListenAndServe(":4242", nil)
 }
 
 func info(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	response := make(map[string]string)
-	cfgJson, _ := json.Marshal(gCfg)
-	log.Fatal(fmt.Sprintf(string(cfgJson)))
 
 	response["bootstrap"] = gCfg.Bootstrap
-	response["bootstrap"] = "whatisgoingon"
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
