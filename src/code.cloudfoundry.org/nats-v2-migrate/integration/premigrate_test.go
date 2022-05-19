@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"time"
 
+	"code.cloudfoundry.org/nats-v2-migrate/config"
 	"code.cloudfoundry.org/nats-v2-migrate/integration/helpers"
 	"github.com/nats-io/nats.go"
 	. "github.com/onsi/ginkgo"
@@ -16,18 +17,12 @@ import (
 )
 
 var _ = Describe("Premigrate", func() {
-	type PremigrateConfig struct {
-		NATSMachines        []string `json:"nats_machines"`
-		NATSV1BPMConfigPath string   `json:"nats_v1_bpm_config_path"`
-		NATSBPMConfigPath   string   `json:"nats_bpm_config_path"`
-	}
-
 	var (
-		cfg                 PremigrateConfig
+		cfg                 config.Config
 		configFile          *os.File
 		natsV1BPMConfigFile *os.File
 		natsBPMConfigFile   *os.File
-		premmigrateBin      string
+		premigrateBin       string
 	)
 
 	BeforeEach(func() {
@@ -42,9 +37,9 @@ var _ = Describe("Premigrate", func() {
 		_, err = natsBPMConfigFile.Write([]byte("v2-bpm-config"))
 		Expect(err).NotTo(HaveOccurred())
 
-		cfg = PremigrateConfig{
-			NATSMachines:        []string{},
-			NATSV1BPMConfigPath: natsV1BPMConfigFile.Name(),
+		cfg = config.Config{
+			NATSMigrateServers:  []string{},
+			NATSBPMv1ConfigPath: natsV1BPMConfigFile.Name(),
 			NATSBPMConfigPath:   natsBPMConfigFile.Name(),
 		}
 
@@ -57,7 +52,7 @@ var _ = Describe("Premigrate", func() {
 		_, err = configFile.Write(cfgJSON)
 		Expect(err).NotTo(HaveOccurred())
 
-		premmigrateBin, err = gexec.Build("code.cloudfoundry.org/nats-v2-migrate/cmd/premigrate")
+		premigrateBin, err = gexec.Build("code.cloudfoundry.org/nats-v2-migrate/cmd/premigrate")
 		Expect(err).NotTo(HaveOccurred())
 	})
 
@@ -69,7 +64,7 @@ var _ = Describe("Premigrate", func() {
 
 	Context("when there is only one nats-server", func() {
 		It("keeps original bpm config in place", func() {
-			premigrateCmd := exec.Command(premmigrateBin, "-config-file", configFile.Name())
+			premigrateCmd := exec.Command(premigrateBin, "-config-file", configFile.Name())
 			sess, err := gexec.Start(premigrateCmd, GinkgoWriter, GinkgoWriter)
 			Expect(err).NotTo(HaveOccurred())
 			Eventually(sess).Should(gexec.Exit(0))
@@ -86,7 +81,7 @@ var _ = Describe("Premigrate", func() {
 		BeforeEach(func() {
 			natsRunner1 = helpers.NewNATSRunner(int(4225))
 			natsRunner2 = helpers.NewNATSRunner(int(4226))
-			cfg.NATSMachines = []string{
+			cfg.NATSMigrateServers = []string{
 				natsRunner1.Addr(),
 				natsRunner2.Addr(),
 			}
@@ -123,7 +118,7 @@ var _ = Describe("Premigrate", func() {
 			})
 
 			It("keeps original bpm config in place", func() {
-				premigrateCmd := exec.Command(premmigrateBin, "-config-file", configFile.Name())
+				premigrateCmd := exec.Command(premigrateBin, "-config-file", configFile.Name())
 				sess, err := gexec.Start(premigrateCmd, GinkgoWriter, GinkgoWriter)
 				Expect(err).NotTo(HaveOccurred())
 				Eventually(sess).Should(gexec.Exit(0))
@@ -150,7 +145,7 @@ var _ = Describe("Premigrate", func() {
 			})
 
 			It("switches to v1 bpm config", func() {
-				premigrateCmd := exec.Command(premmigrateBin, "-config-file", configFile.Name())
+				premigrateCmd := exec.Command(premigrateBin, "-config-file", configFile.Name())
 				sess, err := gexec.Start(premigrateCmd, GinkgoWriter, GinkgoWriter)
 				Expect(err).NotTo(HaveOccurred())
 				Eventually(sess).Should(gexec.Exit())
@@ -171,7 +166,7 @@ var _ = Describe("Premigrate", func() {
 			})
 
 			It("retries for the timeout period", func() {
-				premigrateCmd := exec.Command(premmigrateBin, "-config-file", configFile.Name())
+				premigrateCmd := exec.Command(premigrateBin, "-config-file", configFile.Name())
 				sess, err := gexec.Start(premigrateCmd, GinkgoWriter, GinkgoWriter)
 				Expect(err).NotTo(HaveOccurred())
 				Consistently(sess).WithTimeout(5 * time.Second).ShouldNot(gexec.Exit())
@@ -199,7 +194,7 @@ var _ = Describe("Premigrate", func() {
 			})
 
 			It("keeps v2 bpm config", func() {
-				premigrateCmd := exec.Command(premmigrateBin, "-config-file", configFile.Name())
+				premigrateCmd := exec.Command(premigrateBin, "-config-file", configFile.Name())
 				sess, err := gexec.Start(premigrateCmd, GinkgoWriter, GinkgoWriter)
 				Expect(err).NotTo(HaveOccurred())
 				Eventually(sess).WithTimeout(12 * time.Second).Should(gexec.Exit(0))

@@ -43,7 +43,7 @@ func main() {
 			os.Exit(1)
 		}
 		if majorVersion < 2 {
-			err = replaceBPMConfig(cfg.BPMv1ConfigFilePath, cfg.BPMConfigFilePath)
+			err = replaceBPMConfig(cfg.NATSBPMv1ConfigPath, cfg.NATSBPMConfigPath)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error replacing bpm config: %v\n", err)
 				os.Exit(1)
