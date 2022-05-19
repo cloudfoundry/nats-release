@@ -8,11 +8,15 @@ import (
 )
 
 type Config struct {
+	Bootstrap                       string   `json:"bootstrap"` // TODO: do we want this to be boos
 	NATSMigrateServers              []string `json:"nats_migrate_servers"`
 	NATSMigrateServerCAFile         string   `json:"nats_migrate_server_ca_file"`
 	NATSMigrateServerClientCertFile string   `json:"nats_migrate_server_client_cert_file"`
 	NATSMigrateServerClientKeyFile  string   `json:"nats_migrate_server_client_key_file"`
 	LocalNATSAddr                   string   `json:"local_nats_addr"`
+	NATSBPMConfigPath               string   `json:"nats_bpm_config_path"`
+	NATSBPMv1ConfigPath             string   `json:"nats_bpm_v1_config_path"`
+	NATSBPMv2ConfigPath             string   `json:"nats_bpm_v2_config_path"`
 	lagerflags.LagerConfig
 }
 

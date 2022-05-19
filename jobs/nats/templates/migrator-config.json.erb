@@ -17,7 +17,8 @@
     end
     %>
 {      
-    "nats_machines": [ <%= nats_peers.map { |e| "\"#{e}:#{nats_port}\""}.join(", ")  %> ],
+    "bootstrap": <%= spec.bootstrap %>,
+    "nats_migrate_servers": [ <%= nats_peers.map { |e| "\"#{e}:#{nats_port}\""}.join(", ")  %> ],
     "nats_user": "<%= nats_user %>",
     "nats_password": "<%= nats_password %>",
     "nats_port": <%= nats_port %>,
@@ -26,5 +27,6 @@
     "nats_key_path": "/var/vcap/jobs/nats/config/client_tls/private_key.pem",
     "nats_ca_path": "/var/vcap/jobs/nats/config/external_tls/ca.pem",
     "nats_bpm_config_path": "/var/vcap/jobs/nats/config/bpm.yml",
-    "nats_v1_bpm_config_path": "/var/vcap/jobs/nats/config/bpm.v1.yml"
+    "nats_v1_bpm_config_path": "/var/vcap/jobs/nats/config/bpm.v1.yml",
+    "nats_v2_bpm_config_path": "/var/vcap/jobs/nats/config/bpm.v2.yml"
 }

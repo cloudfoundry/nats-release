@@ -7,3 +7,8 @@ processes:
   args:
   - -c
   - "/var/vcap/jobs/nats/config/nats.conf"
+- name: nats-v2-migrate
+  executable: /var/vcap/packages/nats-v2-migrate/bin/nats-v2-migration-server
+  args:
+  - -c
+  - "/var/vcap/jobs/nats/config/migrator-config.json"

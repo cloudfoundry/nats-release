@@ -7,37 +7,32 @@ import (
 	"io/ioutil"
 	"os"
 
+	"code.cloudfoundry.org/nats-v2-migrate/config"
 	"code.cloudfoundry.org/nats-v2-migrate/natsinfo"
 )
-
-type Config struct {
-	NATSMachines        []string `json:"nats_machines"`
-	NATSV1BPMConfigPath string   `json:"nats_v1_bpm_config_path"`
-	NATSBPMConfigPath   string   `json:"nats_bpm_config_path"`
-}
 
 func main() {
 	configFilePath := flag.String("config-file", "", "path to config file")
 	flag.Parse()
 
-	var config Config
+	var cfg config.Config
 	configBytes, err := ioutil.ReadFile(*configFilePath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error reading config file: %v\n", err)
 		os.Exit(1)
 	}
 
-	err = json.Unmarshal(configBytes, &config)
+	err = json.Unmarshal(configBytes, &cfg)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error unmarshalling config file: %v\n", err)
 		os.Exit(1)
 	}
 
-	if len(config.NATSMachines) == 0 {
+	if len(cfg.NATSMigrateServers) == 0 {
 		fmt.Fprintf(os.Stdout, "Single instance NATs cluster. Deploying as V2")
 		return
 	}
-	for _, natsMachineUrl := range config.NATSMachines {
+	for _, natsMachineUrl := range cfg.NATSMigrateServers {
 		majorVersion, err := natsinfo.GetMajorVersion(natsMachineUrl)
 		if err != nil {
 			if _, ok := err.(*natsinfo.ErrConnectingToNATS); ok {
@@ -48,7 +43,7 @@ func main() {
 			os.Exit(1)
 		}
 		if majorVersion < 2 {
-			err = replaceBPMConfig(config.NATSV1BPMConfigPath, config.NATSBPMConfigPath)
+			err = replaceBPMConfig(cfg.BPMv1ConfigFilePath, cfg.BPMConfigFilePath)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error replacing bpm config: %v\n", err)
 				os.Exit(1)

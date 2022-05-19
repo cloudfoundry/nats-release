@@ -39,6 +39,14 @@
           '--client-private-key',
           '/var/vcap/jobs/nats-tls/config/client_tls/private_key.pem'
         ] + healthcheck_auth_args
+      },
+      {
+        'name' => 'nats-v2-migrate',
+        'executable' => '/var/vcap/packages/nats-v2-migrate/bin/nats-v2-migration-server',
+        'args' => [
+          '-c',
+          '/var/vcap/jobs/nats-tls/config/migrator-config.json'
+        ]
       }
     ]
   })
