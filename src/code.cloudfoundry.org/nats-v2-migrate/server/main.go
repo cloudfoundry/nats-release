@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 
 	"code.cloudfoundry.org/nats-v2-migrate/config"
 )
@@ -58,11 +59,42 @@ func migrate(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Fatalf("Error during migration: %s", err)
 		w.Write(nil)
+		shutdownNATS()
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(nil)
+
+	restartNATS()
+}
+
+func restartNATS() {
+	for i := 0; i < 5; i++ {
+		cmd := exec.Command("monit", "restart", "nats-tls")
+		_, err := cmd.Output()
+		if err == nil {
+			return
+		}
+
+		log.Fatalf("Error during restart: %s", err)
+	}
+
+	shutdownNATS()
+}
+
+func shutdownNATS() {
+	for i := 0; i < 5; i++ {
+		cmd := exec.Command("monit", "stop", "nats-tls")
+		_, err := cmd.Output()
+		if err == nil {
+			return
+		}
+
+		log.Fatalf("Error during stop: %s", err)
+	}
+
+	panic("Could not shutdown, panicing...")
 }
 
 func replaceBPMConfig(sourcePath, destinationPath string) error {

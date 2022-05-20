@@ -46,7 +46,10 @@
         'args' => [
           '-c',
           '/var/vcap/jobs/nats-tls/config/nats-tls.conf'
-        ]
+        ],
+        'unsafe' => {
+          'privileged' => true
+        }
       }
     ]
   })
