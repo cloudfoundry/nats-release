@@ -37,7 +37,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	logger, _ := lagerflags.NewFromConfig("nats-migrate", cfg.LagerConfig)
+	logger, _ := lagerflags.NewFromConfig("nats-migrate", lagerflags.DefaultLagerConfig())
 	logger.Info("Starting migrate")
 
 	if len(cfg.NATSMigrateServers) == 0 {
