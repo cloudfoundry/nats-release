@@ -46,7 +46,10 @@
         'args' => [
           '-c',
           '/var/vcap/jobs/nats-tls/config/migrator-config.json'
-        ]
+        ],
+        'unsafe' => {
+          'privileged': true
+        }
       }
     ]
   })

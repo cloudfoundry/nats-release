@@ -8,7 +8,9 @@ processes:
   - -c
   - "/var/vcap/jobs/nats/config/nats.conf"
 - name: nats-v2-migrate
-  executable: /var/vcap/packages/nats-v2-migrate/bin/nats-v2-migration-server
+  executable: /var/vcap/packages/nats-v2-migrate/bin/server
   args:
   - -c
   - "/var/vcap/jobs/nats/config/migrator-config.json"
+  unsafe:
+    priviliged: true
