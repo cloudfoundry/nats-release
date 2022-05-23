@@ -8,7 +8,7 @@ import (
 )
 
 type Config struct {
-	Bootstrap                       string   `json:"bootstrap"` // TODO: do we want this to be boos
+	Bootstrap                       bool     `json:"bootstrap"`
 	NATSMigrateServers              []string `json:"nats_migrate_servers"`
 	NATSMigrateServerCAFile         string   `json:"nats_migrate_server_ca_file"`
 	NATSMigrateServerClientCertFile string   `json:"nats_migrate_server_client_cert_file"`

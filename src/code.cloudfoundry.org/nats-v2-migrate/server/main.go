@@ -37,7 +37,7 @@ func main() {
 
 func info(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	response := make(map[string]string)
+	response := make(map[string]bool)
 
 	response["bootstrap"] = gCfg.Bootstrap
 

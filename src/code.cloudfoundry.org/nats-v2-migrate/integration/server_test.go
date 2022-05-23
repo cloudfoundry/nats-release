@@ -62,7 +62,7 @@ var _ = Describe("MigrationServer", func() {
 		Context("when the server is the bootstrap instance", func() {
 			BeforeEach(func() {
 				cfg := config.Config{
-					Bootstrap: "true",
+					Bootstrap: true,
 				}
 				StartServer(cfg)
 			})
@@ -74,14 +74,14 @@ var _ = Describe("MigrationServer", func() {
 				Expect(resp.StatusCode).To(Equal(200))
 				respString, err := ioutil.ReadAll(resp.Body)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(respString).To(MatchJSON(`{ "bootstrap": "true"}`))
+				Expect(respString).To(MatchJSON(`{ "bootstrap": true}`))
 			})
 		})
 
 		Context("when the server is not the bootstrap instance", func() {
 			BeforeEach(func() {
 				cfg := config.Config{
-					Bootstrap: "false",
+					Bootstrap: false,
 				}
 				StartServer(cfg)
 			})
@@ -93,7 +93,7 @@ var _ = Describe("MigrationServer", func() {
 				Expect(resp.StatusCode).To(Equal(200))
 				respString, err := ioutil.ReadAll(resp.Body)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(respString).To(MatchJSON(`{ "bootstrap": "false"}`))
+				Expect(respString).To(MatchJSON(`{ "bootstrap": false}`))
 			})
 		})
 	})
@@ -107,7 +107,7 @@ var _ = Describe("MigrationServer", func() {
 				bpmv2File.Write([]byte("bpm.version2"))
 
 				cfg := config.Config{
-					Bootstrap:           "true",
+					Bootstrap:           true,
 					NATSBPMConfigPath:   bpmFile.Name(),
 					NATSBPMv2ConfigPath: bpmv2File.Name(),
 				}
