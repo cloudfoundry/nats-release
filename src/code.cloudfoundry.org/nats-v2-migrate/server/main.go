@@ -54,6 +54,7 @@ func info(w http.ResponseWriter, req *http.Request) {
 }
 
 func migrate(w http.ResponseWriter, req *http.Request) {
+	fmt.Println("MIGRATE HIT")
 	err := replaceBPMConfig(gCfg.NATSBPMv2ConfigPath, gCfg.NATSBPMConfigPath)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -99,11 +100,13 @@ func shutdownNATS() {
 
 func replaceBPMConfig(sourcePath, destinationPath string) error {
 	bytesRead, err := ioutil.ReadFile(sourcePath)
+	fmt.Sprintf("Source: %s", sourcePath)
 	if err != nil {
 		return fmt.Errorf("Error reading source file: %v", err)
 	}
 
 	err = ioutil.WriteFile(destinationPath, bytesRead, 0644)
+	fmt.Sprintf("Destination: %s", destinationPath)
 	if err != nil {
 		return fmt.Errorf("Error writing destination file: %v", err)
 	}

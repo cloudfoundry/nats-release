@@ -37,7 +37,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	logger, _ := lagerflags.NewFromConfig("nats-migrate", lagerflags.DefaultLagerConfig())
+	logger, _ := lagerflags.NewFromConfig("nats-migrate", lagerflags.LagerConfig{LogLevel: lagerflags.INFO, TimeFormat: lagerflags.FormatRFC3339})
 	logger.Info("Starting migrate")
 
 	if len(cfg.NATSMigrateServers) == 0 {
@@ -50,6 +50,7 @@ func main() {
 		logger.Error("Failed to connect to local NATS server", err, lager.Data{"addr": cfg.LocalNATSAddr})
 		os.Exit(1)
 	}
+	logger.Info(fmt.Sprintf("Local nats server version: %d", majorVersion))
 
 	if majorVersion == 2 {
 		logger.Info("Local NATS instance has already been migrated to v2. Skipping migration.")
@@ -66,9 +67,11 @@ func main() {
 	retryCount := 3
 	var bootstrapMigrateServer string
 
+	logger.Info("Checking migration info...")
 	for _, natsMigrateServer := range cfg.NATSMigrateServers {
 
 		for i := 0; i < retryCount; i++ {
+			logger.Info(fmt.Sprintf("Try #%d", i))
 			migrateServerResponse, err := CheckMigrationInfo(natsMigrateServerClient, natsMigrateServer)
 			if err != nil {
 				logger.Error("Error connecting to NATS server", err, lager.Data{"url": natsMigrateServer})
@@ -84,7 +87,7 @@ func main() {
 					bootstrapMigrateServer = natsMigrateServer
 				}
 
-				logger.Debug("Got response", lager.Data{"resp": migrateServerResponse, "url": natsMigrateServer})
+				logger.Info("Got response", lager.Data{"resp": migrateServerResponse, "url": natsMigrateServer})
 				break
 			}
 		}
