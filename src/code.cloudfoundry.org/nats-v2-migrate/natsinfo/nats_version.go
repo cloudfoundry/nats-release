@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	NATSConnectionTimeout       = 10 * time.Second
+	NATSConnectionTimeout       = 60 * time.Second
 	NATSConnectionRetryInterval = 1 * time.Second
 )
 
@@ -60,10 +60,15 @@ func GetMajorVersion(natsMachineUrl string) (int, error) {
 func connectWithRetry(natsMachineUrl string) (conn net.Conn, err error) {
 	attempts := int(NATSConnectionTimeout / NATSConnectionRetryInterval)
 	for i := 0; i < attempts; i++ {
+		fmt.Printf("Attempting local nats server")
+
 		conn, err = net.Dial("tcp", natsMachineUrl)
 		if err == nil {
+			fmt.Printf("No error, exiting")
 			return conn, nil
 		}
+		fmt.Printf("Error")
+		fmt.Printf("%s", natsMachineUrl)
 		time.Sleep(NATSConnectionRetryInterval)
 	}
 	return nil, err

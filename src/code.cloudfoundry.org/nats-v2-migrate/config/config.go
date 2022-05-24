@@ -9,12 +9,12 @@ import (
 
 type Config struct {
 	Bootstrap                       bool     `json:"bootstrap"`
-	NATSPort                        int      `json:"nats_port"`
-	NATSMigrateServers              []string `json:"nats_migrate_servers"`
+	NATSPeers                       []string `json:"nats_peers"`
+	NATSPort                        string   `json:"nats_port"`
+	NATSMigratePort                 string   `json:"nats_migrate_port"`
 	NATSMigrateServerCAFile         string   `json:"nats_migrate_server_ca_file"`
 	NATSMigrateServerClientCertFile string   `json:"nats_migrate_server_client_cert_file"`
 	NATSMigrateServerClientKeyFile  string   `json:"nats_migrate_server_client_key_file"`
-	LocalNATSAddr                   string   `json:"local_nats_addr"`
 	NATSBPMConfigPath               string   `json:"nats_bpm_config_path"`
 	NATSBPMv1ConfigPath             string   `json:"nats_bpm_v1_config_path"`
 	NATSBPMv2ConfigPath             string   `json:"nats_bpm_v2_config_path"`

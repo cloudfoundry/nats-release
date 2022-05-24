@@ -28,11 +28,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	if len(cfg.NATSMigrateServers) == 0 {
+	if len(cfg.NATSPeers) == 0 {
 		fmt.Fprintf(os.Stdout, "Single instance NATs cluster. Deploying as V2")
 		return
 	}
-	for _, natsMachineUrl := range cfg.NATSMigrateServers {
+	for _, natsMachineUrl := range cfg.NATSPeers {
 		majorVersion, err := natsinfo.GetMajorVersion(natsMachineUrl)
 		if err != nil {
 			if _, ok := err.(*natsinfo.ErrConnectingToNATS); ok {

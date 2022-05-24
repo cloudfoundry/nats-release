@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"strconv"
 	"time"
 
 	"code.cloudfoundry.org/inigo/helpers/certauthority"
@@ -40,6 +41,8 @@ var _ = Describe("Migrate", func() {
 			// NATSMigratePort: 10000 + config.GinkgoConfig.ParallelNode,
 		}
 		// migrateServerURL = fmt.Sprintf("http://127.0.0.1:%d", cfg.NATSMigratePort)
+		cfg.NATSPort = "4224"
+		cfg.NATSMigratePort = "4242"
 	})
 
 	JustBeforeEach(func() {
@@ -71,7 +74,7 @@ var _ = Describe("Migrate", func() {
 	Context("when there are no other nats machines", func() {
 		// premigrate runs it as v2
 		BeforeEach(func() {
-			cfg.NATSMigrateServers = []string{}
+			cfg.NATSPeers = []string{}
 		})
 
 		It("exits succesfully", func() {
@@ -87,7 +90,6 @@ var _ = Describe("Migrate", func() {
 		var (
 			certDepoDir                                                string
 			natsMigrateServer1, natsMigrateServer2, natsMigrateServer3 *ghttp.Server
-			natsPort                                                   uint16
 			natsRunner                                                 *helpers.NATSRunner
 		)
 
@@ -115,10 +117,9 @@ var _ = Describe("Migrate", func() {
 			natsMigrateServer3 = NewNATSMigrateServer(serverCAFile, serverCertFile, serverKeyFile, false)
 			natsMigrateServer3.HTTPTestServer.StartTLS()
 
-			cfg.NATSMigrateServers = []string{natsMigrateServer1.URL(), natsMigrateServer2.URL(), natsMigrateServer3.URL()}
-			natsPort = 4224
-			natsRunner = helpers.NewNATSRunner(int(natsPort))
-			cfg.LocalNATSAddr = natsRunner.Addr()
+			cfg.NATSPeers = []string{natsMigrateServer1.URL(), natsMigrateServer2.URL(), natsMigrateServer3.URL()}
+			natsPort, _ := strconv.Atoi(cfg.NATSPort)
+			natsRunner = helpers.NewNATSRunner(natsPort)
 		})
 
 		AfterEach(func() {
@@ -242,7 +243,7 @@ var _ = Describe("Migrate", func() {
 									ghttp.RespondWith(http.StatusBadRequest, ""),
 								))
 							})
-							It("still migrates the rest of the servers", func() {
+							FIt("still migrates the rest of the servers", func() {
 								Eventually(natsMigrateServer1.ReceivedRequests).Should(HaveLen(2))
 								Expect(natsMigrateServer1.ReceivedRequests()[1].URL.Path).To(Equal("/migrate"))
 								Eventually(natsMigrateServer3.ReceivedRequests).Should(HaveLen(2))
@@ -300,7 +301,7 @@ var _ = Describe("Migrate", func() {
 					// this should not happen, bosh makes one VM as bootstrap
 					BeforeEach(func() {
 						natsMigrateServer2.Close()
-						cfg.NATSMigrateServers = []string{natsMigrateServer1.URL(), natsMigrateServer3.URL()}
+						cfg.NATSPeers = []string{natsMigrateServer1.URL(), natsMigrateServer3.URL()}
 					})
 
 					It("exits with error", func() {

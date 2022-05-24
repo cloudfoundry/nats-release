@@ -44,7 +44,7 @@
         'name' => 'nats-v2-migrate',
         'executable' => '/var/vcap/packages/nats-v2-migrate/bin/server',
         'args' => [
-          '-c',
+          '-config-file',
           '/var/vcap/jobs/nats-tls/config/migrator-config.json'
         ],
         'unsafe' => {
