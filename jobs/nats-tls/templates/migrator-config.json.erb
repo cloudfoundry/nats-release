@@ -1,6 +1,7 @@
 <%
     nats_peers = []
     nats_port = nil
+    nats_migrate_port = 4242
     if_link("nats-tls") do |nats_tls_link|
     
       nats_port = nats_tls_link.p("nats.port")
@@ -14,9 +15,10 @@
     %>
 {      
     "bootstrap": <%= spec.bootstrap %>,
-    "nats_peers": [ <%= nats_peers.map { |e| "\"#{e}\""}.join(", ")  %> ],
+    "nats_peers": [ <%= nats_peers.map { |e| "\"#{e}:#{nats_port}\""}.join(", ")  %> ],
     "nats_port": <%= nats_port %>,
-    "nats_migrate_port": 4242,
+    "nats_migrate_port": <%= nats_migrate_port %>,
+    "nats_migrate_servers": [ <%= nats_peers.map { |e| "\"#{e}:#{nats_migrate_port}\""}.join(", ")  %> ],
     "nats_internal_tls_enabled": <%= p("nats.internal.tls.enabled") %>,
     "nats_cert_path": "/var/vcap/jobs/nats-tls/config/client_tls/certificate.pem",
     "nats_key_path": "/var/vcap/jobs/nats-tls/config/client_tls/private_key.pem",

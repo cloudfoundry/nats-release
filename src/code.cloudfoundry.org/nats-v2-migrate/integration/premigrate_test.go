@@ -39,6 +39,7 @@ var _ = Describe("Premigrate", func() {
 
 		cfg = config.Config{
 			NATSPeers:           []string{},
+			NATSMigrateServers:  []string{},
 			NATSBPMv1ConfigPath: natsV1BPMConfigFile.Name(),
 			NATSBPMConfigPath:   natsBPMConfigFile.Name(),
 		}
@@ -82,6 +83,10 @@ var _ = Describe("Premigrate", func() {
 			natsRunner1 = helpers.NewNATSRunner(int(4225))
 			natsRunner2 = helpers.NewNATSRunner(int(4226))
 			cfg.NATSPeers = []string{
+				natsRunner1.Addr(),
+				natsRunner2.Addr(),
+			}
+			cfg.NATSMigrateServers = []string{
 				natsRunner1.URL(),
 				natsRunner2.URL(),
 			}
@@ -121,7 +126,7 @@ var _ = Describe("Premigrate", func() {
 				premigrateCmd := exec.Command(premigrateBin, "-config-file", configFile.Name())
 				sess, err := gexec.Start(premigrateCmd, GinkgoWriter, GinkgoWriter)
 				Expect(err).NotTo(HaveOccurred())
-				Eventually(sess).Should(gexec.Exit(0))
+				Eventually(sess).WithTimeout(61 * time.Second).Should(gexec.Exit(0))
 
 				bpmConfigContents, err := os.ReadFile(natsBPMConfigFile.Name())
 				Expect(err).NotTo(HaveOccurred())
@@ -176,7 +181,7 @@ var _ = Describe("Premigrate", func() {
 				Expect(err).ToNot(HaveOccurred())
 				version := conn.ConnectedServerVersion()
 				Expect(version).To(Equal("1.4.1"))
-				Eventually(sess).WithTimeout(10 * time.Second).Should(gexec.Exit(0))
+				Eventually(sess).WithTimeout(61 * time.Second).Should(gexec.Exit(0))
 
 				bpmConfigContents, err := os.ReadFile(natsBPMConfigFile.Name())
 				Expect(err).NotTo(HaveOccurred())
@@ -197,7 +202,7 @@ var _ = Describe("Premigrate", func() {
 				premigrateCmd := exec.Command(premigrateBin, "-config-file", configFile.Name())
 				sess, err := gexec.Start(premigrateCmd, GinkgoWriter, GinkgoWriter)
 				Expect(err).NotTo(HaveOccurred())
-				Eventually(sess).WithTimeout(12 * time.Second).Should(gexec.Exit(0))
+				Eventually(sess).WithTimeout(61 * time.Second).Should(gexec.Exit(0))
 
 				bpmConfigContents, err := os.ReadFile(natsBPMConfigFile.Name())
 				Expect(err).NotTo(HaveOccurred())
