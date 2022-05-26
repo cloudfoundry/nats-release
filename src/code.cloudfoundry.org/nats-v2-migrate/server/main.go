@@ -32,7 +32,7 @@ func main() {
 	http.HandleFunc("/migrate", migrate)
 
 	fmt.Println("Server listening for migration...")
-	http.ListenAndServe(":4242", nil)
+	http.ListenAndServe(fmt.Sprintf(":%d", cfg.NATSMigratePort), nil)
 }
 
 func info(w http.ResponseWriter, req *http.Request) {
@@ -100,13 +100,13 @@ func shutdownNATS() {
 
 func replaceBPMConfig(sourcePath, destinationPath string) error {
 	bytesRead, err := ioutil.ReadFile(sourcePath)
-	fmt.Sprintf("Source: %s", sourcePath)
+	fmt.Fprintf(os.Stdout, "Source: %s", sourcePath)
 	if err != nil {
 		return fmt.Errorf("Error reading source file: %v", err)
 	}
 
 	err = ioutil.WriteFile(destinationPath, bytesRead, 0644)
-	fmt.Sprintf("Destination: %s", destinationPath)
+	fmt.Fprintf(os.Stdout, "Destination: %s", destinationPath)
 	if err != nil {
 		return fmt.Errorf("Error writing destination file: %v", err)
 	}

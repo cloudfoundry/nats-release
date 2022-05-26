@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"strconv"
 	"time"
 
 	"code.cloudfoundry.org/inigo/helpers/certauthority"
@@ -41,8 +40,8 @@ var _ = Describe("Migrate", func() {
 			// NATSMigratePort: 10000 + config.GinkgoConfig.ParallelNode,
 		}
 		// migrateServerURL = fmt.Sprintf("http://127.0.0.1:%d", cfg.NATSMigratePort)
-		cfg.NATSPort = "4224"
-		cfg.NATSMigratePort = "4242"
+		cfg.NATSPort = 4224
+		cfg.NATSMigratePort = 4242
 	})
 
 	JustBeforeEach(func() {
@@ -118,8 +117,9 @@ var _ = Describe("Migrate", func() {
 			natsMigrateServer3.HTTPTestServer.StartTLS()
 
 			cfg.NATSPeers = []string{natsMigrateServer1.URL(), natsMigrateServer2.URL(), natsMigrateServer3.URL()}
-			natsPort, _ := strconv.Atoi(cfg.NATSPort)
-			natsRunner = helpers.NewNATSRunner(natsPort)
+			cfg.NATSMigrateServers = []string{natsMigrateServer1.URL(), natsMigrateServer2.URL(), natsMigrateServer3.URL()}
+			//natsPort, _ := strconv.Atoi(cfg.NATSPort)
+			natsRunner = helpers.NewNATSRunner(cfg.NATSPort)
 		})
 
 		AfterEach(func() {
@@ -151,7 +151,7 @@ var _ = Describe("Migrate", func() {
 
 		Context("when it fails to connect to local NATS server", func() {
 			It("fails with error after the timeout", func() {
-				Eventually(migrateSess).WithTimeout(12 * time.Second).Should(gexec.Exit(1))
+				Eventually(migrateSess).WithTimeout(61 * time.Second).Should(gexec.Exit(1))
 			})
 
 			It("retries with the timeout", func() {
@@ -243,7 +243,7 @@ var _ = Describe("Migrate", func() {
 									ghttp.RespondWith(http.StatusBadRequest, ""),
 								))
 							})
-							FIt("still migrates the rest of the servers", func() {
+							It("still migrates the rest of the servers", func() {
 								Eventually(natsMigrateServer1.ReceivedRequests).Should(HaveLen(2))
 								Expect(natsMigrateServer1.ReceivedRequests()[1].URL.Path).To(Equal("/migrate"))
 								Eventually(natsMigrateServer3.ReceivedRequests).Should(HaveLen(2))

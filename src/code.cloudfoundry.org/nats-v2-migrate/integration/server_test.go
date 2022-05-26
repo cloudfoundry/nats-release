@@ -62,13 +62,15 @@ var _ = Describe("MigrationServer", func() {
 		Context("when the server is the bootstrap instance", func() {
 			BeforeEach(func() {
 				cfg := config.Config{
-					Bootstrap: true,
+					Bootstrap:       true,
+					NATSMigratePort: 4242,
 				}
 				StartServer(cfg)
 			})
 
 			It("returns 'bootstrap': true", func() {
 				resp, err := http.Get(fmt.Sprintf("http://%s/info", address))
+
 				Expect(err).ToNot(HaveOccurred())
 
 				Expect(resp.StatusCode).To(Equal(200))
@@ -81,7 +83,8 @@ var _ = Describe("MigrationServer", func() {
 		Context("when the server is not the bootstrap instance", func() {
 			BeforeEach(func() {
 				cfg := config.Config{
-					Bootstrap: false,
+					Bootstrap:       false,
+					NATSMigratePort: 4242,
 				}
 				StartServer(cfg)
 			})
@@ -108,6 +111,7 @@ var _ = Describe("MigrationServer", func() {
 
 				cfg := config.Config{
 					Bootstrap:           true,
+					NATSMigratePort:     4242,
 					NATSBPMConfigPath:   bpmFile.Name(),
 					NATSBPMv2ConfigPath: bpmv2File.Name(),
 				}

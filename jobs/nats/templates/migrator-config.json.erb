@@ -3,6 +3,7 @@
     nats_user = ""
     nats_password = ""
     nats_port = nil
+    nats_migrate_port = 4242
     if_link("nats") do |nats_link|
     
       nats_port = nats_link.p("nats.port")
@@ -22,8 +23,8 @@
     "nats_servers": [ <%= nats_peers.map { |e| "\"#{e}:#{nats_port}\""}.join(", ")  %> ],
     "nats_user": "<%= nats_user %>",
     "nats_password": "<%= nats_password %>",
-    "nats_migrate_port": 4242,
-    "nats_migrate_servers": [ <%= nats_peers.map { |e| "\"#{e}:#{nats_port}\""}.join(", ")  %> ],
+    "nats_migrate_port": <%= nats_migrate_port %>,
+    "nats_migrate_servers": [ <%= nats_peers.map { |e| "\"#{e}:#{nats_migrate_port}\""}.join(", ")  %> ],
     "local_nats_addr": "<%= "127.0.0.1:#{nats_migrate_port}" %>",
     "nats_internal_tls_enabled": <%= p("nats.internal.tls.enabled") %>,
     "nats_cert_path": "/var/vcap/jobs/nats/config/client_tls/certificate.pem",
