@@ -8,6 +8,7 @@ import (
 )
 
 type Config struct {
+	Address                         string   `json:"address"`
 	Bootstrap                       bool     `json:"bootstrap"`
 	NATSPeers                       []string `json:"nats_peers"`
 	NATSPort                        int      `json:"nats_port"`

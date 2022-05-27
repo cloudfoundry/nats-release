@@ -2,19 +2,22 @@
     nats_peers = []
     nats_port = nil
     nats_migrate_port = 4242
+    instance_id = ""
     if_link("nats-tls") do |nats_tls_link|
-    
       nats_port = nats_tls_link.p("nats.port")
       nats_tls_link.instances.map do |instance|
         if instance.id == spec.id 
-            next
+            instance_id = instance.id
+
+        else
+            nats_peers.push("#{instance.id}.#{nats_tls_link.p("nats.hostname")}")
         end
-        nats_peers.push("#{instance.id}.#{nats_tls_link.p("nats.hostname")}")
-      end
+        end
     end
     %>
 {      
     "bootstrap": <%= spec.bootstrap %>,
+    "address": <%= "\"#{instance_id}.nats.service.cf.internal\"" %>,
     "nats_peers": [ <%= nats_peers.map { |e| "\"#{e}:#{nats_port}\""}.join(", ")  %> ],
     "nats_port": <%= nats_port %>,
     "nats_migrate_port": <%= nats_migrate_port %>,

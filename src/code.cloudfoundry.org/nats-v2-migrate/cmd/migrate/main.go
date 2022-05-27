@@ -45,7 +45,7 @@ func main() {
 		return
 	}
 
-	majorVersion, err := natsinfo.GetMajorVersion(fmt.Sprintf("127.0.0.1:%d", cfg.NATSPort))
+	majorVersion, err := natsinfo.GetMajorVersion(fmt.Sprintf("%s:%d", cfg.Address, cfg.NATSPort))
 	if err != nil {
 		logger.Error("Failed to connect to local NATS server", err, nil)
 		os.Exit(1)
