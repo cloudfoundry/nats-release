@@ -78,7 +78,7 @@ func main() {
 
 				if i == retryCount-1 {
 					// exceeded retry count, fail the deploy
-					os.Exit(1)
+					return
 				}
 				continue
 			} else {
