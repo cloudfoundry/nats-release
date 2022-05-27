@@ -5,6 +5,8 @@ go 1.17
 replace github.com/nats-io/gnatsd => github.com/nats-io/gnatsd v1.4.1
 
 require (
+	code.cloudfoundry.org/inigo v0.0.0-20211021201637-031ac17b0ea6
+	code.cloudfoundry.org/lager v2.0.0+incompatible
 	code.cloudfoundry.org/tlsconfig v0.0.0-20200131000646-bbe0f8da39b3
 	github.com/nats-io/gnatsd v1.4.1
 	github.com/nats-io/go-nats v1.4.0
@@ -15,8 +17,6 @@ require (
 )
 
 require (
-	code.cloudfoundry.org/inigo v0.0.0-20211021201637-031ac17b0ea6 // indirect
-	code.cloudfoundry.org/lager v2.0.0+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/klauspost/compress v1.14.4 // indirect
