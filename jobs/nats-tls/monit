@@ -12,3 +12,10 @@ check process nats-tls-healthcheck
   stop program "/var/vcap/jobs/bpm/bin/bpm stop nats-tls -p healthcheck"
   depends on nats-tls
   group vcap
+
+check process server
+  with pidfile /var/vcap/sys/run/bpm/nats-tls/nats-v2-migrate.pid
+  start program "/var/vcap/jobs/bpm/bin/bpm start nats-tls -p nats-v2-migrate"
+  stop program "/var/vcap/jobs/bpm/bin/bpm stop nats-tls -p nats-v2-migrate"
+  depends on nats-tls
+  group vcap
