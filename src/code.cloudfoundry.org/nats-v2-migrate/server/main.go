@@ -54,34 +54,53 @@ func info(w http.ResponseWriter, req *http.Request) {
 }
 
 func migrate(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("MIGRATE HIT")
+	fmt.Println("MIGRATE HIT: 2")
 	err := replaceBPMConfig(gCfg.NATSBPMv2ConfigPath, gCfg.NATSBPMConfigPath)
 	if err != nil {
+		fmt.Printf("Failed to replace bpm config file: %s", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Fatalf("Error during migration: %s", err)
 		w.Write(nil)
-		shutdownNATS()
+		// shutdownNATS()
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(nil)
 
-	restartNATS()
+	// restartNATS()
 }
 
-func restartNATS() {
-	for i := 0; i < 5; i++ {
-		cmd := exec.Command("monit", "restart", "nats-tls")
-		_, err := cmd.Output()
-		if err == nil {
-			return
-		}
+func restartNATS() error {
+	err := withRetries(func() error {
+		cmd := exec.Command("/var/vcap/jobs/bpm/bin/bpm", "stop", "nats-tls", "-p", "nats-tls")
+		return cmd.Run()
+	})
+	if err != nil {
+		return err
+	}
+	err = withRetries(func() error {
+		cmd := exec.Command("/var/vcap/jobs/bpm/bin/bpm", "start", "nats-tls", "-p", "nats-tls")
+		return cmd.Run()
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 
-		log.Fatalf("Error during restart: %s", err)
+	// shutdownNATS()
+}
+
+func withRetries(f func() error) error {
+	var err error
+
+	for i := 0; i < 5; i++ {
+		err = f()
+		if err == nil {
+			return nil
+		}
 	}
 
-	shutdownNATS()
+	return err
 }
 
 func shutdownNATS() {
@@ -110,6 +129,7 @@ func replaceBPMConfig(sourcePath, destinationPath string) error {
 	if err != nil {
 		return fmt.Errorf("Error writing destination file: %v", err)
 	}
+	fmt.Fprintf(os.Stdout, "Success")
 
 	return nil
 }

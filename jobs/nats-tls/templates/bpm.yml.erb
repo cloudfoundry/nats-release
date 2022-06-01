@@ -48,7 +48,13 @@
           '/var/vcap/jobs/nats-tls/config/migrator-config.json'
         ],
         'unsafe' => {
-          'privileged': true
+          'privileged' => true,
+          'unrestricted_volumes' => [
+            {
+              'path' => '/var/vcap/jobs/nats-tls/config/bpm.yml',
+              'writable' => true
+            }
+          ]
         }
       }
     ]

@@ -108,6 +108,7 @@ func main() {
 		}
 
 		if i == retryCount-1 {
+			logger.Error("Failed to migrate bootstrap server", err)
 			// exceeded retry count, fail the deploy
 			os.Exit(1)
 		}
@@ -123,7 +124,10 @@ func main() {
 	aggregateError := &AggregateError{}
 
 	logger.Info("Migration of bootstrap server succeeded, migrating the rest")
-	for _, natsMigrateServerUrl := range cfg.NATSPeers {
+
+	natsMigrateServers := cfg.NATSMigrateServers
+	natsMigrateServers = append(natsMigrateServers, fmt.Sprintf("%s:%d", cfg.Address, cfg.NATSMigratePort))
+	for _, natsMigrateServerUrl := range natsMigrateServers {
 		if natsMigrateServerUrl == bootstrapMigrateServer {
 			continue
 		}
@@ -168,10 +172,12 @@ func main() {
 }
 
 func CheckMigrationInfo(natsMigrateServerClient *http.Client, serverUrl string) (*MigrateServerResponse, error) {
-	resp, err := natsMigrateServerClient.Get(serverUrl + "/info")
+
+	endpoint := fmt.Sprintf("http://%s/info", serverUrl)
+	resp, err := natsMigrateServerClient.Get(endpoint)
 
 	if err != nil {
-		return nil, errors.New("Failed to connect to NATS migrate server. Assuming it does not have a new version of nats yet.")
+		return nil, fmt.Errorf("Failed to connect to NATS migrate server %s. Assuming it does not have a new version of nats yet. Connection error: %s", endpoint, err.Error())
 	}
 	defer resp.Body.Close()
 
@@ -185,9 +191,9 @@ func CheckMigrationInfo(natsMigrateServerClient *http.Client, serverUrl string) 
 }
 
 func PerformMigration(natsMigrateServerClient *http.Client, serverUrl string) error {
-	resp, err := natsMigrateServerClient.Post(serverUrl+"/migrate", "application/json", bytes.NewReader([]byte{}))
+	resp, err := natsMigrateServerClient.Post("http://"+serverUrl+"/migrate", "application/json", bytes.NewReader([]byte{}))
 	if err != nil {
-		return errors.New(fmt.Sprintf("Failed to migrate NATS server: %s", serverUrl))
+		return fmt.Errorf("Failed to migrate NATS server %s: %s", serverUrl, err.Error())
 	}
 
 	if resp.StatusCode != http.StatusOK {
