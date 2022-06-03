@@ -11,6 +11,7 @@ templates:
   bpm.v1.yml.erb: config/bpm.v1.yml
   bpm.v2.yml.erb: config/bpm.v2.yml
   migrator-config.json.erb: config/migrator-config.json
+  migrate-server-ctl.erb: bin/migrate-server-ctl
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
@@ -28,6 +29,7 @@ packages:
   - nats-server
   - nats-tls-healthcheck
   - nats-v2-migrate
+  - pid_utils
 
 provides:
 - name: nats-tls

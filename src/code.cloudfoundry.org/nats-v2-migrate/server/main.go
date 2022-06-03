@@ -85,8 +85,6 @@ func shutdown(w http.ResponseWriter, req *http.Request) {
 }
 
 func restartNATS() error {
-	shutdownNATS()
-
 	fmt.Fprintf(os.Stdout, "Attempting restart")
 	err := withRetries(func() error {
 		// cmd := exec.Command("/var/vcap/bosh/bin/monit", "start", "nats-tls")

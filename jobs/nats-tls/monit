@@ -13,9 +13,17 @@ check process nats-tls-healthcheck
   depends on nats-tls
   group vcap
 
-check process server
-  with pidfile /var/vcap/sys/run/bpm/nats-tls/nats-v2-migrate.pid
-  start program "/var/vcap/jobs/bpm/bin/bpm start nats-tls -p nats-v2-migrate"
-  stop program "/var/vcap/jobs/bpm/bin/bpm stop nats-tls -p nats-v2-migrate"
+#check process server
+#  with pidfile /var/vcap/sys/run/bpm/nats-tls/nats-v2-migrate.pid
+#  start program "/var/vcap/jobs/bpm/bin/bpm start nats-tls -p nats-v2-migrate"
+#  stop program "/var/vcap/jobs/bpm/bin/bpm stop nats-tls -p nats-v2-migrate"
+#  depends on nats-tls
+#  group vcap
+
+check process migrate-server
+  with pidfile /var/vcap/sys/run/migrate-server/migrate-server.pid
+  start program "/var/vcap/jobs/nats-tls/bin/migrate-server-ctl start"
+  stop program "/var/vcap/jobs/nats-tls/bin/migrate-server-ctl stop"
   depends on nats-tls
   group vcap
+
