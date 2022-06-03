@@ -13,5 +13,4 @@ pushd "src/code.cloudfoundry.org"
   go build -o "${GOBIN}/premigrate" code.cloudfoundry.org/nats-v2-migrate/cmd/premigrate
   go build -o "${GOBIN}/migrate" code.cloudfoundry.org/nats-v2-migrate/cmd/migrate
   go build -o "${GOBIN}/server" code.cloudfoundry.org/nats-v2-migrate/server
-  cp nats-v2-migrate/server/*.sh "${BOSH_INSTALL_TARGET}/bin/"
 popd

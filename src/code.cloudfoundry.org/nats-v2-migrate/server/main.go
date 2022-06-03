@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -28,11 +27,8 @@ func main() {
 
 	gCfg = cfg
 
-	// TODO: maybe just one handler with verb differentiation?
 	http.HandleFunc("/info", info)
 	http.HandleFunc("/migrate", migrate)
-	http.HandleFunc("/restart", restart)
-	http.HandleFunc("/shutdown", shutdown)
 
 	fmt.Println("Server listening for migration...")
 	http.ListenAndServe(fmt.Sprintf(":%d", cfg.NATSMigratePort), nil)
@@ -63,36 +59,29 @@ func migrate(w http.ResponseWriter, req *http.Request) {
 		fmt.Printf("Failed to replace bpm config file: %s", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(nil)
-		//shutdownNATS()
+		shutdownNATS()
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(nil)
 
-	// err = restartNATS()
-	// if err != nil {
-	// 	fmt.Printf("Failed to restart nats: %s", err.Error())
-	// }
-}
-
-func restart(w http.ResponseWriter, req *http.Request) {
-	restartNATS()
-}
-
-func shutdown(w http.ResponseWriter, req *http.Request) {
-	shutdownNATS()
+	err = restartNATS()
+	if err != nil {
+		fmt.Printf("Failed to restart nats: %s", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(nil)
+		shutdownNATS()
+		return
+	}
 }
 
 func restartNATS() error {
 	fmt.Fprintf(os.Stdout, "Attempting restart")
 	err := withRetries(func() error {
-		// cmd := exec.Command("/var/vcap/bosh/bin/monit", "start", "nats-tls")
-		cmd := exec.Command("/var/vcap/packages/nats-v2-migrate/bin/restart.sh")
-		var out bytes.Buffer
-		var stderr bytes.Buffer
-		cmd.Stdout = &out
-		cmd.Stderr = &stderr
+		cmd := exec.Command("/var/vcap/bosh/bin/monit", "restart", "nats-tls")
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
 		return cmd.Run()
 	})
 	if err != nil {
@@ -106,8 +95,7 @@ func restartNATS() error {
 func shutdownNATS() error {
 	fmt.Fprintf(os.Stdout, "Attempting shutdown")
 	err := withRetries(func() error {
-		// cmd := exec.Command("/var/vcap/bosh/bin/monit", "stop", "nats-tls")
-		cmd := exec.Command("/var/vcap/packages/nats-v2-migrate/bin/shutdown.sh")
+		cmd := exec.Command("/var/vcap/bosh/bin/monit", "stop", "nats-tls")
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		return cmd.Run()
