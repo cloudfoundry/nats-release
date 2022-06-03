@@ -10,3 +10,5 @@ files:
     - code.cloudfoundry.org/vendor/modules.txt
     - code.cloudfoundry.org/vendor/**/*
     - code.cloudfoundry.org/nats-v2-migrate/**/*.go
+    - code.cloudfoundry.org/nats-v2-migrate/**/*.sh
+    - code.cloudfoundry.org/nats-v2-migrate/server/*.sh

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -30,6 +31,8 @@ func main() {
 	// TODO: maybe just one handler with verb differentiation?
 	http.HandleFunc("/info", info)
 	http.HandleFunc("/migrate", migrate)
+	http.HandleFunc("/restart", restart)
+	http.HandleFunc("/shutdown", shutdown)
 
 	fmt.Println("Server listening for migration...")
 	http.ListenAndServe(fmt.Sprintf(":%d", cfg.NATSMigratePort), nil)
@@ -60,34 +63,63 @@ func migrate(w http.ResponseWriter, req *http.Request) {
 		fmt.Printf("Failed to replace bpm config file: %s", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(nil)
-		// shutdownNATS()
+		//shutdownNATS()
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(nil)
 
-	// restartNATS()
+	// err = restartNATS()
+	// if err != nil {
+	// 	fmt.Printf("Failed to restart nats: %s", err.Error())
+	// }
+}
+
+func restart(w http.ResponseWriter, req *http.Request) {
+	restartNATS()
+}
+
+func shutdown(w http.ResponseWriter, req *http.Request) {
+	shutdownNATS()
 }
 
 func restartNATS() error {
-	err := withRetries(func() error {
-		cmd := exec.Command("/var/vcap/jobs/bpm/bin/bpm", "stop", "nats-tls", "-p", "nats-tls")
-		return cmd.Run()
-	})
-	if err != nil {
-		return err
-	}
-	err = withRetries(func() error {
-		cmd := exec.Command("/var/vcap/jobs/bpm/bin/bpm", "start", "nats-tls", "-p", "nats-tls")
-		return cmd.Run()
-	})
-	if err != nil {
-		return err
-	}
-	return nil
+	shutdownNATS()
 
-	// shutdownNATS()
+	fmt.Fprintf(os.Stdout, "Attempting restart")
+	err := withRetries(func() error {
+		// cmd := exec.Command("/var/vcap/bosh/bin/monit", "start", "nats-tls")
+		cmd := exec.Command("/var/vcap/packages/nats-v2-migrate/bin/restart.sh")
+		var out bytes.Buffer
+		var stderr bytes.Buffer
+		cmd.Stdout = &out
+		cmd.Stderr = &stderr
+		return cmd.Run()
+	})
+	if err != nil {
+		fmt.Printf("Error shutting down: %s", err.Error())
+		return err
+	}
+	fmt.Printf("Successfully restarted")
+	return nil
+}
+
+func shutdownNATS() error {
+	fmt.Fprintf(os.Stdout, "Attempting shutdown")
+	err := withRetries(func() error {
+		// cmd := exec.Command("/var/vcap/bosh/bin/monit", "stop", "nats-tls")
+		cmd := exec.Command("/var/vcap/packages/nats-v2-migrate/bin/shutdown.sh")
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		return cmd.Run()
+	})
+	if err != nil {
+		fmt.Printf("Error shutting down: %s", err.Error())
+		return err
+	}
+	fmt.Printf("Successfully shut down")
+	return nil
 }
 
 func withRetries(f func() error) error {
@@ -101,20 +133,6 @@ func withRetries(f func() error) error {
 	}
 
 	return err
-}
-
-func shutdownNATS() {
-	for i := 0; i < 5; i++ {
-		cmd := exec.Command("monit", "stop", "nats-tls")
-		_, err := cmd.Output()
-		if err == nil {
-			return
-		}
-
-		log.Fatalf("Error during stop: %s", err)
-	}
-
-	panic("Could not shutdown, panicing...")
 }
 
 func replaceBPMConfig(sourcePath, destinationPath string) error {

@@ -53,7 +53,55 @@
             {
               'path' => '/var/vcap/jobs/nats-tls/config/bpm.yml',
               'writable' => true
-            }
+            },
+            {
+              'path' => '/var/vcap/jobs/bpm/bin/bpm',
+              'allow_executions' => true
+            },
+            {
+              'path' => '/var/vcap/bosh/bin/monit',
+              'allow_executions' => true
+            },
+            {
+              'path' => '/var/vcap/bosh/etc/monit-access-helper.sh',
+              'writable' => true,
+              'allow_executions' => true
+            },
+            {
+              'path' => '/var/vcap/bosh/bin/monit-actual',
+              'writable' => true,
+              'allow_executions' => true
+            },
+            {
+              'path' => '/var/vcap/bosh/etc/monitrc',
+              'writable' => true,
+              'allow_executions' => true
+            },
+            {
+              'path' => '/var/vcap/monit/*.monitrc',
+              'writable' => true,
+              'allow_executions' => true
+            },
+            {
+              'path' => '/var/vcap/monit/job/*.monitrc',
+              'writable' => true,
+              'allow_executions' => true
+            },
+            {
+              'path' => '/var/vcap/monit/monit.user',
+              'writable' => true,
+              'allow_executions' => true
+            },
+            {
+              'path' => '/var/vcap/jobs/bosh-dns/bin/*',
+              'writable' => true,
+              'allow_executions' => true
+            },
+            {
+              'path' => '/root/.monit.id',
+              'writable' => true,
+              'allow_executions' => true
+            },
           ]
         }
       }

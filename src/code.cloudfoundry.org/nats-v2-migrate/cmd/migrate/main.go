@@ -141,6 +141,7 @@ func main() {
 				logger.Info(fmt.Sprintf("Try #%v", i))
 				err = PerformMigration(natsMigrateServerClient, serverUrl)
 				if err == nil {
+					logger.Info("Migration completed successfully")
 					break
 				}
 
@@ -164,7 +165,7 @@ func main() {
 	}
 
 	wg.Wait()
-	if aggregateError != nil {
+	if len(aggregateError.errors) > 0 {
 		logger.Error("Some nats instances failed to migrate. Re-start the following VMs to finish migraation: ", aggregateError)
 		os.Exit(1)
 	}
