@@ -79,7 +79,7 @@ func migrate(w http.ResponseWriter, req *http.Request) {
 func restartNATS() error {
 	fmt.Fprintf(os.Stdout, "Attempting restart")
 	err := withRetries(func() error {
-		cmd := exec.Command("/var/vcap/bosh/bin/monit", "restart", "nats-tls")
+		cmd := exec.Command(gCfg.MonitPath, "restart", "nats-tls")
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		return cmd.Run()
@@ -95,10 +95,12 @@ func restartNATS() error {
 func shutdownNATS() error {
 	fmt.Fprintf(os.Stdout, "Attempting shutdown")
 	err := withRetries(func() error {
-		cmd := exec.Command("/var/vcap/bosh/bin/monit", "stop", "nats-tls")
+		cmd := exec.Command(gCfg.MonitPath, "stop", "nats-tls")
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
-		return cmd.Run()
+		_ = cmd.Run()
+		exec.Command("cat /tmp/monit-output.txt").Run()
+		return nil
 	})
 	if err != nil {
 		fmt.Printf("Error shutting down: %s", err.Error())
@@ -123,13 +125,11 @@ func withRetries(f func() error) error {
 
 func replaceBPMConfig(sourcePath, destinationPath string) error {
 	bytesRead, err := ioutil.ReadFile(sourcePath)
-	fmt.Fprintf(os.Stdout, "Source: %s", sourcePath)
 	if err != nil {
 		return fmt.Errorf("Error reading source file: %v", err)
 	}
 
 	err = ioutil.WriteFile(destinationPath, bytesRead, 0644)
-	fmt.Fprintf(os.Stdout, "Destination: %s", destinationPath)
 	if err != nil {
 		return fmt.Errorf("Error writing destination file: %v", err)
 	}

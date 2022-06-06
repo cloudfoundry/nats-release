@@ -3,6 +3,7 @@ package integration
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -19,6 +20,7 @@ import (
 var (
 	err       error
 	cfgFile   *os.File
+	cfg       config.Config
 	address   string
 	session   *gexec.Session
 	bpmFile   *os.File
@@ -52,6 +54,22 @@ func StartServer(cfg config.Config) {
 	Eventually(serverIsAvailable).Should(Succeed())
 }
 
+func StartMockMonit(cfg config.Config) {
+	mockMonit := `#!/bin/sh 
+	echo $1 >> /tmp/monit-output.txt
+	echo " " >> /tmp/monit-output.txt
+	echo $2 >> /tmp/monit-output.txt`
+
+	monitScript, err := os.Create("/tmp/monit.sh")
+	err = os.Chmod("/tmp/monit.sh", 0777)
+	Expect(err).NotTo(HaveOccurred())
+	_, err = os.Create("/tmp/monit-output.txt")
+	Expect(err).NotTo(HaveOccurred())
+	_, err = io.WriteString(monitScript, mockMonit)
+	Expect(err).NotTo(HaveOccurred())
+	monitScript.Close()
+}
+
 var _ = Describe("MigrationServer", func() {
 	AfterEach(func() {
 		session.Kill()
@@ -61,7 +79,7 @@ var _ = Describe("MigrationServer", func() {
 	Describe("/info", func() {
 		Context("when the server is the bootstrap instance", func() {
 			BeforeEach(func() {
-				cfg := config.Config{
+				cfg = config.Config{
 					Bootstrap:       true,
 					NATSMigratePort: 4242,
 				}
@@ -82,7 +100,7 @@ var _ = Describe("MigrationServer", func() {
 
 		Context("when the server is not the bootstrap instance", func() {
 			BeforeEach(func() {
-				cfg := config.Config{
+				cfg = config.Config{
 					Bootstrap:       false,
 					NATSMigratePort: 4242,
 				}
@@ -109,16 +127,20 @@ var _ = Describe("MigrationServer", func() {
 				bpmv2File, err = ioutil.TempFile("", "bpm.v2.yml")
 				bpmv2File.Write([]byte("bpm.version2"))
 
-				cfg := config.Config{
+				cfg = config.Config{
 					Bootstrap:           true,
 					NATSMigratePort:     4242,
+					Address:             "127.0.0.1",
+					NATSPort:            4224,
 					NATSBPMConfigPath:   bpmFile.Name(),
 					NATSBPMv2ConfigPath: bpmv2File.Name(),
+					MonitPath:           "/tmp/monit.sh",
 				}
 				StartServer(cfg)
+				StartMockMonit(cfg)
 			})
 
-			It("should replace the BPM config with v2", func() {
+			FIt("should replace the BPM config with v2", func() {
 				// before migration
 				originalContents, err := ioutil.ReadFile(bpmFile.Name())
 				Expect(err).ToNot(HaveOccurred())
@@ -132,8 +154,15 @@ var _ = Describe("MigrationServer", func() {
 				Expect(version2).To(Equal("bpm.version2"))
 				Expect(original).To(Not(Equal(version2)))
 
+				content, err := ioutil.ReadFile("/tmp/monit-output.txt")
+				Expect(err).ToNot(HaveOccurred())
+				Expect(string(content)).NotTo(ContainSubstring("nats-tls"))
+
 				resp, err := http.Post(fmt.Sprintf("http://%s/migrate", address), "application/json", nil)
 				Expect(err).ToNot(HaveOccurred())
+
+				// Nats 1 should be no more
+				// Nats 2 should be running
 
 				Expect(resp.StatusCode).To(Equal(200))
 
@@ -147,6 +176,14 @@ var _ = Describe("MigrationServer", func() {
 				version2 = string(version2Contents)
 				Expect(version2).To(Equal("bpm.version2"))
 				Expect(original).To(Equal(version2))
+
+				// test that the restart happened and that the nats-tls is running nats-server
+				// and we are no longer running gnatsd
+
+				content, err = ioutil.ReadFile("/tmp/monit-output.txt")
+				Expect(err).ToNot(HaveOccurred())
+				Expect(string(content)).To(ContainSubstring("nats-tls"))
+
 			})
 		})
 	})

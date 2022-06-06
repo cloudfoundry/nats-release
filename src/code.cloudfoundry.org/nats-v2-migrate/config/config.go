@@ -20,6 +20,7 @@ type Config struct {
 	NATSBPMConfigPath               string   `json:"nats_bpm_config_path"`
 	NATSBPMv1ConfigPath             string   `json:"nats_bpm_v1_config_path"`
 	NATSBPMv2ConfigPath             string   `json:"nats_bpm_v2_config_path"`
+	MonitPath                       string   `json:"monit_path"`
 	lagerflags.LagerConfig
 }
 
