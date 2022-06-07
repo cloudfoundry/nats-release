@@ -40,7 +40,7 @@ func main() {
 	logger, _ := lagerflags.NewFromConfig("nats-migrate", lagerflags.LagerConfig{LogLevel: lagerflags.INFO, TimeFormat: lagerflags.FormatRFC3339})
 	logger.Info("Starting migrate")
 
-	if len(cfg.NATSPeers) == 0 {
+	if len(cfg.NATSMigrateServers) == 0 {
 		logger.Info("Single instance NATs cluster. Skipping migration.")
 		return
 	}
@@ -63,7 +63,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	// TODO: set retryCount in config?
 	retryCount := 3
 	var bootstrapMigrateServer string
 
@@ -72,13 +71,14 @@ func main() {
 		//natsMigrateServer := fmt.Sprintf("%s:%s", peer, cfg.NATSMigratePort)
 		for i := 0; i < retryCount; i++ {
 			logger.Info(fmt.Sprintf("Try #%d", i))
+			fmt.Printf(natsMigrateServer)
 			migrateServerResponse, err := CheckMigrationInfo(natsMigrateServerClient, natsMigrateServer)
 			if err != nil {
 				logger.Error("Error connecting to NATS server", err, lager.Data{"url": natsMigrateServer})
 
 				if i == retryCount-1 {
 					// exceeded retry count, fail the deploy
-					return
+					os.Exit(1)
 				}
 				continue
 			} else {
@@ -174,25 +174,25 @@ func main() {
 
 func CheckMigrationInfo(natsMigrateServerClient *http.Client, serverUrl string) (*MigrateServerResponse, error) {
 
-	endpoint := fmt.Sprintf("http://%s/info", serverUrl)
+	endpoint := fmt.Sprintf("https://%s/info", serverUrl)
 	resp, err := natsMigrateServerClient.Get(endpoint)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to connect to NATS migrate server %s. Assuming it does not have a new version of nats yet. Connection error: %s", endpoint, err.Error())
+		return nil, fmt.Errorf("Failed to connect to NATS migrate server %s. Connection error: %s", endpoint, err.Error())
 	}
 	defer resp.Body.Close()
 
 	var migrateServerResponse MigrateServerResponse
 	err = json.NewDecoder(resp.Body).Decode(&migrateServerResponse)
 	if err != nil {
-		return nil, errors.New("Failed to parse response from NATS migrate server. Assuming it does not have a new version of nats yet.")
+		return nil, errors.New(fmt.Sprintf("Failed to parse response from NATS migrate server. Assuming it does not have a new version of nats yet, %s", err.Error()))
 	}
 
 	return &migrateServerResponse, nil
 }
 
 func PerformMigration(natsMigrateServerClient *http.Client, serverUrl string) error {
-	resp, err := natsMigrateServerClient.Post("http://"+serverUrl+"/migrate", "application/json", bytes.NewReader([]byte{}))
+	resp, err := natsMigrateServerClient.Post("https://"+serverUrl+"/migrate", "application/json", bytes.NewReader([]byte{}))
 	if err != nil {
 		return fmt.Errorf("Failed to migrate NATS server %s: %s", serverUrl, err.Error())
 	}

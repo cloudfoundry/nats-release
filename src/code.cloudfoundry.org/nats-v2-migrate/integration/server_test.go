@@ -33,10 +33,6 @@ func StartServer(cfg config.Config) {
 
 	cfgJSON, err := json.Marshal(cfg)
 
-	// Delete me
-	// Expect(fmt.Sprintf(string(cfgJSON))).To(Equal("foo")) // does it record boostrap bool the right way
-	// Expect(err).NotTo(HaveOccurred())
-
 	_, err = cfgFile.Write(cfgJSON)
 	Expect(err).NotTo(HaveOccurred())
 
@@ -140,7 +136,7 @@ var _ = Describe("MigrationServer", func() {
 				StartMockMonit(cfg)
 			})
 
-			FIt("should replace the BPM config with v2", func() {
+			It("should replace the BPM config with v2 and runs the monit command", func() {
 				// before migration
 				originalContents, err := ioutil.ReadFile(bpmFile.Name())
 				Expect(err).ToNot(HaveOccurred())
@@ -161,9 +157,6 @@ var _ = Describe("MigrationServer", func() {
 				resp, err := http.Post(fmt.Sprintf("http://%s/migrate", address), "application/json", nil)
 				Expect(err).ToNot(HaveOccurred())
 
-				// Nats 1 should be no more
-				// Nats 2 should be running
-
 				Expect(resp.StatusCode).To(Equal(200))
 
 				// after migration
@@ -177,13 +170,9 @@ var _ = Describe("MigrationServer", func() {
 				Expect(version2).To(Equal("bpm.version2"))
 				Expect(original).To(Equal(version2))
 
-				// test that the restart happened and that the nats-tls is running nats-server
-				// and we are no longer running gnatsd
-
 				content, err = ioutil.ReadFile("/tmp/monit-output.txt")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(string(content)).To(ContainSubstring("nats-tls"))
-
 			})
 		})
 	})

@@ -53,7 +53,6 @@ func info(w http.ResponseWriter, req *http.Request) {
 }
 
 func migrate(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("MIGRATE HIT: 2")
 	err := replaceBPMConfig(gCfg.NATSBPMv2ConfigPath, gCfg.NATSBPMConfigPath)
 	if err != nil {
 		fmt.Printf("Failed to replace bpm config file: %s", err.Error())
@@ -98,10 +97,9 @@ func shutdownNATS() error {
 		cmd := exec.Command(gCfg.MonitPath, "stop", "nats-tls")
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
-		_ = cmd.Run()
-		exec.Command("cat /tmp/monit-output.txt").Run()
-		return nil
+		return= cmd.Run()
 	})
+
 	if err != nil {
 		fmt.Printf("Error shutting down: %s", err.Error())
 		return err

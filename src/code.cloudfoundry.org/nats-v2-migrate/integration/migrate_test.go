@@ -28,7 +28,6 @@ var _ = Describe("Migrate", func() {
 		configFile  *os.File
 		migrateBin  string
 		migrateSess *gexec.Session
-		// migrateServerURL string
 	)
 
 	BeforeEach(func() {
@@ -37,11 +36,10 @@ var _ = Describe("Migrate", func() {
 		Expect(err).NotTo(HaveOccurred())
 		cfg = config.Config{
 			LagerConfig: lagerflags.DefaultLagerConfig(),
-			// NATSMigratePort: 10000 + config.GinkgoConfig.ParallelNode,
 		}
-		// migrateServerURL = fmt.Sprintf("http://127.0.0.1:%d", cfg.NATSMigratePort)
 		cfg.NATSPort = 4224
 		cfg.NATSMigratePort = 4242
+
 	})
 
 	JustBeforeEach(func() {
@@ -58,11 +56,6 @@ var _ = Describe("Migrate", func() {
 		migrateCmd := exec.Command(migrateBin, "-config-file", configFile.Name())
 		migrateSess, err = gexec.Start(migrateCmd, GinkgoWriter, GinkgoWriter)
 		Expect(err).NotTo(HaveOccurred())
-		// migrateServerAddress := fmt.Sprintf("127.0.0.1:%d", cfg.NATSMigratePort)
-		// Eventually(func() error {
-		// 	_, err := net.Dial("tcp", migrateServerAddress)
-		// 	return err
-		// }).Should(Succeed())
 	})
 
 	AfterEach(func() {
@@ -73,15 +66,11 @@ var _ = Describe("Migrate", func() {
 	Context("when there are no other nats machines", func() {
 		// premigrate runs it as v2
 		BeforeEach(func() {
-			cfg.NATSPeers = []string{}
+			cfg.NATSMigrateServers = []string{}
 		})
 
 		It("exits succesfully", func() {
 			Eventually(migrateSess).Should(gexec.Exit(0))
-			// resp, err := http.Get(migrateServerURL)
-			// Expect(err).NotTo(HaveOccurred())
-			// Expect(resp.StatusCode).To(Equal(http.StatusOK))
-
 		})
 	})
 
@@ -116,9 +105,7 @@ var _ = Describe("Migrate", func() {
 			natsMigrateServer3 = NewNATSMigrateServer(serverCAFile, serverCertFile, serverKeyFile, false)
 			natsMigrateServer3.HTTPTestServer.StartTLS()
 
-			cfg.NATSPeers = []string{natsMigrateServer1.URL(), natsMigrateServer2.URL(), natsMigrateServer3.URL()}
-			cfg.NATSMigrateServers = []string{natsMigrateServer1.URL(), natsMigrateServer2.URL(), natsMigrateServer3.URL()}
-			//natsPort, _ := strconv.Atoi(cfg.NATSPort)
+			cfg.NATSMigrateServers = []string{natsMigrateServer1.Addr(), natsMigrateServer2.Addr(), natsMigrateServer3.Addr()}
 			natsRunner = helpers.NewNATSRunner(cfg.NATSPort)
 		})
 
@@ -135,7 +122,6 @@ var _ = Describe("Migrate", func() {
 		})
 
 		Context("when the local NATS server is running the v2 version", func() {
-			// premigrate decided to run it as v2, either it is a fresh deploy or everything is v2 already
 			BeforeEach(func() {
 				natsRunner.Start()
 				conn, err := nats.Connect(natsRunner.URL())
@@ -169,11 +155,8 @@ var _ = Describe("Migrate", func() {
 				version := conn.ConnectedServerVersion()
 				Expect(version).To(Equal("1.4.1"))
 			})
-			// premigrate decided to run it as v1, means it found other machines that are v1
 
 			It("validates if other nats machines have migrate server running", func() {
-				// did they get new version yet?
-
 				Eventually(natsMigrateServer1.ReceivedRequests).Should(HaveLen(2))
 				Expect(natsMigrateServer1.ReceivedRequests()[0].URL.Path).To(Equal("/info"))
 				Eventually(natsMigrateServer2.ReceivedRequests).Should(HaveLen(2))
@@ -183,9 +166,6 @@ var _ = Describe("Migrate", func() {
 			})
 
 			Context("when at least one migrate server does not respond", func() {
-				// they have not finished an update yet
-				// and they don't have a new version of release with v2 binary installed yet
-				// or the migrate process is down (in that case the deployment will fail on that machine)
 				BeforeEach(func() {
 					natsMigrateServer3.Close()
 				})
@@ -203,8 +183,6 @@ var _ = Describe("Migrate", func() {
 			})
 
 			Context("when all migrate servers respond", func() {
-				// they have been updated, they have v2 binary ready
-				// this is most likely will happen on a machine(s) that will be updated last
 
 				Context("when there is a migrate server on bootstrap VM", func() {
 					Context("when migration to v2 succeeds on bootstrap VM", func() {
@@ -276,7 +254,6 @@ var _ = Describe("Migrate", func() {
 							})
 						})
 
-						// it is the responsibility of migrate server itself to rollback to v1 if it fails to start as v2
 						Context("when the migration endpoint on bootstrap VM fails with a non 200 status code", func() {
 							BeforeEach(func() {
 								natsMigrateServer2.RouteToHandler("POST", "/migrate", ghttp.CombineHandlers(
