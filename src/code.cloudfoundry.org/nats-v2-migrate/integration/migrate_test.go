@@ -105,7 +105,7 @@ var _ = Describe("Migrate", func() {
 			natsMigrateServer3 = NewNATSMigrateServer(serverCAFile, serverCertFile, serverKeyFile, false)
 			natsMigrateServer3.HTTPTestServer.StartTLS()
 
-			cfg.NATSMigrateServers = []string{natsMigrateServer1.Addr(), natsMigrateServer2.Addr(), natsMigrateServer3.Addr()}
+			cfg.NATSMigrateServers = []string{natsMigrateServer1.URL(), natsMigrateServer2.URL(), natsMigrateServer3.URL()}
 			natsRunner = helpers.NewNATSRunner(cfg.NATSPort)
 		})
 
@@ -278,7 +278,7 @@ var _ = Describe("Migrate", func() {
 					// this should not happen, bosh makes one VM as bootstrap
 					BeforeEach(func() {
 						natsMigrateServer2.Close()
-						cfg.NATSMigrateServers = []string{natsMigrateServer1.Addr(), natsMigrateServer3.Addr()}
+						cfg.NATSMigrateServers = []string{natsMigrateServer1.URL(), natsMigrateServer3.URL()}
 					})
 
 					It("exits with error", func() {

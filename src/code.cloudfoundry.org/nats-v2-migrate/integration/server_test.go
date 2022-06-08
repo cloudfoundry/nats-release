@@ -1,38 +1,67 @@
 package integration
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"os"
 	"os/exec"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
 
+	"code.cloudfoundry.org/inigo/helpers/certauthority"
 	"code.cloudfoundry.org/nats-v2-migrate/config"
 )
 
 var (
-	err       error
-	cfgFile   *os.File
-	cfg       config.Config
-	address   string
-	session   *gexec.Session
-	bpmFile   *os.File
-	bpmv2File *os.File
+	err         error
+	cfgFile     *os.File
+	cfg         config.Config
+	address     string
+	session     *gexec.Session
+	bpmFile     *os.File
+	bpmv2File   *os.File
+	certDepoDir string
+	client      http.Client
 )
+
+func GenerateCerts(cfg *config.Config) {
+	certDepoDir, err = ioutil.TempDir("", "")
+	Expect(err).NotTo(HaveOccurred())
+
+	ca, err := certauthority.NewCertAuthority(certDepoDir, "nats-v2-migrate-ca")
+	Expect(err).NotTo(HaveOccurred())
+
+	fmt.Printf(certDepoDir + "\n")
+	serverKeyFile, serverCertFile, err := ca.GenerateSelfSignedCertAndKey("server", []string{}, false)
+
+	fmt.Printf(serverCertFile + "\n")
+	fmt.Printf(serverKeyFile + "\n")
+
+	Expect(err).NotTo(HaveOccurred())
+
+	fmt.Printf("Got this far")
+	_, serverCAFile := ca.CAAndKey()
+	fmt.Printf(serverCAFile + "\n")
+	cfg.NATSMigrateServerCAFile = serverCAFile
+	cfg.NATSMigrateServerClientCertFile = serverCertFile
+	cfg.NATSMigrateServerClientKeyFile = serverKeyFile
+}
 
 func StartServer(cfg config.Config) {
 	cfgFile, err = ioutil.TempFile("", "migrate-config.json")
 	Expect(err).NotTo(HaveOccurred())
 
 	cfgJSON, err := json.Marshal(cfg)
-
 	_, err = cfgFile.Write(cfgJSON)
 	Expect(err).NotTo(HaveOccurred())
 
@@ -45,9 +74,36 @@ func StartServer(cfg config.Config) {
 
 	address = "127.0.0.1:4242"
 	serverIsAvailable := func() error {
-		return VerifyTCPConnection(address)
+		err := VerifyTCPConnection(address)
+		if err != nil {
+			fmt.Printf(err.Error())
+		}
+		return err
 	}
-	Eventually(serverIsAvailable).Should(Succeed())
+	Eventually(serverIsAvailable, "10s").Should(Succeed())
+}
+
+func CreateTLSClient(cfg config.Config) http.Client {
+	cert, err := tls.LoadX509KeyPair(cfg.NATSMigrateServerClientCertFile, cfg.NATSMigrateServerClientKeyFile)
+	if err != nil {
+		log.Fatalf("Error creating x509 keypair from client cert file %s and client key file", err.Error())
+	}
+
+	caCert, err := ioutil.ReadFile(cfg.NATSMigrateServerClientCertFile)
+	if err != nil {
+		log.Fatalf("Error opening cert file, Error: %s", err)
+	}
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+
+	t := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			Certificates: []tls.Certificate{cert},
+			RootCAs:      caCertPool,
+		},
+	}
+
+	return http.Client{Transport: t, Timeout: 15 * time.Second}
 }
 
 func StartMockMonit(cfg config.Config) {
@@ -79,11 +135,14 @@ var _ = Describe("MigrationServer", func() {
 					Bootstrap:       true,
 					NATSMigratePort: 4242,
 				}
+				GenerateCerts(&cfg)
 				StartServer(cfg)
+				client = CreateTLSClient(cfg)
 			})
 
 			It("returns 'bootstrap': true", func() {
-				resp, err := http.Get(fmt.Sprintf("http://%s/info", address))
+				address = "https://127.0.0.1:4242"
+				resp, err := client.Get(fmt.Sprintf("%s/info", address))
 
 				Expect(err).ToNot(HaveOccurred())
 
@@ -100,11 +159,13 @@ var _ = Describe("MigrationServer", func() {
 					Bootstrap:       false,
 					NATSMigratePort: 4242,
 				}
+				GenerateCerts(&cfg)
 				StartServer(cfg)
+				client = CreateTLSClient(cfg)
 			})
 
 			It("returns 'bootstrap': false", func() {
-				resp, err := http.Get(fmt.Sprintf("http://%s/info", address))
+				resp, err := client.Get(fmt.Sprintf("https://%s/info", address))
 				Expect(err).ToNot(HaveOccurred())
 
 				Expect(resp.StatusCode).To(Equal(200))
@@ -132,7 +193,9 @@ var _ = Describe("MigrationServer", func() {
 					NATSBPMv2ConfigPath: bpmv2File.Name(),
 					MonitPath:           "/tmp/monit.sh",
 				}
+				GenerateCerts(&cfg)
 				StartServer(cfg)
+				client = CreateTLSClient(cfg)
 				StartMockMonit(cfg)
 			})
 
@@ -154,9 +217,10 @@ var _ = Describe("MigrationServer", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(string(content)).NotTo(ContainSubstring("nats-tls"))
 
-				resp, err := http.Post(fmt.Sprintf("http://%s/migrate", address), "application/json", nil)
+				resp, err := client.Post(fmt.Sprintf("https://%s/migrate", address), "application/json", nil)
 				Expect(err).ToNot(HaveOccurred())
-
+				body, _ := ioutil.ReadAll(resp.Body)
+				fmt.Printf(string(body))
 				Expect(resp.StatusCode).To(Equal(200))
 
 				// after migration
