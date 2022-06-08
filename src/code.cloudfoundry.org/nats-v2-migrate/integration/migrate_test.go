@@ -178,7 +178,7 @@ var _ = Describe("Migrate", func() {
 
 					Eventually(natsMigrateServer3.ReceivedRequests).Should(HaveLen(0))
 
-					Eventually(migrateSess).Should(gexec.Exit(1))
+					Eventually(migrateSess).Should(gexec.Exit(0))
 				})
 			})
 
@@ -278,7 +278,7 @@ var _ = Describe("Migrate", func() {
 					// this should not happen, bosh makes one VM as bootstrap
 					BeforeEach(func() {
 						natsMigrateServer2.Close()
-						cfg.NATSPeers = []string{natsMigrateServer1.URL(), natsMigrateServer3.URL()}
+						cfg.NATSMigrateServers = []string{natsMigrateServer1.Addr(), natsMigrateServer3.Addr()}
 					})
 
 					It("exits with error", func() {

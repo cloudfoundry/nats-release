@@ -31,7 +31,7 @@ func main() {
 	http.HandleFunc("/migrate", migrate)
 
 	fmt.Println("Server listening for migration...")
-	http.ListenAndServe(fmt.Sprintf(":%d", cfg.NATSMigratePort), nil)
+	http.ListenAndServeTLS(fmt.Sprintf(":%d", cfg.NATSMigratePort), cfg.NATSMigrateServerClientCertFile, cfg.NATSMigrateServerClientKeyFile, nil)
 }
 
 func info(w http.ResponseWriter, req *http.Request) {
@@ -97,7 +97,7 @@ func shutdownNATS() error {
 		cmd := exec.Command(gCfg.MonitPath, "stop", "nats-tls")
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
-		return= cmd.Run()
+		return cmd.Run()
 	})
 
 	if err != nil {
