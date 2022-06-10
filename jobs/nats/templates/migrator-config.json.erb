@@ -1,36 +1,32 @@
 <%
     nats_peers = []
-    nats_user = ""
-    nats_password = ""
     nats_port = nil
     nats_migrate_port = 4242
+    instance_id = ""
     if_link("nats") do |nats_link|
-    
       nats_port = nats_link.p("nats.port")
-      nats_user = nats_link.p("nats.user")
-      nats_password = nats_link.p("nats.password")
       nats_link.instances.map do |instance|
         if instance.id == spec.id 
-            next
+            instance_id = instance.id
+        else
+            nats_peers.push("#{instance.id}.#{nats_link.p("nats.hostname")}")
         end
-        nats_peers.push("#{instance.id}.#{nats_link.p("nats.hostname")}")
       end
     end
     %>
 {      
     "bootstrap": <%= spec.bootstrap %>,
+    "address": <%= "\"#{instance_id}.nats.service.cf.internal\"" %>,
+    "nats_peers": [ <%= nats_peers.map { |e| "\"#{e}:#{nats_port}\""}.join(", ")  %> ],
     "nats_port": <%= nats_port %>,
-    "nats_servers": [ <%= nats_peers.map { |e| "\"#{e}:#{nats_port}\""}.join(", ")  %> ],
-    "nats_user": "<%= nats_user %>",
-    "nats_password": "<%= nats_password %>",
     "nats_migrate_port": <%= nats_migrate_port %>,
-    "nats_migrate_servers": [ <%= nats_peers.map { |e| "\"#{e}:#{nats_migrate_port}\""}.join(", ")  %> ],
-    "local_nats_addr": "<%= "127.0.0.1:#{nats_migrate_port}" %>",
+    "nats_migrate_servers": [ <%= nats_peers.map { |e| "\"https://#{e}:#{nats_migrate_port}\""}.join(", ")  %> ],
     "nats_internal_tls_enabled": <%= p("nats.internal.tls.enabled") %>,
-    "nats_cert_path": "/var/vcap/jobs/nats/config/client_tls/certificate.pem",
-    "nats_key_path": "/var/vcap/jobs/nats/config/client_tls/private_key.pem",
+    "nats_cert_path": "/var/vcap/jobs/nats/config/external_tls/certificate.pem",
+    "nats_key_path": "/var/vcap/jobs/nats/config/external_tls/private_key.pem",
     "nats_ca_path": "/var/vcap/jobs/nats/config/external_tls/ca.pem",
     "nats_bpm_config_path": "/var/vcap/jobs/nats/config/bpm.yml",
     "nats_bpm_v1_config_path": "/var/vcap/jobs/nats/config/bpm.v1.yml",
-    "nats_bpm_v2_config_path": "/var/vcap/jobs/nats/config/bpm.v2.yml"
+    "nats_bpm_v2_config_path": "/var/vcap/jobs/nats/config/bpm.v2.yml",
+    "monit_path": "/var/vcap/bosh/bin/monit" 
 }

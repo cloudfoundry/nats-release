@@ -20,6 +20,7 @@ packages:
   - gnatsd
   - nats-server
   - nats-v2-migrate
+  - pid_utils
 
 provides:
 - name: nats
