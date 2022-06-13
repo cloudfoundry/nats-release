@@ -15,7 +15,7 @@
         end
     end
     %>
-{      
+{
     "bootstrap": <%= spec.bootstrap %>,
     "address": <%= "\"#{instance_id}.nats.service.cf.internal\"" %>,
     "nats_peers": [ <%= nats_peers.map { |e| "\"#{e}:#{nats_port}\""}.join(", ")  %> ],
@@ -29,5 +29,5 @@
     "nats_bpm_config_path": "/var/vcap/jobs/nats-tls/config/bpm.yml",
     "nats_bpm_v1_config_path": "/var/vcap/jobs/nats-tls/config/bpm.v1.yml",
     "nats_bpm_v2_config_path": "/var/vcap/jobs/nats-tls/config/bpm.v2.yml",
-    "monit_path": "/var/vcap/bosh/bin/monit" 
+    "monit_path": "/var/vcap/bosh/bin/monit"
 }
