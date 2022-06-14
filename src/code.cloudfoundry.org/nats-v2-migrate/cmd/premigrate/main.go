@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"code.cloudfoundry.org/lager/lagerflags"
 	"code.cloudfoundry.org/nats-v2-migrate/config"
 	"code.cloudfoundry.org/nats-v2-migrate/natsinfo"
 )
@@ -28,27 +29,34 @@ func main() {
 		os.Exit(1)
 	}
 
+	logger, _ := lagerflags.NewFromConfig("nats-premigrate", lagerflags.LagerConfig{LogLevel: lagerflags.INFO, TimeFormat: lagerflags.FormatRFC3339})
+	logger.Info("Starting migrate")
+
 	if len(cfg.NATSPeers) == 0 {
-		fmt.Fprintf(os.Stdout, "Single instance NATs cluster. Deploying as V2")
+		logger.Info("Single instance NATs cluster. Deploying as V2")
 		return
 	}
 	for _, natsMachineUrl := range cfg.NATSPeers {
 		majorVersion, err := natsinfo.GetMajorVersion(natsMachineUrl)
 		if err != nil {
 			if _, ok := err.(*natsinfo.ErrConnectingToNATS); ok {
-				fmt.Fprintf(os.Stdout, "Ignoring machine %s due to connection error: %v\n", natsMachineUrl, err)
+				logger.Error(fmt.Sprintf("Ignoring machine %s due to connection error", natsMachineUrl), err)
 				continue
 			}
-			fmt.Fprintf(os.Stderr, "Error getting nats version: %v\n", err)
+			logger.Error("Error getting nats version", err)
 			os.Exit(1)
 		}
 		if majorVersion < 2 {
+			logger.Info(fmt.Sprintf("Instance %s is on version %d", natsMachineUrl, majorVersion))
+
 			err = replaceBPMConfig(cfg.NATSBPMv1ConfigPath, cfg.NATSBPMConfigPath)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error replacing bpm config: %v\n", err)
+				logger.Error("Error replacing bpm config", err)
 				os.Exit(1)
 			}
 			break
+		} else {
+			logger.Info(fmt.Sprintf("Instance %s is on version %d", natsMachineUrl, majorVersion))
 		}
 	}
 }
