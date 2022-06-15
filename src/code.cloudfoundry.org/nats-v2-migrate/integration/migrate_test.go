@@ -253,8 +253,25 @@ var _ = Describe("Migrate", func() {
 								Eventually(migrateSess).Should(gexec.Exit(1))
 							})
 						})
+						Context("when the migration endpoint on bootstrap VM fails with a 409 status code", func() {
+							BeforeEach(func() {
+								natsMigrateServer2.RouteToHandler("POST", "/migrate", ghttp.CombineHandlers(
+									ghttp.VerifyRequest("POST", "/migrate"),
+									ghttp.RespondWith(http.StatusConflict, ""),
+								))
+							})
 
-						Context("when the migration endpoint on bootstrap VM fails with a non 200 status code", func() {
+							It("does not tell other migrate servers to migrate to v2", func() {
+								Eventually(natsMigrateServer1.ReceivedRequests).Should(HaveLen(1))
+								Eventually(natsMigrateServer3.ReceivedRequests).Should(HaveLen(1))
+							})
+
+							It("exits with success", func() {
+								Eventually(migrateSess).Should(gexec.Exit(1))
+							})
+						})
+
+						Context("when the migration endpoint on bootstrap VM fails with another non 200 status code", func() {
 							BeforeEach(func() {
 								natsMigrateServer2.RouteToHandler("POST", "/migrate", ghttp.CombineHandlers(
 									ghttp.VerifyRequest("POST", "/migrate"),

@@ -30,7 +30,7 @@ func main() {
 	}
 
 	logger, _ := lagerflags.NewFromConfig("nats-premigrate", lagerflags.LagerConfig{LogLevel: lagerflags.INFO, TimeFormat: lagerflags.FormatRFC3339})
-	logger.Info("Starting migrate")
+	logger.Info("Starting premigrate")
 
 	if len(cfg.NATSPeers) == 0 {
 		logger.Info("Single instance NATs cluster. Deploying as V2")

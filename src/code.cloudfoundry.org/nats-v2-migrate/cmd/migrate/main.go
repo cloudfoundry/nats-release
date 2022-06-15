@@ -75,6 +75,8 @@ func main() {
 
 				if i == retryCount-1 {
 					// exceeded retry count, do not fail deploy so other instances can execute the migrate script
+					logger.Info("Exceeded retry count. Exiting to allow another instance to execute migration.")
+					logger.Info("(I'm sorry but your princess is in another castle)")
 					return
 				}
 				continue
@@ -96,7 +98,6 @@ func main() {
 	}
 
 	logger.Info("Migrating bootstrap server", lager.Data{"url": bootstrapMigrateServer})
-	// TODO: retry if post fails with err not unexpected status code
 
 	for i := 0; i < retryCount; i++ {
 		err = PerformMigration(natsMigrateServerClient, bootstrapMigrateServer)
@@ -112,8 +113,13 @@ func main() {
 
 		usce, ok := err.(*UnexpectedStatusCodeError)
 		if ok {
-			logger.Error("Unexpected Status Code: ", err, lager.Data{"url": usce.ServerUrl, "code": usce.StatusCode})
-			os.Exit(1)
+			if usce.StatusCode == http.StatusConflict {
+				logger.Info("Skipping migration, another machine is performing migration")
+				return
+			} else {
+				logger.Error("Unexpected Status Code: ", err, lager.Data{"url": usce.ServerUrl, "code": usce.StatusCode})
+				os.Exit(1)
+			}
 		}
 	}
 
@@ -141,7 +147,7 @@ func main() {
 				logger.Info(fmt.Sprintf("Try #%v", i))
 				err = PerformMigration(natsMigrateServerClient, serverUrl)
 				if err == nil {
-					logger.Info("Migration completed successfully")
+					logger.Info(fmt.Sprintf("Migration of %s completed successfully", serverUrl))
 					break
 				}
 

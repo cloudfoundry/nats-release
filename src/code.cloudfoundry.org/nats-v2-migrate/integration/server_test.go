@@ -177,28 +177,30 @@ var _ = Describe("MigrationServer", func() {
 	})
 
 	Describe("/migrate", func() {
+		BeforeEach(func() {
+
+			bpmFile, err = ioutil.TempFile("", "bpm.yml")
+			bpmFile.Write([]byte("bpm.original"))
+			bpmv2File, err = ioutil.TempFile("", "bpm.v2.yml")
+			bpmv2File.Write([]byte("bpm.version2"))
+
+			cfg = config.Config{
+				Bootstrap:           true,
+				NATSMigratePort:     4242,
+				Address:             "127.0.0.1",
+				NATSPort:            4224,
+				NATSBPMConfigPath:   bpmFile.Name(),
+				NATSBPMv2ConfigPath: bpmv2File.Name(),
+				MonitPath:           "/tmp/monit.sh",
+			}
+			GenerateCerts(&cfg)
+			StartServer(cfg)
+			client = CreateTLSClient(cfg)
+			StartMockMonit(cfg)
+
+		})
+
 		Context("when the server should have migrated", func() {
-			BeforeEach(func() {
-				bpmFile, err = ioutil.TempFile("", "bpm.yml")
-				bpmFile.Write([]byte("bpm.original"))
-				bpmv2File, err = ioutil.TempFile("", "bpm.v2.yml")
-				bpmv2File.Write([]byte("bpm.version2"))
-
-				cfg = config.Config{
-					Bootstrap:           true,
-					NATSMigratePort:     4242,
-					Address:             "127.0.0.1",
-					NATSPort:            4224,
-					NATSBPMConfigPath:   bpmFile.Name(),
-					NATSBPMv2ConfigPath: bpmv2File.Name(),
-					MonitPath:           "/tmp/monit.sh",
-				}
-				GenerateCerts(&cfg)
-				StartServer(cfg)
-				client = CreateTLSClient(cfg)
-				StartMockMonit(cfg)
-			})
-
 			It("should replace the BPM config with v2 and runs the monit command", func() {
 				// before migration
 				originalContents, err := ioutil.ReadFile(bpmFile.Name())
@@ -237,6 +239,18 @@ var _ = Describe("MigrationServer", func() {
 				content, err = ioutil.ReadFile("/tmp/monit-output.txt")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(string(content)).To(ContainSubstring("nats-tls"))
+			})
+		})
+		Context("when the server has already been migrated", func() {
+			It("should succeed the first time and get a 409 the second time", func() {
+
+				resp, err := client.Post(fmt.Sprintf("https://%s/migrate", address), "application/json", nil)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(resp.StatusCode).To(Equal(200))
+
+				resp, err = client.Post(fmt.Sprintf("https://%s/migrate", address), "application/json", nil)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(resp.StatusCode).To(Equal(409))
 			})
 		})
 	})

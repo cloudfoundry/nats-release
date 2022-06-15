@@ -5,15 +5,18 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"os/exec"
 
+	"code.cloudfoundry.org/lager"
+	"code.cloudfoundry.org/lager/lagerflags"
 	"code.cloudfoundry.org/nats-v2-migrate/config"
 )
 
-var gCfg config.Config
+var (
+	gCfg config.Config
+)
 
 func main() {
 	configFilePath := flag.String("config-file", "", "path to config file")
@@ -27,14 +30,29 @@ func main() {
 
 	gCfg = cfg
 
-	http.HandleFunc("/info", info)
-	http.HandleFunc("/migrate", migrate)
+	logger, _ := lagerflags.NewFromConfig("nats-migrate-server", lagerflags.LagerConfig{LogLevel: lagerflags.INFO, TimeFormat: lagerflags.FormatRFC3339})
+	server := NewHttpServer(logger)
 
-	fmt.Println("Server listening for migration...")
+	http.HandleFunc("/info", server.Info)
+	http.HandleFunc("/migrate", server.Migrate)
+
+	logger.Info("Server listening for migration...")
 	http.ListenAndServeTLS(fmt.Sprintf(":%d", cfg.NATSMigratePort), cfg.NATSMigrateServerClientCertFile, cfg.NATSMigrateServerClientKeyFile, nil)
 }
 
-func info(w http.ResponseWriter, req *http.Request) {
+type httpServer struct {
+	logger             lager.Logger
+	migrateEndpointHit bool
+}
+
+func NewHttpServer(logger lager.Logger) *httpServer {
+	return &httpServer{
+		logger:             logger,
+		migrateEndpointHit: false,
+	}
+}
+
+func (s *httpServer) Info(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	response := make(map[string]bool)
 
@@ -43,7 +61,7 @@ func info(w http.ResponseWriter, req *http.Request) {
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Fatalf("Error during marshal: %s", err)
+		s.logger.Error("Error during marshal", err)
 		w.Write(nil)
 		return
 	}
@@ -52,59 +70,67 @@ func info(w http.ResponseWriter, req *http.Request) {
 	w.Write(jsonResponse)
 }
 
-func migrate(w http.ResponseWriter, req *http.Request) {
+func (s *httpServer) Migrate(w http.ResponseWriter, req *http.Request) {
+	// guard against race condition, multiple hits from different
+	// instances
+	if s.migrateEndpointHit == true {
+		w.WriteHeader(http.StatusConflict)
+		w.Write(nil)
+		return
+	}
+
+	s.migrateEndpointHit = true
+
 	err := replaceBPMConfig(gCfg.NATSBPMv2ConfigPath, gCfg.NATSBPMConfigPath)
 	if err != nil {
-		fmt.Printf("Failed to replace bpm config file: %s", err.Error())
+		s.logger.Error("Failed to replace bpm config file", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(nil)
-		shutdownNATS()
+		shutdownNATS(s.logger)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(nil)
 
-	err = restartNATS()
+	err = restartNATS(s.logger)
 	if err != nil {
-		fmt.Printf("Failed to restart nats: %s", err.Error())
+		s.logger.Error("Failed to restart nats", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(nil)
-		shutdownNATS()
+		shutdownNATS(s.logger)
 		return
 	}
 }
 
-func restartNATS() error {
-	fmt.Fprintf(os.Stdout, "Attempting restart")
+func restartNATS(logger lager.Logger) error {
+	logger.Info("Attempting restart")
+
 	err := withRetries(func() error {
 		cmd := exec.Command(gCfg.MonitPath, "restart", "nats-tls")
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
 		return cmd.Run()
 	})
 	if err != nil {
-		fmt.Printf("Error shutting down: %s", err.Error())
+		logger.Error("Error shutting down", err)
 		return err
 	}
-	fmt.Printf("Successfully restarted")
+	logger.Info("Successfully restarted")
 	return nil
 }
 
-func shutdownNATS() error {
-	fmt.Fprintf(os.Stdout, "Attempting shutdown")
+func shutdownNATS(logger lager.Logger) error {
+	logger.Info("Attempting shutdown")
+
 	err := withRetries(func() error {
 		cmd := exec.Command(gCfg.MonitPath, "stop", "nats-tls")
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
 		return cmd.Run()
 	})
 
 	if err != nil {
-		fmt.Printf("Error shutting down: %s", err.Error())
+		logger.Error("Error shutting down", err)
 		return err
 	}
-	fmt.Printf("Successfully shut down")
+	logger.Info("Successfully shut down")
 	return nil
 }
 
@@ -124,14 +150,13 @@ func withRetries(f func() error) error {
 func replaceBPMConfig(sourcePath, destinationPath string) error {
 	bytesRead, err := ioutil.ReadFile(sourcePath)
 	if err != nil {
-		return fmt.Errorf("Error reading source file: %v", err)
+		return err
 	}
 
 	err = ioutil.WriteFile(destinationPath, bytesRead, 0644)
 	if err != nil {
-		return fmt.Errorf("Error writing destination file: %v", err)
+		return err
 	}
-	fmt.Fprintf(os.Stdout, "Success")
 
 	return nil
 }
