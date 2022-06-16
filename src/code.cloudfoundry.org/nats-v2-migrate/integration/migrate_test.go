@@ -267,7 +267,7 @@ var _ = Describe("Migrate", func() {
 							})
 
 							It("exits with success", func() {
-								Eventually(migrateSess).Should(gexec.Exit(1))
+								Eventually(migrateSess).Should(gexec.Exit(0))
 							})
 						})
 
