@@ -1,3 +1,0 @@
-[submodule "src/github.com/nats-io/nats-server"]
-	path = src/github.com/nats-io/nats-server
-	url = https://github.com/nats-io/nats-server
