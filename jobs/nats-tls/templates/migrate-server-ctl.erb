@@ -1,0 +1,46 @@
+#!/bin/bash -e
+
+RUN_DIR=/var/vcap/sys/run/migrate-server
+LOG_DIR=/var/vcap/sys/log/migrate-server
+CONF_DIR=/var/vcap/jobs/nats-tls/config
+
+PIDFILE=$RUN_DIR/migrate-server.pid
+
+source /var/vcap/packages/pid_utils/pid_utils.sh
+
+case $1 in
+  start)
+    pid_guard $PIDFILE "migrate-server"
+
+    mkdir -p $RUN_DIR
+    chown -R vcap:vcap $RUN_DIR
+
+    mkdir -p $LOG_DIR
+    chown -R vcap:vcap $LOG_DIR
+
+    echo $$ > $PIDFILE
+
+    if running_in_container; then
+      echo "I'm running in a container!"
+    fi
+      
+    ulimit -n 10000
+
+    exec /var/vcap/packages/nats-v2-migrate/bin/server \
+    -config-file "$CONF_DIR/migrator-config.json" \
+    2> >(tee -a $LOG_DIR/migrate-server.stderr.log | logger -p user.error -t vcap.migrate-server) \
+    1> >(tee -a $LOG_DIR/migrate-server.stdout.log | logger -p user.info -t vcap.migrate-server)
+
+    ;;
+
+  stop)
+    kill_and_wait $PIDFILE
+
+    ;;
+
+  *)
+    echo "Usage: migrate-server-ctl {start|stop}"
+
+    ;;
+
+esac

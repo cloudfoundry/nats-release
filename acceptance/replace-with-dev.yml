@@ -1,0 +1,7 @@
+- type: replace
+  path: /releases/name=nats/url
+  value: file://.
+
+- type: replace
+  path: /releases/name=nats/version
+  value: create

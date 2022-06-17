@@ -1,0 +1,22 @@
+#!/bin/bash
+set -ex -o pipefail
+
+BASEDIR="$(dirname "$0")"
+
+function printStatus {
+  local last_exit_status=$?
+  set +x
+  if (( last_exit_status == 0 )); then
+    echo -e '\\nSWEET SUITE SUCCESS'
+  else
+    echo -e '\\nSUITE FAILURE'
+  fi
+}
+trap printStatus EXIT
+
+${BASEDIR}/setup_test_environment.sh
+
+
+pushd src/code.cloudfoundry.org/nats-v2-migrate
+  ginkgo -r --flakeAttempts=3
+popd

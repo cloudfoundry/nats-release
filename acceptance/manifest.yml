@@ -1,0 +1,147 @@
+---
+name: nats
+
+
+releases:
+- name: nats
+  url: https://bosh.io/d/github.com/cloudfoundry/nats-release?v=44
+  version: "44"
+- name: bpm
+  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.1.18
+  version: 1.1.18
+- name: bosh-dns-aliases
+  url: https://bosh.io/d/github.com/cloudfoundry/bosh-dns-aliases-release?v=0.0.4
+  version: 0.0.4
+  sha1: 55b3dced813ff9ed92a05cda02156e4b5604b273
+
+stemcells:
+- alias: default
+  os: ubuntu-bionic
+  version: latest
+
+update:
+  canaries: 1
+  canary_watch_time: 30000-1200000
+  max_in_flight: 1
+  serial: true
+  update_watch_time: 5000-1200000
+
+addons:
+- name: bpm
+  include:
+    stemcell:
+    - os: ubuntu-xenial
+    - os: ubuntu-bionic
+    - os: ubuntu-jammy
+  jobs:
+  - name: bpm
+    release: bpm
+
+- name: bosh-dns-aliases
+  jobs:
+  - name: bosh-dns-aliases
+    release: bosh-dns-aliases
+    properties:
+      aliases:
+      - domain: nats.service.cf.internal
+        targets:
+        - query: '*'
+          instance_group: nats
+          deployment: nats
+          network: default
+          domain: bosh
+      - domain: _.nats.service.cf.internal
+        targets:
+        - query: '_'
+          instance_group: nats
+          deployment: nats
+          network: default
+          domain: bosh
+
+
+instance_groups:
+- name: nats
+  azs:
+  - z1
+  instances: 3
+  vm_type: minimal
+  stemcell: default
+  networks:
+  - name: default
+  jobs:
+  - name: nats-tls
+    release: nats
+    provides:
+      nats-tls: {as: nats-tls, shared: true}
+    properties:
+      nats:
+        hostname: nats.service.cf.internal
+        user: nats
+        password: "((nats_password))"
+        internal:
+          tls:
+            ca: "((nats_internal_cert.ca))"
+            private_key: "((nats_internal_cert.private_key))"
+            certificate: "((nats_internal_cert.certificate))"
+            enabled: true
+        external:
+          tls:
+            ca: "((nats_client_cert.ca))"
+            private_key: "((nats_server_cert.private_key))"
+            certificate: "((nats_server_cert.certificate))"
+        client:
+          tls:
+            private_key: "((nats_client_cert.private_key))"
+            certificate: "((nats_client_cert.certificate))"
+
+variables:
+- name: nats_password
+  type: password
+
+- name: nats_internal_ca
+  type: certificate
+  options:
+    common_name: nats_internal
+    is_ca: true
+
+- name: nats_internal_cert
+  type: certificate
+  options:
+    ca: nats_internal_ca
+    common_name: "*.nats.service.cf.internal"
+    alternative_names:
+    - "*.nats.service.cf.internal"
+    - nats.service.cf.internal
+    extended_key_usage:
+    - client_auth
+    - server_auth
+
+- name: nats_ca
+  type: certificate
+  options:
+    common_name: nats
+    is_ca: true
+
+- name: nats_client_cert
+  type: certificate
+  update_mode: converge
+  options:
+    ca: nats_ca
+    common_name: nats_client
+    alternative_names:
+    - nats_client
+    extended_key_usage:
+    - client_auth
+
+- name: nats_server_cert
+  type: certificate
+  update_mode: converge
+  options:
+    ca: nats_ca
+    common_name: nats.service.cf.internal
+    alternative_names:
+    - "*.nats.service.cf.internal"
+    - nats.service.cf.internal
+    extended_key_usage:
+    - server_auth
+

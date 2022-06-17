@@ -2,11 +2,11 @@
 name: nats-tls-healthcheck
 
 dependencies:
-  - golang-1.17-linux
+  - golang-1-linux
 
 files:
-  - go.mod
-  - go.sum
-  - vendor/modules.txt
-  - vendor/**/*
-  - nats-tls-healthcheck/*.go
+  - code.cloudfoundry.org/go.mod
+  - code.cloudfoundry.org/go.sum
+  - code.cloudfoundry.org/vendor/modules.txt
+  - code.cloudfoundry.org/vendor/**/*
+  - code.cloudfoundry.org/nats-tls-healthcheck/*.go
