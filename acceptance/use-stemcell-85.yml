@@ -1,0 +1,10 @@
+- type: replace
+  path: /instance_groups/name=nats/stemcell
+  value: "1.85"
+
+- type: replace
+  path: /stemcells/-
+  value: 
+   alias: "1.85"
+   os: ubuntu-bionic
+   version: 1.85

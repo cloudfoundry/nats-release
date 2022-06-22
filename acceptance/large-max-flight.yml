@@ -1,0 +1,11 @@
+- type: replace
+  path: /update/max_in_flight?
+  value: 50%
+
+- type: replace
+  path: /update/serial?
+  value: false
+
+- type: replace
+  path: /instance_groups/name=nats/instances
+  value: 10
