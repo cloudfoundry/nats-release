@@ -10,7 +10,7 @@ import (
 
 	"code.cloudfoundry.org/nats-v2-migrate/config"
 	"code.cloudfoundry.org/nats-v2-migrate/integration/helpers"
-	"github.com/nats-io/nats.go"
+	"code.cloudfoundry.org/nats-v2-migrate/natsinfo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
@@ -110,16 +110,14 @@ var _ = Describe("Premigrate", func() {
 		Context("with all nats-servers running v2", func() {
 			BeforeEach(func() {
 				natsRunner1.Start()
-				conn, err := nats.Connect(natsRunner1.URL())
-				Expect(err).ToNot(HaveOccurred())
-				version := conn.ConnectedServerVersion()
-				Expect(version).To(Equal("2.8.2"))
+				version, err := natsinfo.GetMajorVersion(natsRunner1.Addr())
+				Expect(err).NotTo(HaveOccurred())
+				Expect(version).To(Equal(2))
 
 				natsRunner2.Start()
-				conn, err = nats.Connect(natsRunner2.URL())
-				Expect(err).ToNot(HaveOccurred())
-				version = conn.ConnectedServerVersion()
-				Expect(version).To(Equal("2.8.2"))
+				version, err = natsinfo.GetMajorVersion(natsRunner2.Addr())
+				Expect(err).NotTo(HaveOccurred())
+				Expect(version).To(Equal(2))
 			})
 
 			It("keeps original bpm config in place", func() {
@@ -137,16 +135,15 @@ var _ = Describe("Premigrate", func() {
 		Context("with one nats-server running v1", func() {
 			BeforeEach(func() {
 				natsRunner1.StartV1()
-				conn, err := nats.Connect(natsRunner1.URL())
-				Expect(err).ToNot(HaveOccurred())
-				version := conn.ConnectedServerVersion()
-				Expect(version).To(Equal("1.4.1"))
+				version, err := natsinfo.GetMajorVersion(natsRunner1.Addr())
+				Expect(err).NotTo(HaveOccurred())
+				Expect(version).To(Equal(1))
 
 				natsRunner2.Start()
-				conn, err = nats.Connect(natsRunner2.URL())
-				Expect(err).ToNot(HaveOccurred())
-				version = conn.ConnectedServerVersion()
-				Expect(version).To(Equal("2.8.2"))
+				version, err = natsinfo.GetMajorVersion(natsRunner2.Addr())
+				Expect(err).NotTo(HaveOccurred())
+				Expect(version).To(Equal(2))
+
 			})
 
 			It("switches to v1 bpm config", func() {
@@ -164,10 +161,9 @@ var _ = Describe("Premigrate", func() {
 		Context("when it fails to connect to one nats server within the timeout", func() {
 			BeforeEach(func() {
 				natsRunner2.Start()
-				conn, err := nats.Connect(natsRunner2.URL())
-				Expect(err).ToNot(HaveOccurred())
-				version := conn.ConnectedServerVersion()
-				Expect(version).To(Equal("2.8.2"))
+				version, err := natsinfo.GetMajorVersion(natsRunner2.Addr())
+				Expect(err).NotTo(HaveOccurred())
+				Expect(version).To(Equal(2))
 			})
 
 			It("retries for the timeout period", func() {
@@ -177,10 +173,9 @@ var _ = Describe("Premigrate", func() {
 				Consistently(sess).WithTimeout(5 * time.Second).ShouldNot(gexec.Exit())
 
 				natsRunner1.StartV1()
-				conn, err := nats.Connect(natsRunner1.URL())
-				Expect(err).ToNot(HaveOccurred())
-				version := conn.ConnectedServerVersion()
-				Expect(version).To(Equal("1.4.1"))
+				version, err := natsinfo.GetMajorVersion(natsRunner1.Addr())
+				Expect(err).NotTo(HaveOccurred())
+				Expect(version).To(Equal(1))
 				Eventually(sess).WithTimeout(61 * time.Second).Should(gexec.Exit(0))
 
 				bpmConfigContents, err := os.ReadFile(natsBPMConfigFile.Name())
@@ -192,10 +187,9 @@ var _ = Describe("Premigrate", func() {
 		Context("when it fails to connect to one nats server and times out", func() {
 			BeforeEach(func() {
 				natsRunner2.Start()
-				conn, err := nats.Connect(natsRunner2.URL())
-				Expect(err).ToNot(HaveOccurred())
-				version := conn.ConnectedServerVersion()
-				Expect(version).To(Equal("2.8.2"))
+				version, err := natsinfo.GetMajorVersion(natsRunner2.Addr())
+				Expect(err).NotTo(HaveOccurred())
+				Expect(version).To(Equal(2))
 			})
 
 			It("keeps v2 bpm config", func() {

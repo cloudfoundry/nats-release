@@ -13,9 +13,9 @@ import (
 	"code.cloudfoundry.org/lager/lagerflags"
 	"code.cloudfoundry.org/nats-v2-migrate/config"
 	"code.cloudfoundry.org/nats-v2-migrate/integration/helpers"
+	"code.cloudfoundry.org/nats-v2-migrate/natsinfo"
 	"code.cloudfoundry.org/tlsconfig"
 
-	"github.com/nats-io/nats.go"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
@@ -124,10 +124,9 @@ var _ = Describe("Migrate", func() {
 		Context("when the local NATS server is running the v2 version", func() {
 			BeforeEach(func() {
 				natsRunner.Start()
-				conn, err := nats.Connect(natsRunner.URL())
-				Expect(err).ToNot(HaveOccurred())
-				version := conn.ConnectedServerVersion()
-				Expect(version).To(Equal("2.8.2"))
+				version, err := natsinfo.GetMajorVersion(natsRunner.Addr())
+				Expect(err).NotTo(HaveOccurred())
+				Expect(version).To(Equal(2))
 			})
 
 			It("exits succesfully", func() {
@@ -150,10 +149,9 @@ var _ = Describe("Migrate", func() {
 		Context("when the local NATS server is running the v1 version", func() {
 			BeforeEach(func() {
 				natsRunner.StartV1()
-				conn, err := nats.Connect(natsRunner.URL())
-				Expect(err).ToNot(HaveOccurred())
-				version := conn.ConnectedServerVersion()
-				Expect(version).To(Equal("1.4.1"))
+				version, err := natsinfo.GetMajorVersion(natsRunner.Addr())
+				Expect(err).NotTo(HaveOccurred())
+				Expect(version).To(Equal(1))
 			})
 
 			It("validates if other nats machines have migrate server running", func() {
