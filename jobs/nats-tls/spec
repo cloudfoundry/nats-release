@@ -6,7 +6,12 @@ description: "TLS-secured NATS server providing a publish-subscribe messaging sy
 templates:
   nats-tls.conf.erb: config/nats-tls.conf
   pre-start.erb: bin/pre-start
-  bpm.erb.yml: config/bpm.yml
+  post-start.erb: bin/post-start
+  bpm.yml.erb: config/bpm.yml
+  bpm.v1.yml.erb: config/bpm.v1.yml
+  bpm.v2.yml.erb: config/bpm.v2.yml
+  migrator-config.json.erb: config/migrator-config.json
+  migrate-server-ctl.erb: bin/migrate-server-ctl
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
@@ -21,7 +26,10 @@ templates:
 
 packages:
   - gnatsd
+  - nats-server
   - nats-tls-healthcheck
+  - nats-v2-migrate
+  - pid_utils
 
 provides:
 - name: nats-tls

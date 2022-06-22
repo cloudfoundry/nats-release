@@ -6,3 +6,10 @@ check process nats
   if totalmem > 500 Mb for 2 cycles then alert
   if totalmem > 3000 Mb then restart
   if failed host <%= spec.address %> port <%= p("nats.port") %> type tcp then alert
+
+check process migrate-server
+  with pidfile /var/vcap/sys/run/migrate-server/migrate-server.pid
+  start program "/var/vcap/jobs/nats/bin/migrate-server-ctl start"
+  stop program "/var/vcap/jobs/nats/bin/migrate-server-ctl stop"
+  depends on nats
+  group vcap
