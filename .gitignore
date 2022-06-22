@@ -11,6 +11,7 @@
 .gitreview
 .idea
 blobs
+bin/
 config/dev.yml
 config/private.yml
 dev_releases
