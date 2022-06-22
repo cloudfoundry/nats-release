@@ -252,10 +252,6 @@ cluster \{
     
     nats-route://my-user:my-password@198.5.4.3:4223
     
-    nats-route://my-user:my-password@192.0.0.1:4225
-    
-    nats-route://my-user:my-password@198.5.4.3:4225
-    
   \]
 \}
 }
