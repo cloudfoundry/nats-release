@@ -13,7 +13,7 @@ check process nats-tls-healthcheck
   depends on nats-tls
   group vcap
 
-check process migrate-server
+check process migrate-server-nats-tls
   with pidfile /var/vcap/sys/run/migrate-server/migrate-server.pid
   start program "/var/vcap/jobs/nats-tls/bin/migrate-server-ctl start"
   stop program "/var/vcap/jobs/nats-tls/bin/migrate-server-ctl stop"

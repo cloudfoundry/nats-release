@@ -107,7 +107,7 @@ func restartNATS(logger lager.Logger) error {
 	logger.Info("Attempting restart")
 
 	err := withRetries(func() error {
-		cmd := exec.Command(gCfg.MonitPath, "restart", "nats-tls")
+		cmd := exec.Command(gCfg.MonitPath, "restart", gCfg.Job)
 		return cmd.Run()
 	})
 	if err != nil {
@@ -122,7 +122,7 @@ func shutdownNATS(logger lager.Logger) error {
 	logger.Info("Attempting shutdown")
 
 	err := withRetries(func() error {
-		cmd := exec.Command(gCfg.MonitPath, "stop", "nats-tls")
+		cmd := exec.Command(gCfg.MonitPath, "stop", gCfg.Job)
 		return cmd.Run()
 	})
 

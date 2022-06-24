@@ -59,17 +59,18 @@ expected_template =  %{
 {
     "bootstrap": true,
     "address": "bbc790.nats.service.cf.internal",
-    "nats_peers": [ "abc1234.nats.service.cf.internal:4224", "def456.nats.service.cf.internal:4224" ],
+    "nats_peers": [ "abc1234.nats.service.cf.internal:4222", "def456.nats.service.cf.internal:4222" ],
     "nats_port": 4222,
     "nats_migrate_port": 4242,
+    "job": "nats",
     "nats_migrate_servers": [ "https://abc1234.nats.service.cf.internal:4242", "https://def456.nats.service.cf.internal:4242" ],
     "nats_internal_tls_enabled": true,
     "nats_migrate_server_client_cert_file": "/var/vcap/jobs/nats-tls/config/external_tls/certificate.pem",
     "nats_migrate_server_client_key_file": "/var/vcap/jobs/nats-tls/config/external_tls/private_key.pem",
-    "nats_migrate_server_ca_file": "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem",
-    "nats_bpm_config_path": "/var/vcap/jobs/nats-tls/config/bpm.yml",
-    "nats_bpm_v1_config_path": "/var/vcap/jobs/nats-tls/config/bpm.v1.yml",
-    "nats_bpm_v2_config_path": "/var/vcap/jobs/nats-tls/config/bpm.v2.yml",
+    "nats_migrate_server_ca_file": "/var/vcap/jobs/nats/config/external_tls/ca.pem",
+    "nats_bpm_config_path": "/var/vcap/jobs/nats/config/bpm.yml",
+    "nats_bpm_v1_config_path": "/var/vcap/jobs/nats/config/bpm.v1.yml",
+    "nats_bpm_v2_config_path": "/var/vcap/jobs/nats/config/bpm.v2.yml",
     "monit_path": "/var/vcap/bosh/bin/monit"
 }
 }

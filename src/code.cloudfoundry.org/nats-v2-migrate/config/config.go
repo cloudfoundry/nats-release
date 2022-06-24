@@ -14,6 +14,7 @@ type Config struct {
 	NATSPort                        int      `json:"nats_port"`
 	NATSMigratePort                 int      `json:"nats_migrate_port"`
 	NATSMigrateServers              []string `json:"nats_migrate_servers"`
+	Job                             string   `json:"job"`
 	NATSMigrateServerCAFile         string   `json:"nats_migrate_server_ca_file"`
 	NATSMigrateServerClientCertFile string   `json:"nats_migrate_server_client_cert_file"`
 	NATSMigrateServerClientKeyFile  string   `json:"nats_migrate_server_client_key_file"`
