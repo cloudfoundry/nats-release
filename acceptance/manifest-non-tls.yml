@@ -84,10 +84,6 @@ instance_groups:
             private_key: "((nats_internal_cert.private_key))"
             certificate: "((nats_internal_cert.certificate))"
             enabled: true
-        client:
-          tls:
-            private_key: "((nats_client_cert.private_key))"
-            certificate: "((nats_client_cert.certificate))"
 
   - name: nats-tls
     release: nats

@@ -14,7 +14,6 @@ import (
 	"os"
 	"strings"
 	"sync"
-	"time"
 
 	"code.cloudfoundry.org/lager"
 	"code.cloudfoundry.org/lager/lagerflags"
@@ -81,7 +80,6 @@ func main() {
 				}
 				continue
 			} else {
-
 				if migrateServerResponse.Bootstrap {
 					bootstrapMigrateServer = natsMigrateServer
 				}
@@ -128,12 +126,7 @@ func main() {
 
 	logger.Info("Migration of bootstrap server succeeded, migrating the rest")
 
-	natsMigrateServers := cfg.NATSMigrateServers
-
-	// add this instance to be migrated
-	natsMigrateServers = append(natsMigrateServers, fmt.Sprintf("https://%s:%d", cfg.Address, cfg.NATSMigratePort))
-
-	for _, natsMigrateServerUrl := range natsMigrateServers {
+	for _, natsMigrateServerUrl := range cfg.NATSMigrateServers {
 		if natsMigrateServerUrl == bootstrapMigrateServer {
 			continue
 		}
@@ -151,35 +144,33 @@ func main() {
 					break
 				}
 
-				if err != nil {
-					usce, ok := err.(*UnexpectedStatusCodeError)
-					if ok {
-						logger.Error("Unexpected Status Code: ", err, lager.Data{"url": usce.ServerUrl, "code": usce.StatusCode})
-						return
-					}
-
-					if i == retryCount-1 {
-						// exceeded retry count, fail the instance
-						logger.Error("Exceeded retrying count; failing this instances but other instances may migrate", err, lager.Data{"url": serverUrl})
-						return
-					}
-					logger.Error("Error migrating server, retrying: ", err, lager.Data{"url": serverUrl})
+				usce, ok := err.(*UnexpectedStatusCodeError)
+				if ok {
+					logger.Error("Unexpected Status Code: ", err, lager.Data{"url": usce.ServerUrl, "code": usce.StatusCode})
 					aggregateError.Append(err)
+					return
 				}
+
+				if i == retryCount-1 {
+					// exceeded retry count, fail the instance
+					logger.Error("Exceeded retrying count; failing this instances but other instances may migrate", err, lager.Data{"url": serverUrl})
+					aggregateError.Append(err)
+					return
+				}
+				logger.Error("Error migrating server, retrying: ", err, lager.Data{"url": serverUrl})
 			}
 		}(natsMigrateServerUrl)
 	}
 
 	wg.Wait()
 	if len(aggregateError.errors) > 0 {
-		logger.Error("Some nats instances failed to migrate. ", aggregateError.errors[0])
+		logger.Error("Some nats instances failed to migrate.", aggregateError)
 		os.Exit(1)
 	}
 	logger.Info("Finished migration")
 }
 
 func CheckMigrationInfo(natsMigrateServerClient *http.Client, serverUrl string) (*MigrateServerResponse, error) {
-
 	endpoint := fmt.Sprintf("%s/info", serverUrl)
 	resp, err := natsMigrateServerClient.Get(endpoint)
 
@@ -266,12 +257,4 @@ func newNATSMigrateServerClient(caCertFile, clientCertFile, clientKeyFile string
 		},
 	}
 	return client, nil
-}
-
-func makeRequest(url string, ch chan<- string) {
-	start := time.Now()
-	resp, _ := http.Get(url)
-	secs := time.Since(start).Seconds()
-	body, _ := ioutil.ReadAll(resp.Body)
-	ch <- fmt.Sprintf("%.2f elapsed with response length: %d %s", secs, len(body), url)
 }

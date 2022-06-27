@@ -10,7 +10,7 @@ import (
 type Config struct {
 	Address                         string   `json:"address"`
 	Bootstrap                       bool     `json:"bootstrap"`
-	NATSPeers                       []string `json:"nats_peers"`
+	NATSInstances                   []string `json:"nats_instances"`
 	NATSPort                        int      `json:"nats_port"`
 	NATSMigratePort                 int      `json:"nats_migrate_port"`
 	NATSMigrateServers              []string `json:"nats_migrate_servers"`

@@ -8,14 +8,11 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"sync"
 
 	"code.cloudfoundry.org/lager"
 	"code.cloudfoundry.org/lager/lagerflags"
 	"code.cloudfoundry.org/nats-v2-migrate/config"
-)
-
-var (
-	gCfg config.Config
 )
 
 func main() {
@@ -28,10 +25,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	gCfg = cfg
-
 	logger, _ := lagerflags.NewFromConfig("nats-migrate-server", lagerflags.LagerConfig{LogLevel: lagerflags.INFO, TimeFormat: lagerflags.FormatRFC3339})
-	server := NewHttpServer(logger)
+	server := NewHttpServer(logger, cfg)
 
 	http.HandleFunc("/info", server.Info)
 	http.HandleFunc("/migrate", server.Migrate)
@@ -41,14 +36,18 @@ func main() {
 }
 
 type httpServer struct {
-	logger             lager.Logger
-	migrateEndpointHit bool
+	logger                lager.Logger
+	migrateEndpointHit    bool
+	migrateEndpointHitMux *sync.Mutex
+	cfg                   config.Config
 }
 
-func NewHttpServer(logger lager.Logger) *httpServer {
+func NewHttpServer(logger lager.Logger, cfg config.Config) *httpServer {
 	return &httpServer{
-		logger:             logger,
-		migrateEndpointHit: false,
+		logger:                logger,
+		migrateEndpointHit:    false,
+		migrateEndpointHitMux: &sync.Mutex{},
+		cfg:                   cfg,
 	}
 }
 
@@ -56,7 +55,7 @@ func (s *httpServer) Info(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	response := make(map[string]bool)
 
-	response["bootstrap"] = gCfg.Bootstrap
+	response["bootstrap"] = s.cfg.Bootstrap
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
@@ -71,66 +70,70 @@ func (s *httpServer) Info(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s *httpServer) Migrate(w http.ResponseWriter, req *http.Request) {
-	// guard against race condition, multiple hits from different
-	// instances
+	s.migrateEndpointHitMux.Lock()
+	defer s.migrateEndpointHitMux.Unlock()
 	if s.migrateEndpointHit == true {
 		w.WriteHeader(http.StatusConflict)
 		w.Write(nil)
 		return
 	}
 
+	// migrateEndpointHit var guards  against race condition,
+	// (multiple hits from different post-start instances)
 	s.migrateEndpointHit = true
 
-	err := replaceBPMConfig(gCfg.NATSBPMv2ConfigPath, gCfg.NATSBPMConfigPath)
+	err := replaceBPMConfig(s.cfg.NATSBPMv2ConfigPath, s.cfg.NATSBPMConfigPath)
 	if err != nil {
 		s.logger.Error("Failed to replace bpm config file", err)
+		s.shutdownNATS()
+
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(nil)
-		shutdownNATS(s.logger)
+		return
+	}
+
+	err = s.restartNATS()
+	if err != nil {
+		s.logger.Error("Failed to restart nats", err)
+		s.shutdownNATS()
+
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(nil)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(nil)
-
-	err = restartNATS(s.logger)
-	if err != nil {
-		s.logger.Error("Failed to restart nats", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(nil)
-		shutdownNATS(s.logger)
-		return
-	}
 }
 
-func restartNATS(logger lager.Logger) error {
-	logger.Info("Attempting restart")
+func (s *httpServer) restartNATS() error {
+	s.logger.Info("Attempting restart")
 
 	err := withRetries(func() error {
-		cmd := exec.Command(gCfg.MonitPath, "restart", gCfg.Job)
+		cmd := exec.Command(s.cfg.MonitPath, "restart", s.cfg.Job)
 		return cmd.Run()
 	})
 	if err != nil {
-		logger.Error("Error shutting down", err)
+		s.logger.Error("Error shutting down", err)
 		return err
 	}
-	logger.Info("Successfully restarted")
+	s.logger.Info("Successfully restarted")
 	return nil
 }
 
-func shutdownNATS(logger lager.Logger) error {
-	logger.Info("Attempting shutdown")
+func (s *httpServer) shutdownNATS() error {
+	s.logger.Info("Attempting shutdown")
 
 	err := withRetries(func() error {
-		cmd := exec.Command(gCfg.MonitPath, "stop", gCfg.Job)
+		cmd := exec.Command(s.cfg.MonitPath, "stop", s.cfg.Job)
 		return cmd.Run()
 	})
 
 	if err != nil {
-		logger.Error("Error shutting down", err)
+		s.logger.Error("Error shutting down", err)
 		return err
 	}
-	logger.Info("Successfully shut down")
+	s.logger.Info("Successfully shut down")
 	return nil
 }
 

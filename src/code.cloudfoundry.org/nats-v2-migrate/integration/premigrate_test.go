@@ -38,7 +38,7 @@ var _ = Describe("Premigrate", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		cfg = config.Config{
-			NATSPeers:           []string{},
+			NATSInstances:       []string{},
 			NATSMigrateServers:  []string{},
 			NATSBPMv1ConfigPath: natsV1BPMConfigFile.Name(),
 			NATSBPMConfigPath:   natsBPMConfigFile.Name(),
@@ -82,7 +82,7 @@ var _ = Describe("Premigrate", func() {
 		BeforeEach(func() {
 			natsRunner1 = helpers.NewNATSRunner(int(4225))
 			natsRunner2 = helpers.NewNATSRunner(int(4226))
-			cfg.NATSPeers = []string{
+			cfg.NATSInstances = []string{
 				natsRunner1.Addr(),
 				natsRunner2.Addr(),
 			}

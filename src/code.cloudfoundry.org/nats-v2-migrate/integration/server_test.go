@@ -41,17 +41,10 @@ func GenerateCerts(cfg *config.Config) {
 	ca, err := certauthority.NewCertAuthority(certDepoDir, "nats-v2-migrate-ca")
 	Expect(err).NotTo(HaveOccurred())
 
-	fmt.Printf(certDepoDir + "\n")
 	serverKeyFile, serverCertFile, err := ca.GenerateSelfSignedCertAndKey("server", []string{}, false)
-
-	fmt.Printf(serverCertFile + "\n")
-	fmt.Printf(serverKeyFile + "\n")
-
 	Expect(err).NotTo(HaveOccurred())
 
-	fmt.Printf("Got this far")
 	_, serverCAFile := ca.CAAndKey()
-	fmt.Printf(serverCAFile + "\n")
 	cfg.NATSMigrateServerCAFile = serverCAFile
 	cfg.NATSMigrateServerClientCertFile = serverCertFile
 	cfg.NATSMigrateServerClientKeyFile = serverKeyFile
@@ -217,12 +210,10 @@ var _ = Describe("MigrationServer", func() {
 
 				content, err := ioutil.ReadFile("/tmp/monit-output.txt")
 				Expect(err).ToNot(HaveOccurred())
-				Expect(string(content)).NotTo(ContainSubstring("nats-tls"))
+				Expect(string(content)).NotTo(ContainSubstring("restart"))
 
 				resp, err := client.Post(fmt.Sprintf("https://%s/migrate", address), "application/json", nil)
 				Expect(err).ToNot(HaveOccurred())
-				body, _ := ioutil.ReadAll(resp.Body)
-				fmt.Printf(string(body))
 				Expect(resp.StatusCode).To(Equal(200))
 
 				// after migration
@@ -238,7 +229,7 @@ var _ = Describe("MigrationServer", func() {
 
 				content, err = ioutil.ReadFile("/tmp/monit-output.txt")
 				Expect(err).ToNot(HaveOccurred())
-				Expect(string(content)).To(ContainSubstring("nats-tls"))
+				Expect(string(content)).To(ContainSubstring("restart"))
 			})
 		})
 		Context("when the server has already been migrated", func() {

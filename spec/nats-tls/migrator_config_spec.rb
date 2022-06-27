@@ -59,11 +59,11 @@ expected_template =  %{
 {
     "bootstrap": true,
     "address": "bbc790.nats.service.cf.internal",
-    "nats_peers": [ "abc1234.nats.service.cf.internal:4224", "def456.nats.service.cf.internal:4224" ],
+    "nats_instances": [ "abc1234.nats.service.cf.internal:4224", "def456.nats.service.cf.internal:4224", "bbc790.nats.service.cf.internal:4224" ],
     "nats_port": 4224,
     "nats_migrate_port": 4243,
     "job": "nats-tls",
-    "nats_migrate_servers": [ "https://abc1234.nats.service.cf.internal:4243", "https://def456.nats.service.cf.internal:4243" ],
+    "nats_migrate_servers": [ "https://abc1234.nats.service.cf.internal:4243", "https://def456.nats.service.cf.internal:4243", "https://bbc790.nats.service.cf.internal:4243" ],
     "nats_internal_tls_enabled": true,
     "nats_migrate_server_client_cert_file": "/var/vcap/jobs/nats-tls/config/external_tls/certificate.pem",
     "nats_migrate_server_client_key_file": "/var/vcap/jobs/nats-tls/config/external_tls/private_key.pem",

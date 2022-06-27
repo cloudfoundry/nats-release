@@ -32,11 +32,11 @@ func main() {
 	logger, _ := lagerflags.NewFromConfig("nats-premigrate", lagerflags.LagerConfig{LogLevel: lagerflags.INFO, TimeFormat: lagerflags.FormatRFC3339})
 	logger.Info("Starting premigrate")
 
-	if len(cfg.NATSPeers) == 0 {
+	if len(cfg.NATSInstances) == 1 {
 		logger.Info("Single instance NATs cluster. Deploying as V2")
 		return
 	}
-	for _, natsMachineUrl := range cfg.NATSPeers {
+	for _, natsMachineUrl := range cfg.NATSInstances {
 		majorVersion, err := natsinfo.GetMajorVersion(natsMachineUrl)
 		if err != nil {
 			if _, ok := err.(*natsinfo.ErrConnectingToNATS); ok {
