@@ -67,7 +67,7 @@ expected_template =  %{
     "nats_internal_tls_enabled": true,
     "nats_migrate_server_client_cert_file": "/var/vcap/jobs/nats-tls/config/external_tls/certificate.pem",
     "nats_migrate_server_client_key_file": "/var/vcap/jobs/nats-tls/config/external_tls/private_key.pem",
-    "nats_migrate_server_ca_file": "/var/vcap/jobs/nats/config/external_tls/ca.pem",
+    "nats_migrate_server_ca_file": "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem",
     "nats_bpm_config_path": "/var/vcap/jobs/nats/config/bpm.yml",
     "nats_bpm_v1_config_path": "/var/vcap/jobs/nats/config/bpm.v1.yml",
     "nats_bpm_v2_config_path": "/var/vcap/jobs/nats/config/bpm.v2.yml",
