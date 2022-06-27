@@ -95,7 +95,7 @@ instance_groups:
             private_key: "((nats_server_cert.private_key))"
             certificate: "((nats_server_cert.certificate))"
   networks:
-  - name: royalorange-pas-subnet
+  - name: default
   vm_type: ((nats_vm_type))
   stemcell: default
 - name: nats-smoke-tests
@@ -117,7 +117,7 @@ instance_groups:
             certificate: "((nats_client_cert.certificate))"
             private_key: "((nats_client_cert.private_key))"
   networks:
-  - name: royalorange-pas-subnet
+  - name: default
 
 variables:
 - name: nats_password
