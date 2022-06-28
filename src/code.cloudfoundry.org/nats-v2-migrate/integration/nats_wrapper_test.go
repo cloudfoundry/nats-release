@@ -58,7 +58,7 @@ func StartServer(cfg config.Config) {
 	_, err = cfgFile.Write(cfgJSON)
 	Expect(err).NotTo(HaveOccurred())
 
-	serverBin, err := gexec.Build("code.cloudfoundry.org/nats-v2-migrate/server")
+	serverBin, err := gexec.Build("code.cloudfoundry.org/nats-v2-migrate/nats-wrapper")
 	Expect(err).NotTo(HaveOccurred())
 
 	startCmd := exec.Command(serverBin, "-config-file", cfgFile.Name())
@@ -99,23 +99,25 @@ func CreateTLSClient(cfg config.Config) http.Client {
 	return http.Client{Transport: t, Timeout: 15 * time.Second}
 }
 
-func StartMockMonit(cfg config.Config) {
-	mockMonit := `#!/bin/sh 
-	echo $1 >> /tmp/monit-output.txt
-	echo " " >> /tmp/monit-output.txt
-	echo $2 >> /tmp/monit-output.txt`
+func CreateMockNATS(natsPath string, version string) {
+	mockNATSScript := `#!/bin/sh 
+    echo "` + version + `" > /tmp/nats.output
+    sleep 60`
 
-	monitScript, err := os.Create("/tmp/monit.sh")
-	err = os.Chmod("/tmp/monit.sh", 0777)
+	natsFile, err := os.Create(natsPath)
+	err = os.Chmod(natsPath, 0777)
 	Expect(err).NotTo(HaveOccurred())
-	_, err = os.Create("/tmp/monit-output.txt")
+	_, err = io.WriteString(natsFile, mockNATSScript)
 	Expect(err).NotTo(HaveOccurred())
-	_, err = io.WriteString(monitScript, mockMonit)
-	Expect(err).NotTo(HaveOccurred())
-	monitScript.Close()
+	natsFile.Close()
 }
 
-var _ = Describe("MigrationServer", func() {
+var _ = FDescribe("NATS Wrapper", func() {
+	BeforeEach(func() {
+		CreateMockNATS("/tmp/nats-v1.sh", "v1")
+		CreateMockNATS("/tmp/nats-v2.sh", "v2")
+	})
+
 	AfterEach(func() {
 		session.Kill()
 		os.Remove(cfgFile.Name())
@@ -127,6 +129,9 @@ var _ = Describe("MigrationServer", func() {
 				cfg = config.Config{
 					Bootstrap:       true,
 					NATSMigratePort: 4242,
+					NATSV1BinPath:   "/tmp/nats-v1.sh",
+					NATSV2BinPath:   "/tmp/nats-v2.sh",
+					NATSConfigPath:  "/tmp/nats-config.json",
 				}
 				GenerateCerts(&cfg)
 				StartServer(cfg)
@@ -151,6 +156,9 @@ var _ = Describe("MigrationServer", func() {
 				cfg = config.Config{
 					Bootstrap:       false,
 					NATSMigratePort: 4242,
+					NATSV1BinPath:   "/tmp/nats-v1.sh",
+					NATSV2BinPath:   "/tmp/nats-v2.sh",
+					NATSConfigPath:  "/tmp/nats-config.json",
 				}
 				GenerateCerts(&cfg)
 				StartServer(cfg)
@@ -171,70 +179,45 @@ var _ = Describe("MigrationServer", func() {
 
 	Describe("/migrate", func() {
 		BeforeEach(func() {
-
-			bpmFile, err = ioutil.TempFile("", "bpm.yml")
-			bpmFile.Write([]byte("bpm.original"))
-			bpmv2File, err = ioutil.TempFile("", "bpm.v2.yml")
-			bpmv2File.Write([]byte("bpm.version2"))
-
 			cfg = config.Config{
-				Bootstrap:           true,
-				NATSMigratePort:     4242,
-				Address:             "127.0.0.1",
-				NATSPort:            4224,
-				NATSBPMConfigPath:   bpmFile.Name(),
-				NATSBPMv2ConfigPath: bpmv2File.Name(),
-				MonitPath:           "/tmp/monit.sh",
+				Bootstrap:       true,
+				NATSMigratePort: 4242,
+				Address:         "127.0.0.1",
+				NATSPort:        4224,
+				NATSV1BinPath:   "/tmp/nats-v1.sh",
+				NATSV2BinPath:   "/tmp/nats-v2.sh",
+				NATSConfigPath:  "/tmp/nats-config.json",
 			}
 			GenerateCerts(&cfg)
 			StartServer(cfg)
 			client = CreateTLSClient(cfg)
-			StartMockMonit(cfg)
-
 		})
 
 		Context("when the server should have migrated", func() {
-			It("should replace the BPM config with v2 and runs the monit command", func() {
+			It("should stop v1 and start v2", func() {
 				// before migration
-				originalContents, err := ioutil.ReadFile(bpmFile.Name())
+				content, err := ioutil.ReadFile("/tmp/nats.output")
 				Expect(err).ToNot(HaveOccurred())
-				version2Contents, err := ioutil.ReadFile(bpmv2File.Name())
-				Expect(err).ToNot(HaveOccurred())
-
-				original := string(originalContents)
-				version2 := string(version2Contents)
-
-				Expect(original).To(Equal("bpm.original"))
-				Expect(version2).To(Equal("bpm.version2"))
-				Expect(original).To(Not(Equal(version2)))
-
-				content, err := ioutil.ReadFile("/tmp/monit-output.txt")
-				Expect(err).ToNot(HaveOccurred())
-				Expect(string(content)).NotTo(ContainSubstring("restart"))
+				Expect(string(content)).To(ContainSubstring("v1"))
+				Expect(string(content)).NotTo(ContainSubstring("v2"))
 
 				resp, err := client.Post(fmt.Sprintf("https://%s/migrate", address), "application/json", nil)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(resp.StatusCode).To(Equal(200))
 
 				// after migration
-				originalContents, err = ioutil.ReadFile(bpmFile.Name())
+				Eventually(func() string {
+					content, err = ioutil.ReadFile("/tmp/nats.output")
+					Expect(err).ToNot(HaveOccurred())
+					return string(content)
+				}).Should(ContainSubstring("v2"))
+				content, err = ioutil.ReadFile("/tmp/nats.output")
 				Expect(err).ToNot(HaveOccurred())
-				version2Contents, err = ioutil.ReadFile(bpmv2File.Name())
-				Expect(err).ToNot(HaveOccurred())
-
-				original = string(originalContents)
-				version2 = string(version2Contents)
-				Expect(version2).To(Equal("bpm.version2"))
-				Expect(original).To(Equal(version2))
-
-				content, err = ioutil.ReadFile("/tmp/monit-output.txt")
-				Expect(err).ToNot(HaveOccurred())
-				Expect(string(content)).To(ContainSubstring("restart"))
+				Expect(string(content)).NotTo(ContainSubstring("v1"))
 			})
 		})
 		Context("when the server has already been migrated", func() {
 			It("should succeed the first time and get a 409 the second time", func() {
-
 				resp, err := client.Post(fmt.Sprintf("https://%s/migrate", address), "application/json", nil)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(resp.StatusCode).To(Equal(200))

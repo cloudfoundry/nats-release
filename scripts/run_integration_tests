@@ -18,5 +18,5 @@ ${BASEDIR}/setup_test_environment.sh
 
 
 pushd src/code.cloudfoundry.org/nats-v2-migrate
-  ginkgo -r --flakeAttempts=3
+  ginkgo -v -r
 popd

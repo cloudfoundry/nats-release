@@ -13,4 +13,5 @@ pushd "src/code.cloudfoundry.org"
   go build -o "${GOBIN}/premigrate" code.cloudfoundry.org/nats-v2-migrate/cmd/premigrate
   go build -o "${GOBIN}/migrate" code.cloudfoundry.org/nats-v2-migrate/cmd/migrate
   go build -o "${GOBIN}/server" code.cloudfoundry.org/nats-v2-migrate/server
+  go build -o "${GOBIN}/nats-wrapper" code.cloudfoundry.org/nats-v2-migrate/nats-wrapper
 popd

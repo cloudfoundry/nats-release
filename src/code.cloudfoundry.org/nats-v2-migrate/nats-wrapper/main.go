@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"sync"
 	"syscall"
+	"time"
 
 	"code.cloudfoundry.org/lager"
 	"code.cloudfoundry.org/lager/lagerflags"
@@ -18,6 +19,10 @@ import (
 	"github.com/tedsuo/ifrit/grouper"
 	"github.com/tedsuo/ifrit/http_server"
 	"github.com/tedsuo/ifrit/sigmon"
+)
+
+const (
+	NATSShutdownTimeout = 2 * time.Second
 )
 
 func main() {
@@ -33,8 +38,16 @@ func main() {
 	logger, _ := lagerflags.NewFromConfig("nats-migrate-server", lagerflags.LagerConfig{LogLevel: lagerflags.INFO, TimeFormat: lagerflags.FormatRFC3339})
 
 	migrateCh := make(chan struct{})
+	migrateFinished := make(chan error)
 
-	natsRunner := &NATSRunner{}
+	natsRunner := &NATSRunner{
+		Logger:          logger,
+		BinPath:         cfg.NATSV1BinPath,
+		V2BinPath:       cfg.NATSV2BinPath,
+		ConfigPath:      cfg.NATSConfigPath,
+		MigrateCh:       migrateCh,
+		MigrateFinished: migrateFinished,
+	}
 
 	tlsConfig, err := tlsconfig.Build(
 		tlsconfig.WithInternalServiceDefaults(),
@@ -44,25 +57,21 @@ func main() {
 		logger.Fatal("tls-configuration-failed", err)
 	}
 
-	httpServer := NewHttpServer(logger, cfg, migrateCh)
+	httpServer := NewHttpServer(logger, cfg, migrateCh, migrateFinished)
 
 	sm := http.NewServeMux()
 	sm.HandleFunc("/info", httpServer.Info)
 	sm.HandleFunc("/migrate", httpServer.Migrate)
 
-	migrateServer := http_server.NewTLSServer(fmt.Sprintf(":%d", cfg.NATSMigratePort), sm, tlsConfig)
+	migrateServer := http_server.NewTLSServer(fmt.Sprintf("0.0.0.0:%d", cfg.NATSMigratePort), sm, tlsConfig)
 
 	members := grouper.Members{
-		"nats-runner": natsRunner,
-		"server":      migrateServer,
+		{Name: "nats-runner", Runner: natsRunner},
+		{Name: "server", Runner: migrateServer},
 	}
 	group := grouper.NewOrdered(os.Interrupt, members)
 
 	monitor := ifrit.Invoke(sigmon.New(group))
-	go func() {
-		monitor.Signal(os.Interrupt)
-	}()
-
 	logger.Info("started")
 
 	err = <-monitor.Wait()
@@ -73,11 +82,12 @@ func main() {
 }
 
 type NATSRunner struct {
-	Logger     lager.Logger
-	BinPath    string
-	V2BinPath  string
-	ConfigPath string
-	MigrateCh  <-chan struct{}
+	Logger          lager.Logger
+	BinPath         string
+	V2BinPath       string
+	ConfigPath      string
+	MigrateCh       <-chan struct{}
+	MigrateFinished chan<- error
 }
 
 func (r *NATSRunner) Run(signals <-chan os.Signal, ready chan<- struct{}) error {
@@ -85,26 +95,30 @@ func (r *NATSRunner) Run(signals <-chan os.Signal, ready chan<- struct{}) error 
 	if err != nil {
 		return err
 	}
+	r.Logger.Info("started-nats")
 
 	close(ready)
 
 	for {
 		select {
 		case <-r.MigrateCh:
-			r.Logger.Info("Received migration signal")
-			natsSession.Signal(os.Interrupt)
-
-			<-natsSession.Exited // TODO check timeout
+			r.Logger.Info("received-migration-signal")
+			natsSession.Shutdown()
 
 			natsSession, err = NewNATSSession(r.V2BinPath, r.ConfigPath)
 			if err != nil {
+				r.MigrateFinished <- err
 				return err
 			}
-			r.Logger.Info("Migrated to V2")
+
+			r.Logger.Info("migrated-to-v2")
+			r.MigrateFinished <- nil
 		case signal := <-signals:
+			r.Logger.Info("signalled-nats")
 			natsSession.Signal(signal)
 			return nil
 		case <-natsSession.Exited:
+			r.Logger.Info("exited-nats")
 			if natsSession.ExitCode() == 0 {
 				return nil
 			}
@@ -145,6 +159,26 @@ func (s *NATSSession) Signal(signal os.Signal) {
 	s.command.Process.Signal(signal)
 }
 
+func (s *NATSSession) Shutdown() {
+	s.Signal(os.Interrupt)
+
+	t := time.NewTimer(NATSShutdownTimeout)
+	select {
+	case <-s.Exited:
+		return
+	case <-t.C:
+		s.Signal(os.Kill)
+	}
+	t.Reset(NATSShutdownTimeout)
+
+	select {
+	case <-s.Exited:
+		return
+	case <-t.C:
+		return
+	}
+}
+
 func (s *NATSSession) ExitCode() int {
 	s.lock.Lock()
 	defer s.lock.Unlock()
@@ -166,15 +200,17 @@ type httpServer struct {
 	migrateEndpointHitMux *sync.Mutex
 	cfg                   config.Config
 	migrateCh             chan<- struct{}
+	migrateFinished       <-chan error
 }
 
-func NewHttpServer(logger lager.Logger, cfg config.Config, migrateCh chan<- struct{}) *httpServer {
+func NewHttpServer(logger lager.Logger, cfg config.Config, migrateCh chan<- struct{}, migrateFinished <-chan error) *httpServer {
 	return &httpServer{
 		logger:                logger,
 		migrateEndpointHit:    false,
 		migrateEndpointHitMux: &sync.Mutex{},
 		cfg:                   cfg,
 		migrateCh:             migrateCh,
+		migrateFinished:       migrateFinished,
 	}
 }
 
@@ -197,6 +233,7 @@ func (s *httpServer) Info(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s *httpServer) Migrate(w http.ResponseWriter, req *http.Request) {
+	s.logger.Info("received-migrate-api-call")
 	s.migrateEndpointHitMux.Lock()
 	defer s.migrateEndpointHitMux.Unlock()
 	if s.migrateEndpointHit == true {
@@ -209,7 +246,14 @@ func (s *httpServer) Migrate(w http.ResponseWriter, req *http.Request) {
 	// (multiple hits from different post-start instances)
 	s.migrateEndpointHit = true
 
-	close(s.migrateCh)
+	s.migrateCh <- struct{}{}
+	err := <-s.migrateFinished
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		s.logger.Error("migration-failed", err)
+		w.Write(nil)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(nil)

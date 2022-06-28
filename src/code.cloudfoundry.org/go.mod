@@ -27,6 +27,7 @@ require (
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/square/certstrap v1.2.0 // indirect
+	github.com/tedsuo/ifrit v0.0.0-20220120221754-dd274de71113 // indirect
 	golang.org/x/crypto v0.0.0-20220315160706-3147a52a75dd // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/sys v0.0.0-20220622161953-175b2fd9d664 // indirect
