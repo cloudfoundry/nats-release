@@ -93,8 +93,11 @@ var _ = Describe("Migrate", func() {
 			Expect(err).NotTo(HaveOccurred())
 			_, serverCAFile := ca.CAAndKey()
 			cfg.NATSMigrateServerCAFile = serverCAFile
-			cfg.NATSMigrateServerClientCertFile = serverCertFile
-			cfg.NATSMigrateServerClientKeyFile = serverKeyFile
+			cfg.NATSMigrateServerCertFile = serverCertFile
+			cfg.NATSMigrateServerKeyFile = serverKeyFile
+			cfg.NATSMigrateClientCAFile = serverCAFile
+			cfg.NATSMigrateClientCertFile = serverCertFile
+			cfg.NATSMigrateClientKeyFile = serverKeyFile
 
 			natsMigrateServer1 = NewNATSMigrateServer(serverCAFile, serverCertFile, serverKeyFile, false)
 			natsMigrateServer1.HTTPTestServer.StartTLS()

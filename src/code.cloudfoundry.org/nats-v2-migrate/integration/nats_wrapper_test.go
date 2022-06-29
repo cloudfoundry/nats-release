@@ -49,8 +49,8 @@ func GenerateCerts(cfg *config.Config) {
 
 	_, serverCAFile := ca.CAAndKey()
 	cfg.NATSMigrateServerCAFile = serverCAFile
-	cfg.NATSMigrateServerClientCertFile = serverCertFile
-	cfg.NATSMigrateServerClientKeyFile = serverKeyFile
+	cfg.NATSMigrateServerCertFile = serverCertFile
+	cfg.NATSMigrateServerKeyFile = serverKeyFile
 }
 
 func StartServer(cfg config.Config) {
@@ -83,12 +83,12 @@ func StartServerWithoutWaiting(cfg config.Config) {
 }
 
 func CreateTLSClient(cfg config.Config) http.Client {
-	cert, err := tls.LoadX509KeyPair(cfg.NATSMigrateServerClientCertFile, cfg.NATSMigrateServerClientKeyFile)
+	cert, err := tls.LoadX509KeyPair(cfg.NATSMigrateServerCertFile, cfg.NATSMigrateServerKeyFile)
 	if err != nil {
 		log.Fatalf("Error creating x509 keypair from client cert file %s and client key file", err.Error())
 	}
 
-	caCert, err := ioutil.ReadFile(cfg.NATSMigrateServerClientCertFile)
+	caCert, err := ioutil.ReadFile(cfg.NATSMigrateServerCAFile)
 	if err != nil {
 		log.Fatalf("Error opening cert file, Error: %s", err)
 	}

@@ -62,16 +62,17 @@ expected_template =  %{
     "nats_instances": [ "abc1234.nats.service.cf.internal:4222", "def456.nats.service.cf.internal:4222", "bbc790.nats.service.cf.internal:4222" ],
     "nats_port": 4222,
     "nats_migrate_port": 4242,
-    "job": "nats",
     "nats_migrate_servers": [ "https://abc1234.nats.service.cf.internal:4242", "https://def456.nats.service.cf.internal:4242", "https://bbc790.nats.service.cf.internal:4242" ],
     "nats_internal_tls_enabled": true,
-    "nats_migrate_server_client_cert_file": "/var/vcap/jobs/nats-tls/config/external_tls/certificate.pem",
-    "nats_migrate_server_client_key_file": "/var/vcap/jobs/nats-tls/config/external_tls/private_key.pem",
-    "nats_migrate_server_ca_file": "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem",
-    "nats_bpm_config_path": "/var/vcap/jobs/nats/config/bpm.yml",
-    "nats_bpm_v1_config_path": "/var/vcap/jobs/nats/config/bpm.v1.yml",
-    "nats_bpm_v2_config_path": "/var/vcap/jobs/nats/config/bpm.v2.yml",
-    "monit_path": "/var/vcap/bosh/bin/monit"
+    "nats_migrate_server_ca_file": "/var/vcap/jobs/nats/config/migrate_server_tls/ca.pem",
+    "nats_migrate_server_cert_file": "/var/vcap/jobs/nats/config/migrate_server_tls/certificate.pem",
+    "nats_migrate_server_key_file": "/var/vcap/jobs/nats/config/migrate_server_tls/private_key.pem",
+    "nats_migrate_client_ca_file": "/var/vcap/jobs/nats/config/migrate_client_tls/ca.pem",
+    "nats_migrate_client_cert_file": "/var/vcap/jobs/nats/config/migrate_client_tls/certificate.pem",
+    "nats_migrate_client_key_file": "/var/vcap/jobs/nats/config/migrate_client_tls/private_key.pem",
+    "nats_v1_bin_path": "/var/vcap/packages/gnatsd/bin/gnatsd",
+    "nats_v2_bin_path": "/var/vcap/packages/nats-server/bin/nats-server",
+    "nats_config_path": "/var/vcap/jobs/nats/config/nats.conf"
 }
 }
             expect(rendered_template).to include(expected_template)

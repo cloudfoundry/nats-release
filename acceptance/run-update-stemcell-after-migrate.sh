@@ -3,6 +3,8 @@
 set  -x
 TESTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
+bosh upload-stemcell https://storage.googleapis.com/bosh-gce-light-stemcells/1.85/light-bosh-stemcell-1.85-google-kvm-ubuntu-bionic-go_agent.tgz
+
 echo "-----> `date`: Delete previous deployment"
 bosh -n -d nats delete-deployment --force
 
