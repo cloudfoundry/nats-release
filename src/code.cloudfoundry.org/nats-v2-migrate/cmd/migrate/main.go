@@ -56,7 +56,7 @@ func main() {
 		return
 	}
 
-	natsMigrateServerClient, err := newNATSMigrateServerClient(cfg.NATSMigrateServerCAFile, cfg.NATSMigrateServerClientCertFile, cfg.NATSMigrateServerClientKeyFile)
+	natsMigrateServerClient, err := newNATSMigrateServerClient(cfg.NATSMigrateClientCAFile, cfg.NATSMigrateClientCertFile, cfg.NATSMigrateClientKeyFile)
 	if err != nil {
 		logger.Error("Failed to create NATS migrate server client", err)
 		os.Exit(1)

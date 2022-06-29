@@ -5,7 +5,6 @@ description: "NATS server providing a publish-subscribe messaging system for Clo
 
 templates:
   nats.conf.erb: config/nats.conf
-  pre-start.erb: bin/pre-start
   post-start.erb: bin/post-start
   bpm.yml.erb: config/bpm.yml
   migrator-config.json.erb: config/migrator-config.json
@@ -13,6 +12,14 @@ templates:
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
   internal_tls/private_key.pem.erb: config/internal_tls/private_key.pem
+
+  migrate_server_tls/ca.pem.erb: config/migrate_server_tls/ca.pem
+  migrate_server_tls/certificate.pem.erb: config/migrate_server_tls/certificate.pem
+  migrate_server_tls/private_key.pem.erb: config/migrate_server_tls/private_key.pem
+
+  migrate_client_tls/ca.pem.erb: config/migrate_client_tls/ca.pem
+  migrate_client_tls/certificate.pem.erb: config/migrate_client_tls/certificate.pem
+  migrate_client_tls/private_key.pem.erb: config/migrate_client_tls/private_key.pem
 
 packages:
   - gnatsd
@@ -93,3 +100,16 @@ properties:
   nats.internal.tls.private_key:
     description: "Private key for cluster-internal traffic. In PEM format."
 
+  nats.migrate_server.tls.ca:
+    description: "Certificate of the CA for migrate server. In PEM format."
+  nats.migrate_server.tls.certificate:
+    description: "Certificate for migrate server. In PEM format."
+  nats.migrate_server.tls.private_key:
+    description: "Private key for migrate server. In PEM format."
+
+  nats.migrate_client.tls.ca:
+    description: "Certificate of the CA for verifying the TLS connection to the migrate server. In PEM format."
+  nats.migrate_client.tls.certificate:
+    description: "The PEM-encoded certificate to use for verifying the TLS connection to the migrate server (used for local healthchecks)."
+  nats.migrate_client.tls.private_key:
+    description: "The PEM-encoded private key to use for verifying the TLS connection to the migrate server (used for local healthchecks)."

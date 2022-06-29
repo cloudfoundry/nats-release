@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	NATSConnectionTimeout       = 60 * time.Second
+	NATSConnectionTimeout       = 10 * time.Second
 	NATSConnectionRetryInterval = 1 * time.Second
 )
 

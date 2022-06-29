@@ -14,6 +14,7 @@ import (
 	"code.cloudfoundry.org/lager"
 	"code.cloudfoundry.org/lager/lagerflags"
 	"code.cloudfoundry.org/nats-v2-migrate/config"
+	"code.cloudfoundry.org/nats-v2-migrate/natsinfo"
 	"code.cloudfoundry.org/tlsconfig"
 	"github.com/tedsuo/ifrit"
 	"github.com/tedsuo/ifrit/grouper"
@@ -40,9 +41,14 @@ func main() {
 	migrateCh := make(chan struct{})
 	migrateFinished := make(chan error)
 
+	natsBinPath, err := getNATSBinPath(cfg, logger)
+	if err != nil {
+		logger.Fatal("getting-nats-bin-path", err)
+	}
+
 	natsRunner := &NATSRunner{
 		Logger:          logger,
-		BinPath:         cfg.NATSV1BinPath,
+		BinPath:         natsBinPath,
 		V2BinPath:       cfg.NATSV2BinPath,
 		ConfigPath:      cfg.NATSConfigPath,
 		MigrateCh:       migrateCh,
@@ -51,7 +57,7 @@ func main() {
 
 	tlsConfig, err := tlsconfig.Build(
 		tlsconfig.WithInternalServiceDefaults(),
-		tlsconfig.WithIdentityFromFile(cfg.NATSMigrateServerClientCertFile, cfg.NATSMigrateServerClientKeyFile),
+		tlsconfig.WithIdentityFromFile(cfg.NATSMigrateServerCertFile, cfg.NATSMigrateServerKeyFile),
 	).Server(tlsconfig.WithClientAuthenticationFromFile(cfg.NATSMigrateServerCAFile))
 	if err != nil {
 		logger.Fatal("tls-configuration-failed", err)
@@ -67,7 +73,7 @@ func main() {
 
 	members := grouper.Members{
 		{Name: "nats-runner", Runner: natsRunner},
-		{Name: "server", Runner: migrateServer},
+		{Name: "migrate-server", Runner: migrateServer},
 	}
 	group := grouper.NewOrdered(os.Interrupt, members)
 
@@ -79,6 +85,36 @@ func main() {
 		logger.Error("exited-with-failure", err)
 		os.Exit(1)
 	}
+}
+
+func getNATSBinPath(cfg config.Config, logger lager.Logger) (string, error) {
+	if len(cfg.NATSInstances) == 1 {
+		logger.Info("single-instance-nats-cluster.starting-as-v2")
+		return cfg.NATSV2BinPath, nil
+	}
+	localNATSMachineUrl := fmt.Sprintf("%s:%d", cfg.Address, cfg.NATSPort)
+	for _, natsMachineUrl := range cfg.NATSInstances {
+		if natsMachineUrl == localNATSMachineUrl {
+			continue
+		}
+		majorVersion, err := natsinfo.GetMajorVersion(natsMachineUrl)
+		if err != nil {
+			if _, ok := err.(*natsinfo.ErrConnectingToNATS); ok {
+				logger.Error("ignoring-machine-due-to-connection-error", err, lager.Data{"url": natsMachineUrl})
+				continue
+			}
+			logger.Error("error-getting-nats-version", err)
+			return "", err
+		}
+		if majorVersion < 2 {
+			logger.Info(fmt.Sprintf("starting-as-v1", lager.Data{"instance": natsMachineUrl, "version": majorVersion}))
+
+			return cfg.NATSV1BinPath, nil
+		} else {
+			logger.Info(fmt.Sprintf("found-v2-instance", lager.Data{"instance": natsMachineUrl, "version": majorVersion}))
+		}
+	}
+	return cfg.NATSV2BinPath, nil
 }
 
 type NATSRunner struct {
@@ -103,6 +139,11 @@ func (r *NATSRunner) Run(signals <-chan os.Signal, ready chan<- struct{}) error 
 		select {
 		case <-r.MigrateCh:
 			r.Logger.Info("received-migration-signal")
+			if r.BinPath == r.V2BinPath {
+				r.Logger.Info("skipping-migration-already-on-v2")
+				r.MigrateFinished <- nil
+				break
+			}
 			natsSession.Shutdown()
 
 			natsSession, err = NewNATSSession(r.V2BinPath, r.ConfigPath)
@@ -223,7 +264,7 @@ func (s *httpServer) Info(w http.ResponseWriter, req *http.Request) {
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		s.logger.Error("Error during marshal", err)
+		s.logger.Error("error-during-marshal", err)
 		w.Write(nil)
 		return
 	}
