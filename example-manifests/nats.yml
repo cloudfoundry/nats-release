@@ -10,12 +10,36 @@ addons:
   - name: bpm
     release: bpm
 
-releases:
-- name: bpm
-  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.1.3
-  version: 1.1.3
-  sha1: b41556af773ea9aec93dd21a9bbf129200849eed
+- name: bosh-dns-aliases
+  jobs:
+  - name: bosh-dns-aliases
+    release: bosh-dns-aliases
+    properties:
+      aliases:
+      - domain: nats.service.internal
+        targets:
+        - query: '*'
+          instance_group: nats
+          deployment: nats
+          network: default
+          domain: bosh
+      - domain: _.nats.service.internal
+        targets:
+        - query: '_'
+          instance_group: nats
+          deployment: nats
+          network: default
+          domain: bosh
 
+releases:
+- name: bosh-dns-aliases
+  url: https://bosh.io/d/github.com/cloudfoundry/bosh-dns-aliases-release?v=0.0.3
+  version: 0.0.3
+  sha1: b0d0a0350ed87f1ded58b2ebb469acea0e026ccc
+- name: bpm
+  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.1.9
+  version: 1.1.9
+  sha1: dcf0582d838a73de29da273552ae79ac3098ee8b
 - name: nats
   version: latest
 
@@ -23,6 +47,7 @@ stemcells:
 - alias: default
   os: ubuntu-xenial
   version: latest
+
 update:
   canaries: 1
   max_in_flight: 1
@@ -31,31 +56,116 @@ update:
 
 instance_groups:
 - name: nats
-  azs: [z1, z2, z3]
-  instances: 3
+  azs: [((nats_az))]
+  instances: 1
   jobs:
   - name: nats
     release: nats
+    provides:
+      nats: {as: nats, shared: true}
     properties:
       nats:
+        hostname: nats.service.internal
         user: nats
         password: "((nats_password))"
+        internal:
+          tls:
+            ca: "((nats_internal_cert.ca))"
+            private_key: "((nats_internal_cert.private_key))"
+            certificate: "((nats_internal_cert.certificate))"
+            enabled: true
+  - name: nats-tls
+    release: nats
+    provides:
+      nats-tls: {as: nats-tls, shared: true}
+    properties:
+      nats:
+        hostname: nats.service.internal
+        user: nats
+        password: "((nats_password))"
+        internal:
+          tls:
+            ca: "((nats_internal_cert.ca))"
+            private_key: "((nats_internal_cert.private_key))"
+            certificate: "((nats_internal_cert.certificate))"
+            enabled: true
+        external:
+          tls:
+            ca: "((nats_client_cert.ca))"
+            private_key: "((nats_server_cert.private_key))"
+            certificate: "((nats_server_cert.certificate))"
   networks:
   - name: default
-  vm_type: default
+  vm_type: ((nats_vm_type))
   stemcell: default
 - name: nats-smoke-tests
-  azs: [z1]
-  vm_type: default
+  azs: [((nats_az))]
+  vm_type: ((nats_vm_type))
   stemcell: default
   instances: 1
   lifecycle: errand
   jobs:
   - name: smoke-tests
     release: nats
+    properties:
+      nats:
+        hostname: nats.service.internal
+        user: nats
+        password: "((nats_password))"
+        client:
+          tls:
+            certificate: "((nats_client_cert.certificate))"
+            private_key: "((nats_client_cert.private_key))"
   networks:
   - name: default
 
 variables:
 - name: nats_password
   type: password
+
+- name: nats_internal_ca
+  type: certificate
+  options:
+    common_name: nats_internal
+    is_ca: true
+
+- name: nats_internal_cert
+  type: certificate
+  options:
+    ca: nats_internal_ca
+    common_name: "*.nats.service.internal"
+    alternative_names:
+    - "*.nats.service.internal"
+    - nats.service.internal
+    extended_key_usage:
+    - client_auth
+    - server_auth
+
+- name: nats_ca
+  type: certificate
+  options:
+    common_name: nats
+    is_ca: true
+
+- name: nats_client_cert
+  type: certificate
+  update_mode: converge
+  options:
+    ca: nats_ca
+    common_name: nats_client
+    alternative_names:
+    - nats_client
+    extended_key_usage:
+    - client_auth
+
+- name: nats_server_cert
+  type: certificate
+  update_mode: converge
+  options:
+    ca: nats_ca
+    common_name: nats.service.internal
+    alternative_names:
+    - "*.nats.service.internal"
+    - nats.service.internal
+    extended_key_usage:
+    - server_auth

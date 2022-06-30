@@ -380,12 +380,12 @@ unexpected_authorization = %{
             expected_template = {
               'processes' => [
                 {
-                  'name' => 'nats-tls',
+                  'name' => 'nats-tls-wrapper',
                   'limits' => {
                     'open_files' => 100000
                   },
-                  'executable' => '/var/vcap/packages/gnatsd/bin/gnatsd',
-                  'args' => ['-c', '/var/vcap/jobs/nats-tls/config/nats-tls.conf']
+                  'executable' => '/var/vcap/packages/nats-v2-migrate/bin/nats-wrapper',
+                  'args' => ['--config-file', '/var/vcap/jobs/nats-tls/config/migrator-config.json']
                 },
                 {
                   'name' => 'healthcheck',
@@ -426,12 +426,12 @@ unexpected_authorization = %{
               expected_template = {
                 'processes' => [
                   {
-                    'name' => 'nats-tls',
+                    'name' => 'nats-tls-wrapper',
                     'limits' => {
                       'open_files' => 100000
                     },
-                    'executable' => '/var/vcap/packages/gnatsd/bin/gnatsd',
-                    'args' => ['-c', '/var/vcap/jobs/nats-tls/config/nats-tls.conf']
+                    'executable' => '/var/vcap/packages/nats-v2-migrate/bin/nats-wrapper',
+                    'args' => ['--config-file', '/var/vcap/jobs/nats-tls/config/migrator-config.json']
                   },
                   {
                     'name' => 'healthcheck',

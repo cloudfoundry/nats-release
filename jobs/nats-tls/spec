@@ -5,8 +5,9 @@ description: "TLS-secured NATS server providing a publish-subscribe messaging sy
 
 templates:
   nats-tls.conf.erb: config/nats-tls.conf
-  pre-start.erb: bin/pre-start
-  bpm.erb.yml: config/bpm.yml
+  post-start.erb: bin/post-start
+  bpm.yml.erb: config/bpm.yml
+  migrator-config.json.erb: config/migrator-config.json
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
@@ -16,12 +17,16 @@ templates:
   external_tls/certificate.pem.erb: config/external_tls/certificate.pem
   external_tls/private_key.pem.erb: config/external_tls/private_key.pem
 
+  client_tls/ca.pem.erb: config/client_tls/ca.pem
   client_tls/certificate.pem.erb: config/client_tls/certificate.pem
   client_tls/private_key.pem.erb: config/client_tls/private_key.pem
 
 packages:
   - gnatsd
+  - nats-server
   - nats-tls-healthcheck
+  - nats-v2-migrate
+  - pid_utils
 
 provides:
 - name: nats-tls
@@ -108,6 +113,8 @@ properties:
   nats.internal.tls.private_key:
     description: "Private key for cluster-internal traffic. In PEM format."
 
+  nats.client.tls.ca:
+    description: "Certificate of the CA for verifying the TLS connection to the server. In PEM format."
   nats.client.tls.certificate:
     description: "The PEM-encoded certificate to use for verifying the TLS connection to the server (used for local healthchecks)."
   nats.client.tls.private_key:

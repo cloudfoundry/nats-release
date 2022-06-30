@@ -1,0 +1,45 @@
+<%=
+
+  healthcheck_auth_args = []
+  if_p('nats.user') do |user|
+    healthcheck_auth_args += ['--user', user]
+  end
+
+  if_p('nats.password') do |password|
+    healthcheck_auth_args += ['--password', password]
+  end
+
+  YAML.dump({
+    'processes' => [
+      {
+        'name' => 'nats-tls-wrapper',
+        'limits' => {
+          'open_files' => 100000
+        },
+        'executable' => '/var/vcap/packages/nats-v2-migrate/bin/nats-wrapper',
+        'args' => [
+          '--config-file',
+          '/var/vcap/jobs/nats-tls/config/migrator-config.json'
+        ]
+      },
+      {
+        'name' => 'healthcheck',
+        'executable' => '/var/vcap/packages/nats-tls-healthcheck/bin/nats-tls-healthcheck',
+        'args' => [
+          '--address',
+          spec.address,
+          '--port',
+          p('nats.port'),
+          '--server-ca',
+          '/var/vcap/jobs/nats-tls/config/external_tls/ca.pem',
+          '--server-hostname',
+          p('nats.hostname'),
+          '--client-certificate',
+          '/var/vcap/jobs/nats-tls/config/client_tls/certificate.pem',
+          '--client-private-key',
+          '/var/vcap/jobs/nats-tls/config/client_tls/private_key.pem'
+        ] + healthcheck_auth_args
+      },
+    ]
+  })
+%>

@@ -258,6 +258,8 @@ cluster \{
     
   \]
 \}
+
+no_sys_acc: true
 }
 
               expect(rendered_template).to include(expected_template)

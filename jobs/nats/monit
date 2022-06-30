@@ -1,7 +1,7 @@
-check process nats
-  with pidfile /var/vcap/sys/run/bpm/nats/nats.pid
-  start program "/var/vcap/jobs/bpm/bin/bpm start nats"
-  stop program "/var/vcap/jobs/bpm/bin/bpm stop nats"
+check process nats-wrapper
+  with pidfile /var/vcap/sys/run/bpm/nats/nats-wrapper.pid
+  start program "/var/vcap/jobs/bpm/bin/bpm start nats -p nats-wrapper"
+  stop program "/var/vcap/jobs/bpm/bin/bpm stop nats -p nats-wrapper"
   group vcap
   if totalmem > 500 Mb for 2 cycles then alert
   if totalmem > 3000 Mb then restart
