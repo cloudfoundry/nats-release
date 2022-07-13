@@ -39,7 +39,7 @@ func main() {
 	logger, _ := lagerflags.NewFromConfig("nats-migrate", lagerflags.LagerConfig{LogLevel: lagerflags.INFO, TimeFormat: lagerflags.FormatRFC3339})
 	logger.Info("Starting migrate")
 
-	if len(cfg.NATSMigrateServers) == 0 {
+	if len(cfg.NATSMigrateServers) == 1 {
 		logger.Info("Single instance NATs cluster. Skipping migration.")
 		return
 	}
