@@ -1,17 +1,19 @@
 <%
     nats_instances = []
+    nats_hostname = ''
     nats_port = nil
     nats_migrate_port = 4243
     if_link("nats-tls") do |nats_tls_link|
+      nats_hostname = nats_tls_link.p("nats.hostname")
       nats_port = nats_tls_link.p("nats.port")
       nats_tls_link.instances.map do |instance|
-        nats_instances.push("#{instance.id}.#{nats_tls_link.p("nats.hostname")}")
+        nats_instances.push("#{instance.id}.#{nats_hostname}")
       end
     end
     %>
 {
     "bootstrap": <%= spec.bootstrap %>,
-    "address": <%= "\"#{spec.id}.nats.service.cf.internal\"" %>,
+    "address": <%= "\"#{spec.id}.#{nats_hostname}\"" %>,
     "nats_instances": [ <%= nats_instances.map { |e| "\"#{e}:#{nats_port}\""}.join(", ")  %> ],
     "nats_port": <%= nats_port %>,
     "nats_migrate_port": <%= nats_migrate_port %>,
