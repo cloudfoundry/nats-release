@@ -93,6 +93,8 @@ builds:
     version: "42"
   eed9780d-46bf-43a4-5a0a-b35914a81dac:
     version: "24"
+  f03e422f-70cc-4f96-5047-16fb62460286:
+    version: "49"
   f62b37b2-d675-4a86-6687-fd31fd1cf1ac:
     version: "25"
 format-version: "2"
