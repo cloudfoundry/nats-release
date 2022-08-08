@@ -2,7 +2,6 @@
     nats_instances = []
     nats_hostname = ''
     nats_port = nil
-    nats_migrate_port = 4242
     if_link("nats") do |nats_link|
       nats_port = nats_link.p("nats.port")
       nats_hostname = nats_link.p("nats.hostname")
@@ -16,8 +15,8 @@
     "address": <%= "\"#{spec.id}.#{nats_hostname}\"" %>,
     "nats_instances": [ <%= nats_instances.map { |e| "\"#{e}:#{nats_port}\""}.join(", ")  %> ],
     "nats_port": <%= nats_port %>,
-    "nats_migrate_port": <%= nats_migrate_port %>,
-    "nats_migrate_servers": [ <%= nats_instances.map { |e| "\"https://#{e}:#{nats_migrate_port}\""}.join(", ")  %> ],
+    "nats_migrate_port": <%= p("nats.migrate_server.port") %>,
+    "nats_migrate_servers": [ <%= nats_instances.map { |e| "\"https://#{e}:#{p("nats.migrate_server.port")}\""}.join(", ")  %> ],
     "nats_internal_tls_enabled": <%= p("nats.internal.tls.enabled") %>,
     "nats_migrate_server_ca_file": "/var/vcap/jobs/nats/config/migrate_server_tls/ca.pem",
     "nats_migrate_server_cert_file": "/var/vcap/jobs/nats/config/migrate_server_tls/certificate.pem",

@@ -100,6 +100,9 @@ properties:
   nats.internal.tls.private_key:
     description: "Private key for cluster-internal traffic. In PEM format."
 
+  nats.migrate_server.port:
+    description: "Port for endpoint to migrate nats job to nats-server v2. To be removed in a future release."
+    default: 4242
   nats.migrate_server.tls.ca:
     description: "Certificate of the CA for migrate server. In PEM format."
   nats.migrate_server.tls.certificate:

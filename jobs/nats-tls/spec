@@ -119,3 +119,7 @@ properties:
     description: "The PEM-encoded certificate to use for verifying the TLS connection to the server (used for local healthchecks)."
   nats.client.tls.private_key:
     description: "The PEM-encoded private key to use for verifying the TLS connection to the server (used for local healthchecks)."
+
+  nats.migrate_server.port:
+    description: "Port for endpoint to migrate nats job to nats-server v2. To be removed in a future release."
+    default: 4243
