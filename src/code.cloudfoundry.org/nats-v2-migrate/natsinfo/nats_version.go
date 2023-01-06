@@ -60,11 +60,13 @@ func GetMajorVersion(natsMachineUrl string) (int, error) {
 func connectWithRetry(natsMachineUrl string) (conn net.Conn, err error) {
 	attempts := int(NATSConnectionTimeout / NATSConnectionRetryInterval)
 	for i := 0; i < attempts; i++ {
-		conn, err = net.Dial("tcp", natsMachineUrl)
+		startTime := time.Now()
+		conn, err = net.DialTimeout("tcp", natsMachineUrl, NATSConnectionRetryInterval)
 		if err == nil {
 			return conn, nil
 		}
-		time.Sleep(NATSConnectionRetryInterval)
+		elapsedTime := time.Now().Sub(startTime)
+		time.Sleep(NATSConnectionRetryInterval - elapsedTime)
 	}
 	return nil, err
 }
