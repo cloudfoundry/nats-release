@@ -63,10 +63,21 @@ var _ = Describe("Migrate", func() {
 		os.Remove(configFile.Name())
 	})
 
-	Context("when there are no other nats machines", func() {
+	Context("when there are no nats machines", func() {
 		// premigrate runs it as v2
 		BeforeEach(func() {
 			cfg.NATSMigrateServers = []string{}
+		})
+
+		It("exits succesfully", func() {
+			Eventually(migrateSess).Should(gexec.Exit(0))
+		})
+	})
+
+	Context("when there are no other nats machines", func() {
+		// premigrate runs it as v2
+		BeforeEach(func() {
+			cfg.NATSMigrateServers = []string{"meow"}
 		})
 
 		It("exits succesfully", func() {
