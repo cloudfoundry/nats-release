@@ -9,7 +9,7 @@ image_resource:
 inputs:
 - name: release
 - name: package-release
-- name: nats-release-ci
+- name: develop-branch-ci 
 
 outputs:
 - name: modified-release
@@ -27,4 +27,4 @@ params:
   GIT_COMMIT_EMAIL: "cf-networking@pivotal.io"
 
 run:
-  path: nats-release-ci/ci/tasks/upgrade-package-in-release/task
+  path: develop-branch-ci/ci/tasks/upgrade-package-in-release/task
