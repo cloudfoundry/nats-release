@@ -11,8 +11,8 @@ import (
 	"syscall"
 	"time"
 
-	"code.cloudfoundry.org/lager"
-	"code.cloudfoundry.org/lager/lagerflags"
+	"code.cloudfoundry.org/lager/v3"
+	"code.cloudfoundry.org/lager/v3/lagerflags"
 	"code.cloudfoundry.org/nats-v2-migrate/config"
 	"code.cloudfoundry.org/nats-v2-migrate/natsinfo"
 	"code.cloudfoundry.org/tlsconfig"

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"code.cloudfoundry.org/lager/lagerflags"
+	"code.cloudfoundry.org/lager/v3/lagerflags"
 )
 
 type Config struct {
