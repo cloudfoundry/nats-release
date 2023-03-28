@@ -16,7 +16,7 @@ declare -a packages=(
 
 install_ginkgo() {
   if ! [ $(type -P "ginkgo") ]; then
-    go install -mod=mod github.com/onsi/ginkgo/ginkgo@v1
+    go install -mod=mod github.com/onsi/ginkgo/v2/ginkgo
   fi
 }
 
