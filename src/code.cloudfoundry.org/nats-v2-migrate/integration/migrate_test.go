@@ -32,7 +32,7 @@ var _ = Describe("Migrate", func() {
 
 	BeforeEach(func() {
 		var err error
-		migrateBin, err = gexec.Build("code.cloudfoundry.org/nats-v2-migrate/cmd/migrate")
+		migrateBin, err = gexec.Build("code.cloudfoundry.org/nats-v2-migrate/cmd/migrate", "-buildvcs=false")
 		Expect(err).NotTo(HaveOccurred())
 		cfg = config.Config{
 			LagerConfig: lagerflags.DefaultLagerConfig(),

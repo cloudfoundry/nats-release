@@ -55,11 +55,11 @@ func (runner *NATSRunner) Start(version ...string) {
 	var cmd *exec.Cmd
 
 	if version != nil && version[0] == "v1" {
-		gnatsdBin, err := gexec.Build("github.com/nats-io/gnatsd")
+		gnatsdBin, err := gexec.Build("github.com/nats-io/gnatsd", "-buildvcs=false")
 		Expect(err).NotTo(HaveOccurred())
 		cmd = exec.Command(gnatsdBin, "-p", strconv.Itoa(runner.port))
 	} else {
-		natsServerBin, err := gexec.Build("github.com/nats-io/nats-server/v2")
+		natsServerBin, err := gexec.Build("github.com/nats-io/nats-server/v2", "-buildvcs=false")
 		Expect(err).NotTo(HaveOccurred())
 		cmd = exec.Command(natsServerBin, "-p", strconv.Itoa(runner.port))
 	}
