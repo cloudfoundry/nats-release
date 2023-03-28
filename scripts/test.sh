@@ -27,7 +27,7 @@ test_package() {
   fi
   shift
   pushd "${package}" &>/dev/null
-  ginkgo -r --race -randomizeAllSpecs -randomizeSuites -failFast \
+  ginkgo -r --race -randomize-all -randomize-suites -fail-fast \
       -ldflags="extldflags=-WL,--allow-multiple-definition" \
        "${@}";
   rc=$?
