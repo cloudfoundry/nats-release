@@ -74,7 +74,7 @@ func StartServerWithoutWaiting(cfg config.Config) {
 	_, err = cfgFile.Write(cfgJSON)
 	Expect(err).NotTo(HaveOccurred())
 
-	serverBin, err := gexec.Build("code.cloudfoundry.org/nats-v2-migrate/nats-wrapper")
+	serverBin, err := gexec.Build("code.cloudfoundry.org/nats-v2-migrate/nats-wrapper", "-buildvcs=false")
 	Expect(err).NotTo(HaveOccurred())
 
 	startCmd := exec.Command(serverBin, "-config-file", cfgFile.Name())
