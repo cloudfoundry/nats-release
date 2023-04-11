@@ -15,9 +15,9 @@ declare -a packages=(
 )
 
 install_ginkgo() {
-  if ! [ $(type -P "ginkgo") ]; then
+    echo "Installing Ginkgo V2"
     go install -mod=mod github.com/onsi/ginkgo/v2/ginkgo
-  fi
+    ginkgo version
 }
 
 test_package() {
