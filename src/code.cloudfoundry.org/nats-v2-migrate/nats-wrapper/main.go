@@ -107,11 +107,11 @@ func getNATSBinPath(cfg config.Config, logger lager.Logger) (string, error) {
 			return "", err
 		}
 		if majorVersion < 2 {
-			logger.Info(fmt.Sprintf("starting-as-v1", lager.Data{"instance": natsMachineUrl, "version": majorVersion}))
+			logger.Info("starting-as-v1", lager.Data{"instance": natsMachineUrl, "version": majorVersion})
 
 			return cfg.NATSV1BinPath, nil
 		} else {
-			logger.Info(fmt.Sprintf("found-v2-instance", lager.Data{"instance": natsMachineUrl, "version": majorVersion}))
+			logger.Info("found-v2-instance", lager.Data{"instance": natsMachineUrl, "version": majorVersion})
 		}
 	}
 	return cfg.NATSV2BinPath, nil
