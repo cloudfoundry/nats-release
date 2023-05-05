@@ -35,24 +35,24 @@ func GetMajorVersion(natsMachineUrl string) (int, error) {
 	}
 	status, err := bufio.NewReader(conn).ReadString('\n')
 	if err != nil {
-		return 0, fmt.Errorf("Error reading", err)
+		return 0, fmt.Errorf("Error reading: %w", err)
 	}
 
 	serverJSON := strings.TrimPrefix(status, "INFO ")
 	var natsServerInfo NatsServerInfo
 	err = json.Unmarshal([]byte(serverJSON), &natsServerInfo)
 	if err != nil {
-		return 0, fmt.Errorf("Error unmarshalling json", err)
+		return 0, fmt.Errorf("Error unmarshalling json: %w", err)
 	}
 
 	semanticVersions := strings.Split(natsServerInfo.Version, ".")
 	if len(semanticVersions) < 3 {
-		return 0, fmt.Errorf("Version is not normal semantic version", err)
+		return 0, fmt.Errorf("Version is not normal semantic version: %w", err)
 	}
 
 	majorVersion, err := strconv.Atoi(semanticVersions[0])
 	if err != nil {
-		return 0, fmt.Errorf("Error parsing semantic version", err)
+		return 0, fmt.Errorf("Error parsing semantic version: %w", err)
 	}
 
 	return majorVersion, nil
