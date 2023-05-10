@@ -9,7 +9,7 @@ import (
 	"os/exec"
 	"time"
 
-	"code.cloudfoundry.org/inigo/helpers/certauthority"
+	"code.cloudfoundry.org/cf-networking-helpers/certauthority"
 	"code.cloudfoundry.org/lager/v3/lagerflags"
 	"code.cloudfoundry.org/nats-v2-migrate/config"
 	"code.cloudfoundry.org/nats-v2-migrate/integration/helpers"

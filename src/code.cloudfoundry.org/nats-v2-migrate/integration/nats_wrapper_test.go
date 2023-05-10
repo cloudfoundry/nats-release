@@ -19,7 +19,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
 
-	"code.cloudfoundry.org/inigo/helpers/certauthority"
+	"code.cloudfoundry.org/cf-networking-helpers/certauthority"
 	"code.cloudfoundry.org/nats-v2-migrate/config"
 	"code.cloudfoundry.org/nats-v2-migrate/integration/helpers"
 	"code.cloudfoundry.org/nats-v2-migrate/natsinfo"
