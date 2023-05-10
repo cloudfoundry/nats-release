@@ -23,5 +23,5 @@ releases/**/*.tgz
 .DS_Store
 bosh-lite/deployments/*
 bosh-lite/tmp/*
-pkg
+/pkg/
 consul-certs/
