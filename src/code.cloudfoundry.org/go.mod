@@ -11,7 +11,7 @@ require (
 	github.com/nats-io/gnatsd v1.4.1
 	github.com/nats-io/go-nats v1.7.2
 	github.com/nats-io/nats-server/v2 v2.9.17
-	github.com/onsi/ginkgo/v2 v2.9.5
+	github.com/onsi/ginkgo/v2 v2.9.6
 	github.com/onsi/gomega v1.27.7
 	github.com/tedsuo/ifrit v0.0.0-20230516164442-7862c310ad26
 )
