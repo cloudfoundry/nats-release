@@ -1,0 +1,3 @@
+- type: replace
+  path: /instance_groups/name=nats/jobs/name=nats-tls/properties/nats/fail_deployment_if_v1?
+  value: true

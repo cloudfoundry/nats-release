@@ -1,6 +1,6 @@
 - type: replace
   path: /releases/name=nats/url
-  value: file://.
+  value: file:///home/pivotal/workspace/nats-release
 
 - type: replace
   path: /releases/name=nats/version
