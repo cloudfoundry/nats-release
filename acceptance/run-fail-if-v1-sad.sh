@@ -43,11 +43,20 @@ fi
 
 
 echo "-----> `date`: Checking results"
-bosh -d nats ssh -c "cd /var/vcap/sys/log/nats-tls && sudo tail post-start.stdout.log | grep 'Local NATS server is on v1; exiting with error'"
+bosh -d nats ssh nats/0 -c "cd /var/vcap/sys/log/nats-tls && sudo tail post-start.stdout.log | grep 'Local NATS server is on v1; exiting with error'"
 if [[ $? == 0 ]]; then
     echo "V1 failure message logged as expected."
 else
     echo "No v1 failure message."
+    exit 1
+fi
+
+
+bosh -d nats ssh nats/1 -c "cd /var/vcap/sys/log/nats-tls && sudo tail post-start.stdout.log | grep 'Skipping because instance is not canary'"
+if [[ $? == 0 ]]; then
+    echo "Non-canary message logged as expected."
+else
+    echo "No non-canary message."
     exit 1
 fi
 

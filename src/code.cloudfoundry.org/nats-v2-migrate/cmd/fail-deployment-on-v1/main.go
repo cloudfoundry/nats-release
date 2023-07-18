@@ -28,6 +28,11 @@ func main() {
 	logger, _ := lagerflags.NewFromConfig("nats-fail-v1", lagerflags.LagerConfig{LogLevel: lagerflags.INFO, TimeFormat: lagerflags.FormatRFC3339})
 	logger.Info("Starting confirmation that NATS instances are on V2")
 
+	if cfg.Bootstrap == false {
+		logger.Info("Skipping because instance is not canary")
+		return
+	}
+
 	majorVersion, err := natsinfo.GetMajorVersion(fmt.Sprintf("%s:%d", cfg.Address, cfg.NATSPort))
 	if err != nil {
 		logger.Error("Failed to connect to local NATS server", err, nil)
