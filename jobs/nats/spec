@@ -116,3 +116,7 @@ properties:
     description: "The PEM-encoded certificate to use for verifying the TLS connection to the migrate server (used for local healthchecks)."
   nats.migrate_client.tls.private_key:
     description: "The PEM-encoded private key to use for verifying the TLS connection to the migrate server (used for local healthchecks)."
+  
+  nats.fail_deployment_if_v1:
+    description: "Fail the deployment in post-start if nats instances are on v1."
+    default: false

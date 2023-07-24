@@ -123,3 +123,6 @@ properties:
   nats.migrate_server.port:
     description: "Port for endpoint to migrate nats job to nats-server v2. To be removed in a future release."
     default: 4243
+  nats.fail_deployment_if_v1:
+    description: "Fail the deployment in post-start if nats instances are on v1."
+    default: false

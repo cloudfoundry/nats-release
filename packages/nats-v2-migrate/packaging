@@ -12,4 +12,5 @@ export GOBIN=${BOSH_INSTALL_TARGET}/bin
 pushd "src/code.cloudfoundry.org"
   go build -o "${GOBIN}/migrate" code.cloudfoundry.org/nats-v2-migrate/cmd/migrate
   go build -o "${GOBIN}/nats-wrapper" code.cloudfoundry.org/nats-v2-migrate/nats-wrapper
+  go build -o "${GOBIN}/fail-deployment-on-v1" code.cloudfoundry.org/nats-v2-migrate/cmd/fail-deployment-on-v1
 popd

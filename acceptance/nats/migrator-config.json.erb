@@ -1,0 +1,30 @@
+<%
+    nats_instances = []
+    nats_hostname = ''
+    nats_port = nil
+    if_link("nats") do |nats_link|
+      nats_port = nats_link.p("nats.port")
+      nats_hostname = nats_link.p("nats.hostname")
+      nats_link.instances.map do |instance|
+        nats_instances.push("#{instance.id}.#{nats_hostname}")
+      end
+    end
+    %>
+{
+    "bootstrap": <%= spec.bootstrap %>,
+    "address": <%= "\"#{spec.id}.#{nats_hostname}\"" %>,
+    "nats_instances": [ <%= nats_instances.map { |e| "\"#{e}:#{nats_port}\""}.join(", ")  %> ],
+    "nats_port": <%= nats_port %>,
+    "nats_migrate_port": <%= p("nats.migrate_server.port") %>,
+    "nats_migrate_servers": [ <%= nats_instances.map { |e| "\"https://#{e}:#{p("nats.migrate_server.port")}\""}.join(", ")  %> ],
+    "nats_internal_tls_enabled": <%= p("nats.internal.tls.enabled") %>,
+    "nats_migrate_server_ca_file": "/var/vcap/jobs/nats/config/migrate_server_tls/ca.pem",
+    "nats_migrate_server_cert_file": "/var/vcap/jobs/nats/config/migrate_server_tls/certificate.pem",
+    "nats_migrate_server_key_file": "/var/vcap/jobs/nats/config/migrate_server_tls/private_key.pem",
+    "nats_migrate_client_ca_file": "/var/vcap/jobs/nats/config/migrate_client_tls/ca.pem",
+    "nats_migrate_client_cert_file": "/var/vcap/jobs/nats/config/migrate_client_tls/certificate.pem",
+    "nats_migrate_client_key_file": "/var/vcap/jobs/nats/config/migrate_client_tls/private_key.pem",
+    "nats_v1_bin_path": "/var/vcap/packages/gnatsd/bin/gnatsd",
+    "nats_v2_bin_path": "/var/vcap/packages/gnatsd/bin/gnatsd",
+    "nats_config_path": "/var/vcap/jobs/nats/config/nats.conf"
+}
