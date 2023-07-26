@@ -156,6 +156,9 @@ var _ = Describe("Migrate", func() {
 			It("retries with the timeout", func() {
 				Consistently(migrateSess).WithTimeout(2 * time.Second).ShouldNot(gexec.Exit())
 				natsRunner.Start()
+				version, err := natsinfo.GetMajorVersion(natsRunner.Addr())
+				Expect(err).NotTo(HaveOccurred())
+				Expect(version).To(Equal(2))
 				Eventually(migrateSess).Should(gexec.Exit(0))
 			})
 		})
