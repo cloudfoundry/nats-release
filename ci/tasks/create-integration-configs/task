@@ -8,7 +8,7 @@ source cf-deployment-concourse-tasks/shared-functions
 source networking-oss-deployments/scripts/script_helpers.sh
 
 if [[ -d toolsmiths-metadata-dir ]]; then
-  ENVIRONMENT="$(cat toolsmiths-metadata-dir/name)"
+  ENVIRONMENT="$(cat toolsmiths-metadata-dir/metadata | jq -r .name)"
   API_URL="$(jq -r .cf.api_url toolsmiths-metadata-dir/metadata)"
   SYSTEM_DOMAIN="${API_URL#api.}"
   unset API_URL
