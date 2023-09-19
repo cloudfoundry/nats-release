@@ -7,6 +7,7 @@ dependencies:
 files:
   - code.cloudfoundry.org/go.mod
   - code.cloudfoundry.org/go.sum
+  - code.cloudfoundry.org/vendor/modules.txt
   - code.cloudfoundry.org/vendor/github.com/nats-io/gnatsd/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/gnatsd/conf/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/gnatsd/logger/*.go # gosub
