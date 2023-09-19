@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -20,25 +19,26 @@ import (
 	"github.com/onsi/gomega/gexec"
 
 	"code.cloudfoundry.org/cf-networking-helpers/certauthority"
+	"code.cloudfoundry.org/cf-networking-helpers/portauthority"
 	"code.cloudfoundry.org/nats-v2-migrate/config"
 	"code.cloudfoundry.org/nats-v2-migrate/integration/helpers"
 	"code.cloudfoundry.org/nats-v2-migrate/natsinfo"
 )
 
 var (
-	err         error
-	cfgFile     *os.File
-	cfg         config.Config
-	address     string
-	session     *gexec.Session
-	bpmFile     *os.File
-	bpmv2File   *os.File
-	certDepoDir string
-	client      http.Client
+	cfgFile                                                      *os.File
+	cfg                                                          config.Config
+	address                                                      string
+	session                                                      *gexec.Session
+	certDepoDir                                                  string
+	client                                                       http.Client
+	outputFile, natsV1File, natsV2File                           string
+	natsPort, natsMigratorPort, natsRunnerPort1, natsRunnerPort2 uint16
 )
 
 func GenerateCerts(cfg *config.Config) {
-	certDepoDir, err = ioutil.TempDir("", "")
+	var err error
+	certDepoDir, err = os.MkdirTemp("", "cert-depot-dir")
 	Expect(err).NotTo(HaveOccurred())
 
 	ca, err := certauthority.NewCertAuthority(certDepoDir, "nats-v2-migrate-ca")
@@ -55,11 +55,11 @@ func GenerateCerts(cfg *config.Config) {
 
 func StartServer(cfg config.Config) {
 	StartServerWithoutWaiting(cfg)
-	address = "127.0.0.1:4242"
+	address = fmt.Sprintf("127.0.0.1:%d", natsMigratorPort)
 	serverIsAvailable := func() error {
 		err := VerifyTCPConnection(address)
 		if err != nil {
-			fmt.Printf(err.Error())
+			fmt.Print(err.Error())
 		}
 		return err
 	}
@@ -67,10 +67,12 @@ func StartServer(cfg config.Config) {
 }
 
 func StartServerWithoutWaiting(cfg config.Config) {
-	cfgFile, err = ioutil.TempFile("", "migrate-config.json")
+	var err error
+	cfgFile, err = os.CreateTemp("", "migrate-config.json")
 	Expect(err).NotTo(HaveOccurred())
 
 	cfgJSON, err := json.Marshal(cfg)
+	Expect(err).NotTo(HaveOccurred())
 	_, err = cfgFile.Write(cfgJSON)
 	Expect(err).NotTo(HaveOccurred())
 
@@ -88,7 +90,7 @@ func CreateTLSClient(cfg config.Config) http.Client {
 		log.Fatalf("Error creating x509 keypair from client cert file %s and client key file", err.Error())
 	}
 
-	caCert, err := ioutil.ReadFile(cfg.NATSMigrateServerCAFile)
+	caCert, err := os.ReadFile(cfg.NATSMigrateServerCAFile)
 	if err != nil {
 		log.Fatalf("Error opening cert file, Error: %s", err)
 	}
@@ -105,41 +107,72 @@ func CreateTLSClient(cfg config.Config) http.Client {
 	return http.Client{Transport: t, Timeout: 15 * time.Second}
 }
 
-func CreateMockNATS(natsPath string, version string) {
+func CreateMockNATS(natsPath string, version string, outputFile string) {
 	mockNATSScript := `#!/bin/sh 
-    echo "` + version + `" > /tmp/nats.output
-    sleep 60`
+    echo "` + version + `" >` + outputFile + `
+	sleep 60`
 
 	natsFile, err := os.Create(natsPath)
+	Expect(err).NotTo(HaveOccurred())
+
 	err = os.Chmod(natsPath, 0777)
 	Expect(err).NotTo(HaveOccurred())
+
 	_, err = io.WriteString(natsFile, mockNATSScript)
 	Expect(err).NotTo(HaveOccurred())
+
 	natsFile.Close()
 }
 
 var _ = Describe("NATS Wrapper", func() {
 	BeforeEach(func() {
-		CreateMockNATS("/tmp/nats-v1.sh", "v1")
-		CreateMockNATS("/tmp/nats-v2.sh", "v2")
+		node := GinkgoParallelProcess()
+		startPort := 1000 * node
+		portRange := 950
+		endPort := startPort + portRange
+
+		allocator, err := portauthority.New(startPort, endPort)
+		Expect(err).NotTo(HaveOccurred())
+		natsPort, err = allocator.ClaimPorts(4)
+		Expect(err).NotTo(HaveOccurred())
+		natsMigratorPort = natsPort + 1
+		natsRunnerPort1 = natsPort + 2
+		natsRunnerPort2 = natsPort + 3
+
+		file, err := os.CreateTemp("", "output-file-")
+		Expect(err).NotTo(HaveOccurred())
+		Expect(os.Remove(file.Name())).To(Succeed())
+		outputFile = file.Name()
+
+		file, err = os.CreateTemp("", "nats-v1-sh-")
+		Expect(err).NotTo(HaveOccurred())
+		natsV1File = file.Name()
+
+		file, err = os.CreateTemp("", "nats-v2-sh-")
+		Expect(err).NotTo(HaveOccurred())
+		natsV2File = file.Name()
+
+		CreateMockNATS(natsV1File, "v1", outputFile)
+		CreateMockNATS(natsV2File, "v2", outputFile)
 	})
 
 	AfterEach(func() {
 		session.Kill()
 		os.Remove(cfgFile.Name())
-		os.Remove("/tmp/nats.output")
+		os.Remove(outputFile)
+		os.Remove(natsV1File)
+		os.Remove(natsV2File)
 	})
 
 	Describe("starting nats server", func() {
 		Context("when there is only one nats-server", func() {
 			BeforeEach(func() {
 				cfg = config.Config{
-					NATSInstances:   []string{"127.0.0.1:4222"},
+					NATSInstances:   []string{fmt.Sprintf("127.0.0.1:%d", natsPort)},
 					Bootstrap:       true,
-					NATSMigratePort: 4242,
-					NATSV1BinPath:   "/tmp/nats-v1.sh",
-					NATSV2BinPath:   "/tmp/nats-v2.sh",
-					NATSConfigPath:  "/tmp/nats-config.json",
+					NATSMigratePort: int(natsMigratorPort),
+					NATSV1BinPath:   natsV1File,
+					NATSV2BinPath:   natsV2File,
 				}
 				GenerateCerts(&cfg)
 				StartServer(cfg)
@@ -147,7 +180,7 @@ var _ = Describe("NATS Wrapper", func() {
 			})
 
 			It("starts as v2", func() {
-				content, err := ioutil.ReadFile("/tmp/nats.output")
+				content, err := os.ReadFile(outputFile)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(string(content)).To(ContainSubstring("v2"))
 				Expect(string(content)).NotTo(ContainSubstring("v1"))
@@ -158,27 +191,26 @@ var _ = Describe("NATS Wrapper", func() {
 			var natsRunner1, natsRunner2 *helpers.NATSRunner
 
 			BeforeEach(func() {
-				natsRunner1 = helpers.NewNATSRunner(int(4225))
-				natsRunner2 = helpers.NewNATSRunner(int(4226))
+				natsRunner1 = helpers.NewNATSRunner(int(natsRunnerPort1))
+				natsRunner2 = helpers.NewNATSRunner(int(natsRunnerPort2))
 
 				cfg = config.Config{
 					Address:         "127.0.0.1",
 					Bootstrap:       true,
-					NATSMigratePort: 4242,
-					NATSPort:        4222,
+					NATSMigratePort: int(natsMigratorPort),
+					NATSPort:        int(natsPort),
 					NATSInstances: []string{
-						"127.0.0.1:4222",
+						fmt.Sprintf("127.0.0.1:%d", natsPort),
 						natsRunner1.Addr(),
 						natsRunner2.Addr(),
 					},
 					NATSMigrateServers: []string{
-						"127.0.0.1:4242",
+						fmt.Sprintf("127.0.0.1:%d", natsMigratorPort),
 						natsRunner1.URL(),
 						natsRunner2.URL(),
 					},
-					NATSV1BinPath:  "/tmp/nats-v1.sh",
-					NATSV2BinPath:  "/tmp/nats-v2.sh",
-					NATSConfigPath: "/tmp/nats-config.json",
+					NATSV1BinPath: natsV1File,
+					NATSV2BinPath: natsV2File,
 				}
 				GenerateCerts(&cfg)
 				client = CreateTLSClient(cfg)
@@ -210,7 +242,7 @@ var _ = Describe("NATS Wrapper", func() {
 				})
 
 				It("starts as v2", func() {
-					content, err := ioutil.ReadFile("/tmp/nats.output")
+					content, err := os.ReadFile(outputFile)
 					Expect(err).ToNot(HaveOccurred())
 					Expect(string(content)).To(ContainSubstring("v2"))
 					Expect(string(content)).NotTo(ContainSubstring("v1"))
@@ -233,7 +265,7 @@ var _ = Describe("NATS Wrapper", func() {
 				})
 
 				It("starts as v1", func() {
-					content, err := ioutil.ReadFile("/tmp/nats.output")
+					content, err := os.ReadFile(outputFile)
 					Expect(err).ToNot(HaveOccurred())
 					Expect(string(content)).To(ContainSubstring("v1"))
 					Expect(string(content)).NotTo(ContainSubstring("v2"))
@@ -252,8 +284,7 @@ var _ = Describe("NATS Wrapper", func() {
 
 				It("retries for the timeout period", func() {
 					Consistently(func() bool {
-						_, err := os.Stat("/tmp/nats.output")
-						Expect(err).To(HaveOccurred())
+						_, err := os.ReadFile(outputFile)
 						return errors.Is(err, os.ErrNotExist)
 					}).WithTimeout(5 * time.Second).Should(BeTrue())
 
@@ -262,7 +293,7 @@ var _ = Describe("NATS Wrapper", func() {
 					Expect(err).NotTo(HaveOccurred())
 					Expect(version).To(Equal(1))
 					Eventually(func() string {
-						content, err := ioutil.ReadFile("/tmp/nats.output")
+						content, err := os.ReadFile(outputFile)
 						if err != nil {
 							return ""
 						}
@@ -284,7 +315,7 @@ var _ = Describe("NATS Wrapper", func() {
 
 				It("starts as v2", func() {
 					Eventually(func() string {
-						content, err := ioutil.ReadFile("/tmp/nats.output")
+						content, err := os.ReadFile(outputFile)
 						if err != nil {
 							return ""
 						}
@@ -301,10 +332,9 @@ var _ = Describe("NATS Wrapper", func() {
 			BeforeEach(func() {
 				cfg = config.Config{
 					Bootstrap:       true,
-					NATSMigratePort: 4242,
-					NATSV1BinPath:   "/tmp/nats-v1.sh",
-					NATSV2BinPath:   "/tmp/nats-v2.sh",
-					NATSConfigPath:  "/tmp/nats-config.json",
+					NATSMigratePort: int(natsMigratorPort),
+					NATSV1BinPath:   natsV1File,
+					NATSV2BinPath:   natsV2File,
 				}
 				GenerateCerts(&cfg)
 				StartServer(cfg)
@@ -312,13 +342,13 @@ var _ = Describe("NATS Wrapper", func() {
 			})
 
 			It("returns 'bootstrap': true", func() {
-				address = "https://127.0.0.1:4242"
+				address = fmt.Sprintf("https://127.0.0.1:%d", natsMigratorPort)
 				resp, err := client.Get(fmt.Sprintf("%s/info", address))
 
 				Expect(err).ToNot(HaveOccurred())
 
 				Expect(resp.StatusCode).To(Equal(200))
-				respString, err := ioutil.ReadAll(resp.Body)
+				respString, err := io.ReadAll(resp.Body)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(respString).To(MatchJSON(`{ "bootstrap": true}`))
 			})
@@ -328,10 +358,9 @@ var _ = Describe("NATS Wrapper", func() {
 			BeforeEach(func() {
 				cfg = config.Config{
 					Bootstrap:       false,
-					NATSMigratePort: 4242,
-					NATSV1BinPath:   "/tmp/nats-v1.sh",
-					NATSV2BinPath:   "/tmp/nats-v2.sh",
-					NATSConfigPath:  "/tmp/nats-config.json",
+					NATSMigratePort: int(natsMigratorPort),
+					NATSV1BinPath:   natsV1File,
+					NATSV2BinPath:   natsV2File,
 				}
 				GenerateCerts(&cfg)
 				StartServer(cfg)
@@ -343,7 +372,7 @@ var _ = Describe("NATS Wrapper", func() {
 				Expect(err).ToNot(HaveOccurred())
 
 				Expect(resp.StatusCode).To(Equal(200))
-				respString, err := ioutil.ReadAll(resp.Body)
+				respString, err := io.ReadAll(resp.Body)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(respString).To(MatchJSON(`{ "bootstrap": false}`))
 			})
@@ -354,25 +383,24 @@ var _ = Describe("NATS Wrapper", func() {
 		var natsRunner1 *helpers.NATSRunner
 
 		BeforeEach(func() {
-			natsRunner1 = helpers.NewNATSRunner(int(4225))
+			natsRunner1 = helpers.NewNATSRunner(int(natsRunnerPort1))
 			natsRunner1.StartV1()
 
 			cfg = config.Config{
 				Bootstrap:       true,
-				NATSMigratePort: 4242,
+				NATSMigratePort: int(natsMigratorPort),
 				Address:         "127.0.0.1",
-				NATSPort:        4222,
+				NATSPort:        int(natsPort),
 				NATSInstances: []string{
-					"127.0.0.1:4222",
+					fmt.Sprintf("127.0.0.1:%d", natsPort),
 					natsRunner1.Addr(),
 				},
 				NATSMigrateServers: []string{
-					"127.0.0.1:4242",
+					fmt.Sprintf("127.0.0.1:%d", natsMigratorPort),
 					natsRunner1.URL(),
 				},
-				NATSV1BinPath:  "/tmp/nats-v1.sh",
-				NATSV2BinPath:  "/tmp/nats-v2.sh",
-				NATSConfigPath: "/tmp/nats-config.json",
+				NATSV1BinPath: natsV1File,
+				NATSV2BinPath: natsV2File,
 			}
 			GenerateCerts(&cfg)
 			StartServer(cfg)
@@ -388,7 +416,7 @@ var _ = Describe("NATS Wrapper", func() {
 		Context("when the server should have migrated", func() {
 			It("should stop v1 and start v2", func() {
 				// before migration
-				content, err := ioutil.ReadFile("/tmp/nats.output")
+				content, err := os.ReadFile(outputFile)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(string(content)).To(ContainSubstring("v1"))
 				Expect(string(content)).NotTo(ContainSubstring("v2"))
@@ -399,11 +427,11 @@ var _ = Describe("NATS Wrapper", func() {
 
 				// after migration
 				Eventually(func() string {
-					content, err = ioutil.ReadFile("/tmp/nats.output")
+					content, err := os.ReadFile(outputFile)
 					Expect(err).ToNot(HaveOccurred())
 					return string(content)
 				}).Should(ContainSubstring("v2"))
-				content, err = ioutil.ReadFile("/tmp/nats.output")
+				content, err = os.ReadFile(outputFile)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(string(content)).NotTo(ContainSubstring("v1"))
 			})

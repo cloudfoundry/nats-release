@@ -277,7 +277,7 @@ func (s *httpServer) Migrate(w http.ResponseWriter, req *http.Request) {
 	s.logger.Info("received-migrate-api-call")
 	s.migrateEndpointHitMux.Lock()
 	defer s.migrateEndpointHitMux.Unlock()
-	if s.migrateEndpointHit == true {
+	if s.migrateEndpointHit {
 		w.WriteHeader(http.StatusConflict)
 		w.Write(nil)
 		return

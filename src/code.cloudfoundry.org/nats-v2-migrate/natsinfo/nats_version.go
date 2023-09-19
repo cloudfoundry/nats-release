@@ -47,7 +47,7 @@ func GetMajorVersion(natsMachineUrl string) (int, error) {
 
 	semanticVersions := strings.Split(natsServerInfo.Version, ".")
 	if len(semanticVersions) < 3 {
-		return 0, fmt.Errorf("Version is not normal semantic version: %w", err)
+		return 0, fmt.Errorf("version is not normal semantic version: %w", err)
 	}
 
 	majorVersion, err := strconv.Atoi(semanticVersions[0])
