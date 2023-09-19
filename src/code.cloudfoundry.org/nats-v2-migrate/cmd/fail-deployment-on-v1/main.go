@@ -28,7 +28,7 @@ func main() {
 	logger, _ := lagerflags.NewFromConfig("nats-fail-v1", lagerflags.LagerConfig{LogLevel: lagerflags.INFO, TimeFormat: lagerflags.FormatRFC3339})
 	logger.Info("Starting confirmation that NATS instances are on V2")
 
-	if cfg.Bootstrap == false {
+	if !cfg.Bootstrap {
 		logger.Info("Skipping because instance is not canary")
 		return
 	}
@@ -43,5 +43,5 @@ func main() {
 		logger.Info("Local NATS server is on v1; exiting with error", nil)
 		os.Exit(1)
 	}
-	logger.Info(fmt.Sprintf("Finished NATS v2 confirmation"))
+	logger.Info("Finished NATS v2 confirmation")
 }

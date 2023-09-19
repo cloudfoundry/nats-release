@@ -2,7 +2,7 @@ package config
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 
 	"code.cloudfoundry.org/lager/v3/lagerflags"
 )
@@ -28,7 +28,7 @@ type Config struct {
 
 func NewConfig(configPath string) (Config, error) {
 	var cfg Config
-	configBytes, err := ioutil.ReadFile(configPath)
+	configBytes, err := os.ReadFile(configPath)
 	if err != nil {
 		return Config{}, err
 	}

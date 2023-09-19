@@ -1,6 +1,7 @@
-# code.cloudfoundry.org/cf-networking-helpers v0.0.0-20230612154752-c7ca3c7cbadf
+# code.cloudfoundry.org/cf-networking-helpers v0.0.0-20230919144331-48a6d414f23f
 ## explicit; go 1.20
 code.cloudfoundry.org/cf-networking-helpers/certauthority
+code.cloudfoundry.org/cf-networking-helpers/portauthority
 # code.cloudfoundry.org/lager/v3 v3.0.2
 ## explicit; go 1.19
 code.cloudfoundry.org/lager/v3

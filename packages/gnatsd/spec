@@ -7,5 +7,19 @@ dependencies:
 files:
   - code.cloudfoundry.org/go.mod
   - code.cloudfoundry.org/go.sum
-  - code.cloudfoundry.org/vendor/modules.txt
-  - code.cloudfoundry.org/vendor/**/*
+  - code.cloudfoundry.org/vendor/github.com/nats-io/gnatsd/*.go # gosub
+  - code.cloudfoundry.org/vendor/github.com/nats-io/gnatsd/conf/*.go # gosub
+  - code.cloudfoundry.org/vendor/github.com/nats-io/gnatsd/logger/*.go # gosub
+  - code.cloudfoundry.org/vendor/github.com/nats-io/gnatsd/server/*.go # gosub
+  - code.cloudfoundry.org/vendor/github.com/nats-io/gnatsd/server/pse/*.go # gosub
+  - code.cloudfoundry.org/vendor/github.com/nats-io/nuid/*.go # gosub
+  - code.cloudfoundry.org/vendor/golang.org/x/crypto/bcrypt/*.go # gosub
+  - code.cloudfoundry.org/vendor/golang.org/x/crypto/blowfish/*.go # gosub
+  - code.cloudfoundry.org/vendor/golang.org/x/sys/internal/unsafeheader/*.go # gosub
+  - code.cloudfoundry.org/vendor/golang.org/x/sys/windows/*.go # gosub
+  - code.cloudfoundry.org/vendor/golang.org/x/sys/windows/*.s # gosub
+  - code.cloudfoundry.org/vendor/golang.org/x/sys/windows/registry/*.go # gosub
+  - code.cloudfoundry.org/vendor/golang.org/x/sys/windows/svc/*.go # gosub
+  - code.cloudfoundry.org/vendor/golang.org/x/sys/windows/svc/debug/*.go # gosub
+  - code.cloudfoundry.org/vendor/golang.org/x/sys/windows/svc/eventlog/*.go # gosub
+  - code.cloudfoundry.org/vendor/golang.org/x/sys/windows/svc/mgr/*.go # gosub

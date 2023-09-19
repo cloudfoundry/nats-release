@@ -8,7 +8,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -91,7 +90,7 @@ func main() {
 	}
 
 	if bootstrapMigrateServer == "" {
-		logger.Error("Can't migrate", errors.New("No bootstrap migrate server found"))
+		logger.Error("Can't migrate", errors.New("no bootstrap migrate server found"))
 		os.Exit(1)
 	}
 
@@ -138,7 +137,7 @@ func main() {
 
 			for i := 0; i < retryCount; i++ {
 				logger.Info(fmt.Sprintf("Try #%v", i))
-				err = PerformMigration(natsMigrateServerClient, serverUrl)
+				err := PerformMigration(natsMigrateServerClient, serverUrl)
 				if err == nil {
 					logger.Info(fmt.Sprintf("Migration of %s completed successfully", serverUrl))
 					break
@@ -175,14 +174,14 @@ func CheckMigrationInfo(natsMigrateServerClient *http.Client, serverUrl string) 
 	resp, err := natsMigrateServerClient.Get(endpoint)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to connect to NATS migrate server %s. Connection error: %s", endpoint, err.Error())
+		return nil, fmt.Errorf("failed to connect to NATS migrate server %s. Connection error: %s", endpoint, err.Error())
 	}
 	defer resp.Body.Close()
 
 	var migrateServerResponse MigrateServerResponse
 	err = json.NewDecoder(resp.Body).Decode(&migrateServerResponse)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Failed to parse response from NATS migrate server. Assuming it does not have a new version of nats yet, %s", err.Error()))
+		return nil, fmt.Errorf("failed to parse response from NATS migrate server. Assuming it does not have a new version of nats yet, %s", err.Error())
 	}
 
 	return &migrateServerResponse, nil
@@ -236,7 +235,7 @@ func (es *AggregateError) Error() string {
 }
 
 func newNATSMigrateServerClient(caCertFile, clientCertFile, clientKeyFile string) (*http.Client, error) {
-	caCert, err := ioutil.ReadFile(caCertFile)
+	caCert, err := os.ReadFile(caCertFile)
 	if err != nil {
 		return nil, err
 	}

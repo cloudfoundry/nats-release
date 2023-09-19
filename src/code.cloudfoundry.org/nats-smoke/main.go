@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -43,7 +43,7 @@ func main() {
 	rawConfig := flag.String("config", "", "")
 	flag.Parse()
 
-	readBytes, err := ioutil.ReadFile(*rawConfig)
+	readBytes, err := os.ReadFile(*rawConfig)
 	if err != nil {
 		log.Fatalf("failed to load file: %v\n", err)
 	}

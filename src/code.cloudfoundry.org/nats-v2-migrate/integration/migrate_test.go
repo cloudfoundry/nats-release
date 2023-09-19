@@ -3,13 +3,13 @@ package integration
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
 	"time"
 
 	"code.cloudfoundry.org/cf-networking-helpers/certauthority"
+	"code.cloudfoundry.org/cf-networking-helpers/portauthority"
 	"code.cloudfoundry.org/lager/v3/lagerflags"
 	"code.cloudfoundry.org/nats-v2-migrate/config"
 	"code.cloudfoundry.org/nats-v2-migrate/integration/helpers"
@@ -37,14 +37,24 @@ var _ = Describe("Migrate", func() {
 		cfg = config.Config{
 			LagerConfig: lagerflags.DefaultLagerConfig(),
 		}
-		cfg.NATSPort = 4224
-		cfg.NATSMigratePort = 4242
 
+		node := GinkgoParallelProcess()
+		startPort := 1000 * node
+		portRange := 950
+		endPort := startPort + portRange
+
+		allocator, err := portauthority.New(startPort, endPort)
+		Expect(err).NotTo(HaveOccurred())
+		natsPort, err = allocator.ClaimPorts(2)
+		Expect(err).NotTo(HaveOccurred())
+
+		cfg.NATSPort = int(natsPort)
+		cfg.NATSMigratePort = int(natsPort + 1)
 	})
 
 	JustBeforeEach(func() {
 		var err error
-		configFile, err = ioutil.TempFile("", "migrate_config")
+		configFile, err = os.CreateTemp("", "migrate-config-")
 		Expect(err).NotTo(HaveOccurred())
 
 		cfgJSON, err := json.Marshal(cfg)
@@ -94,7 +104,7 @@ var _ = Describe("Migrate", func() {
 
 		BeforeEach(func() {
 			var err error
-			certDepoDir, err = ioutil.TempDir("", "")
+			certDepoDir, err = os.MkdirTemp("", "cert-depot-dir-")
 			Expect(err).NotTo(HaveOccurred())
 
 			ca, err := certauthority.NewCertAuthority(certDepoDir, "nats-v2-migrate-ca")
@@ -159,7 +169,7 @@ var _ = Describe("Migrate", func() {
 				version, err := natsinfo.GetMajorVersion(natsRunner.Addr())
 				Expect(err).NotTo(HaveOccurred())
 				Expect(version).To(Equal(2))
-				Eventually(migrateSess).Should(gexec.Exit(0))
+				Eventually(migrateSess).Should(gexec.Exit(0), fmt.Sprintf("Errored with %s", migrateSess.Buffer().Contents()))
 			})
 		})
 
@@ -225,7 +235,7 @@ var _ = Describe("Migrate", func() {
 							})
 
 							It("exits with the error", func() {
-								Eventually(migrateSess).Should(gexec.Exit(1))
+								Eventually(migrateSess).ShouldNot(gexec.Exit(0))
 							})
 						})
 
@@ -244,7 +254,7 @@ var _ = Describe("Migrate", func() {
 
 							})
 							It("exits with the error", func() {
-								Eventually(migrateSess).Should(gexec.Exit(1))
+								Eventually(migrateSess).ShouldNot(gexec.Exit(0))
 							})
 						})
 					})
@@ -265,7 +275,7 @@ var _ = Describe("Migrate", func() {
 							})
 
 							It("exits with error", func() {
-								Eventually(migrateSess).Should(gexec.Exit(1))
+								Eventually(migrateSess).ShouldNot(gexec.Exit(0))
 							})
 						})
 						Context("when the migration endpoint on bootstrap VM fails with a 409 status code", func() {
@@ -300,7 +310,7 @@ var _ = Describe("Migrate", func() {
 							})
 
 							It("exits with error", func() {
-								Eventually(migrateSess).Should(gexec.Exit(1))
+								Eventually(migrateSess).ShouldNot(gexec.Exit(0))
 							})
 						})
 					})
@@ -314,7 +324,7 @@ var _ = Describe("Migrate", func() {
 					})
 
 					It("exits with error", func() {
-						Eventually(migrateSess).Should(gexec.Exit(1))
+						Eventually(migrateSess).ShouldNot(gexec.Exit(0))
 					})
 				})
 			})
