@@ -14,6 +14,7 @@ function test() {
   /ci/shared/tasks/run-bin-test/task.bash "${sub_package}"
 }
 
+pushd / > /dev/null
 if [[ -n "${1:-}" ]]; then
   test "src/code.cloudfoundry.org/${1}" "${2:-}"
 else
@@ -22,3 +23,4 @@ else
     test "src/code.cloudfoundry.org/${component}"
   done
 fi
+popd > /dev/null

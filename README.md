@@ -40,10 +40,30 @@ If you add a spec value, please add a corresponding test to
 [spec/nats/nats_config_spec.rb](spec/nats/nats_config_spec.rb) and
 [spec/nats-tls/nats_tls_config_spec.rb](spec/nats-tls/nats_tls_config_spec.rb)
 
-To run these tests:
-```
-./scripts/docker_run_job_property_tests
-```
+### <a name="developer-workflow"></a> Developer Workflow
+
+1. Clone CI repository (next to where nats-release is cloned)
+
+  ```bash
+  mkdir -p ~/workspace
+  cd ~/workspace
+  git clone https://github.com/cloudfoundry/wg-app-platform-runtime-ci.git
+  ```
+
+#### <a name="running-unit-and-integration-tests"></a> Running Unit and Integration Tests
+
+##### With Docker
+
+Running tests for this release requires Linux specific setup and it takes advantage of having the same configuration as Concourse CI, so it's recommended to run the tests (units & integration) in docker containers.
+
+1. `./scripts/docker/container.bash`: This will create a docker container (cloudfoundry/tas-runtime-build) with appropriate mounts.
+
+- `/repo/scripts/docker/test.bash`: This will run all tests in this release
+- `/repo/scripts/docker/tests-templates.bash`: This will run all of tests for bosh tempalates
+- `/repo/scripts/docker/lint.bash`: This will run all of linting defined for this repo.
+
+There are also these scripts to make local development/testing easier:
+- `./scripts/test-in-docker-locally`: Runs template tests, the test.bash script, and linters.
 
 ## File a Bug
 
