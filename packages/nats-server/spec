@@ -9,6 +9,7 @@ files:
   - code.cloudfoundry.org/go.sum
   - code.cloudfoundry.org/vendor/modules.txt
   - code.cloudfoundry.org/vendor/github.com/klauspost/compress/flate/*.go # gosub
+  - code.cloudfoundry.org/vendor/github.com/klauspost/compress/flate/*.s # gosub
   - code.cloudfoundry.org/vendor/github.com/klauspost/compress/s2/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/klauspost/compress/s2/*.s # gosub
   - code.cloudfoundry.org/vendor/github.com/minio/highwayhash/*.go # gosub
@@ -19,6 +20,7 @@ files:
   - code.cloudfoundry.org/vendor/github.com/nats-io/nats-server/v2/internal/ldap/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/nats-server/v2/logger/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/nats-server/v2/server/*.go # gosub
+  - code.cloudfoundry.org/vendor/github.com/nats-io/nats-server/v2/server/avl/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/nats-server/v2/server/certidp/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/nats-server/v2/server/certstore/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/nats-server/v2/server/pse/*.go # gosub
