@@ -126,3 +126,10 @@ properties:
   nats.fail_deployment_if_v1:
     description: "Fail the deployment in post-start if nats instances are on v1."
     default: false
+
+  nats.mem_limit.alert:
+    description: "Raise alert if total memory consumed by nats is larger than this. Format: <number> <B|KB|MB|GB|%>"
+    default: "500 MB"
+  nats.mem_limit.restart:
+    description: "Restart nats if total memory consumed is larger than this. Format: <number> <B|KB|MB|GB|%>"
+    default: "3000 MB"

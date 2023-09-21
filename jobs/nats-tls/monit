@@ -1,10 +1,20 @@
+<%-
+memory_limit_alert = p("nats.mem_limit.alert")
+if ! memory_limit_alert.match(/[0-9]+ (B|KB|MB|GB|\%)/)
+  abort("Bad 'nats.mem_limit.alert' setting: #{memory_limit_alert}. Format is: <number> B|KB|MB|GB|\%")
+end
+memory_limit_restart = p("nats.mem_limit.restart")
+if ! memory_limit_restart.match(/[0-9]+ (B|KB|MB|GB|\%)/)
+  abort("Bad 'nats.mem_limit.restart' setting: #{memory_limit_restart}. Format is: <number> B|KB|MB|GB|\%")
+end
+-%>
 check process nats-tls-wrapper
   with pidfile /var/vcap/sys/run/bpm/nats-tls/nats-tls-wrapper.pid
   start program "/var/vcap/jobs/bpm/bin/bpm start nats-tls -p nats-tls-wrapper"
   stop program "/var/vcap/jobs/bpm/bin/bpm stop nats-tls -p nats-tls-wrapper"
   group vcap
-  if totalmem > 500 Mb for 2 cycles then alert
-  if totalmem > 3000 Mb then restart
+  if totalmem > <%= p("nats.mem_limit.alert") %> for 2 cycles then alert
+  if totalmem > <%= p("nats.mem_limit.restart") %> then restart
 
 check process nats-tls-healthcheck
   with pidfile /var/vcap/sys/run/bpm/nats-tls/healthcheck.pid
