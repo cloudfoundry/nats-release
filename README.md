@@ -54,16 +54,18 @@ If you add a spec value, please add a corresponding test to
 
 ##### With Docker
 
-Running tests for this release requires Linux specific setup and it takes advantage of having the same configuration as Concourse CI, so it's recommended to run the tests (units & integration) in docker containers.
+Running tests for this release
 
-1. `./scripts/docker/container.bash`: This will create a docker container (cloudfoundry/tas-runtime-build) with appropriate mounts.
+- `./scripts/create-docker-container.bash`: This will create a docker container with appropriate mounts.
+- `./scripts/test-in-docker-locally.bash`: Create docker container and run all tests and setup in a single script.
+  - `./scripts/test-in-docker-locally.bash <package> <sub-package>`: For running tests under a specific package and/or sub-package: e.g. `./scripts/test-in-docker-locally.bash nats-v2-migrate integration`
 
+When inside docker container: 
 - `/repo/scripts/docker/test.bash`: This will run all tests in this release
+- `/repo/scripts/docker/test.bash nats-v2-migration`: This will only run `nats-v2-migration` tests
+- `/repo/scripts/docker/test.bash nats-v2-migration integration`: This will only run `integration` sub-package tests for `nats-v2-migration` package
 - `/repo/scripts/docker/tests-templates.bash`: This will run all of tests for bosh tempalates
 - `/repo/scripts/docker/lint.bash`: This will run all of linting defined for this repo.
-
-There are also these scripts to make local development/testing easier:
-- `./scripts/test-in-docker-locally`: Runs template tests, the test.bash script, and linters.
 
 ## File a Bug
 
