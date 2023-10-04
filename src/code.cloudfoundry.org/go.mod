@@ -7,12 +7,12 @@ replace github.com/nats-io/gnatsd => github.com/nats-io/gnatsd v1.4.1
 require (
 	code.cloudfoundry.org/cf-networking-helpers v0.0.0-20230919144331-48a6d414f23f
 	code.cloudfoundry.org/lager/v3 v3.0.2
-	code.cloudfoundry.org/tlsconfig v0.0.0-20230612153104-23c0622de227
+	code.cloudfoundry.org/tlsconfig v0.0.0-20230929201433-6cd2b78aba25
 	github.com/nats-io/gnatsd v1.4.1
 	github.com/nats-io/go-nats v1.7.2
 	github.com/nats-io/nats-server/v2 v2.10.1
 	github.com/onsi/ginkgo/v2 v2.12.1
-	github.com/onsi/gomega v1.27.10
+	github.com/onsi/gomega v1.28.0
 	github.com/tedsuo/ifrit v0.0.0-20230516164442-7862c310ad26
 )
 
