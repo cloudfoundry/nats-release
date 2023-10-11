@@ -16,7 +16,6 @@ files:
   - code.cloudfoundry.org/vendor/github.com/nats-io/nuid/*.go # gosub
   - code.cloudfoundry.org/vendor/golang.org/x/crypto/bcrypt/*.go # gosub
   - code.cloudfoundry.org/vendor/golang.org/x/crypto/blowfish/*.go # gosub
-  - code.cloudfoundry.org/vendor/golang.org/x/sys/internal/unsafeheader/*.go # gosub
   - code.cloudfoundry.org/vendor/golang.org/x/sys/windows/*.go # gosub
   - code.cloudfoundry.org/vendor/golang.org/x/sys/windows/*.s # gosub
   - code.cloudfoundry.org/vendor/golang.org/x/sys/windows/registry/*.go # gosub
