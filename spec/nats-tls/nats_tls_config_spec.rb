@@ -121,6 +121,7 @@ cluster \{
   no_advertise: false
   host: "10.0.0.1"
   port: 4223
+  pool_size: -1
 
   authorization \{
     user: "my-user"
@@ -199,6 +200,7 @@ cluster \{
   no_advertise: false
   host: "10.0.0.1"
   port: 4223
+  pool_size: -1
 
   authorization \{
     user: "my-user"
@@ -280,6 +282,7 @@ cluster \{
   no_advertise: false
   host: "10.0.0.1"
   port: 4223
+  pool_size: -1
 
   authorization \{
     user: "my-user"

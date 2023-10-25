@@ -103,6 +103,7 @@ cluster {
   no_advertise: <%= p("nats.no_advertise") %>
   host: "<%= p("nats.cluster_host", spec.address) %>"
   port: <%= p("nats.cluster_port") %>
+  pool_size: -1
 
   <%- if nats_auth_required and nats_user and nats_password -%>
   authorization {
