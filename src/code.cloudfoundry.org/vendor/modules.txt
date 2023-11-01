@@ -55,7 +55,7 @@ github.com/nats-io/gnatsd/server/pse
 github.com/nats-io/go-nats
 github.com/nats-io/go-nats/encoders/builtin
 github.com/nats-io/go-nats/util
-# github.com/nats-io/jwt/v2 v2.5.2
+# github.com/nats-io/jwt/v2 v2.5.3
 ## explicit; go 1.18
 github.com/nats-io/jwt/v2
 # github.com/nats-io/nats-server/v2 v2.10.4
