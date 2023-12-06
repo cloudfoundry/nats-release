@@ -75,6 +75,67 @@ module Bosh::Template::Test
           'address' => '10.0.0.1'
         }
       end
+       let(:expected_hash) do
+            {
+              'net' => '10.0.0.1',
+              'port' => 4222,
+              'prof_port' => 0,
+              'http' => '0.0.0.0:0',
+              'write_deadline' => '2s',
+              'debug' => false,
+              'trace' => false,
+              'logtime' => true,
+              'authorization' => {
+                'user' => "my-user",
+                'password' => "my-password",
+                'timeout' => 15,
+              },
+              'tls' => {
+                'ca_file' => "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem",
+                'cert_file' => "/var/vcap/jobs/nats-tls/config/external_tls/certificate.pem",
+                'key_file' => "/var/vcap/jobs/nats-tls/config/external_tls/private_key.pem",
+                'cipher_suites' => [
+                  "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                  "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                ],
+                'curve_preferences' => [
+                  "CurveP384",
+                ],
+                'timeout' => 5,
+                'verify' => true,
+              },
+              'cluster' => {
+                'no_advertise' => false,
+                'host' => "10.0.0.1",
+                'port' => 4223,
+                'pool_size' => -1,
+                'authorization' => {
+                  'user' => "my-user",
+                  'password' => "my-password",
+                  'timeout' => 15,
+                },
+                'tls' => {
+                  'ca_file' => "/var/vcap/jobs/nats-tls/config/internal_tls/ca.pem",
+                  'cert_file' => "/var/vcap/jobs/nats-tls/config/internal_tls/certificate.pem",
+                  'key_file' => "/var/vcap/jobs/nats-tls/config/internal_tls/private_key.pem",
+                  'cipher_suites' => [
+                    "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                    "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                  ],
+                  'curve_preferences' => [
+                    "CurveP384",
+                  ],
+                  'timeout' => 5,
+                  'verify' => true,
+                },
+                'routes' => [
+                 'nats-route://my-user:my-password@meowmeowmeow.my-host:4223',
+                 'nats-route://my-user:my-password@a-b-c-d.my-host:4223',
+                ]
+              },
+              'no_sys_acc' => true,
+            }
+       end
 
       describe 'nats-tls job' do
 
@@ -84,78 +145,8 @@ module Bosh::Template::Test
           let(:template) { job.template('config/nats-tls.conf') }
 
           it 'renders the template with the provided manifest properties' do
-            rendered_template = template.render(merged_manifest_properties, consumes: links, spec: spec)
-expected_template =  %{
-net: "10.0.0.1"
-port: 4222
-prof_port: 0
-http: "0.0.0.0:0"
-write_deadline: "2s"
-
-debug: false
-trace: false
-logtime: true
-
-authorization \{
-  user: "my-user"
-  password: "my-password"
-  timeout: 15
-\}
-
-tls \{
-  ca_file: "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem"
-  cert_file: "/var/vcap/jobs/nats-tls/config/external_tls/certificate.pem"
-  key_file: "/var/vcap/jobs/nats-tls/config/external_tls/private_key.pem"
-  cipher_suites: \[
-    "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-    "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
-  \]
-  curve_preferences: \[
-    "CurveP384"
-  \]
-  timeout: 5 # seconds
-  verify: true
-\}
-
-cluster \{
-  no_advertise: false
-  host: "10.0.0.1"
-  port: 4223
-  pool_size: -1
-
-  authorization \{
-    user: "my-user"
-    password: "my-password"
-    timeout: 15
-  \}
-
-  
-  tls \{
-    ca_file: "/var/vcap/jobs/nats-tls/config/internal_tls/ca.pem"
-    cert_file: "/var/vcap/jobs/nats-tls/config/internal_tls/certificate.pem"
-    key_file: "/var/vcap/jobs/nats-tls/config/internal_tls/private_key.pem"
-    cipher_suites: \[
-      "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-      "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
-    \]
-    curve_preferences: \[
-      "CurveP384"
-    \]
-    timeout: 5 # seconds
-    verify: true
-  \}
-  
-
-  routes = \[
-    
-    nats-route://my-user:my-password@meowmeowmeow.my-host:4223
-    
-    nats-route://my-user:my-password@a-b-c-d.my-host:4223
-    
-  \]
-\}
-}
-            expect(rendered_template).to include(expected_template)
+            rendered_hash = YAML.load(template.render(merged_manifest_properties, consumes: links, spec: spec))
+            expect(rendered_hash).to eq(expected_hash)
           end
 
           describe 'when nats is disabled' do
@@ -182,246 +173,42 @@ cluster \{
               ]
             end
             it 'does not include nats in the routes' do
-              merged_manifest_properties['nats']['port'] = 4224
-              merged_manifest_properties['nats']['cluster_port'] = 4225
-              rendered_template = template.render(merged_manifest_properties, consumes: links, spec: spec)
-              p rendered_template
-expected_template =  %{
-net: "10.0.0.1"
-port: 4224
-prof_port: 0
-http: "0.0.0.0:0"
-write_deadline: "2s"
-
-debug: false
-trace: false
-logtime: true
-
-authorization \{
-  user: "my-user"
-  password: "my-password"
-  timeout: 15
-\}
-
-tls \{
-  ca_file: "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem"
-  cert_file: "/var/vcap/jobs/nats-tls/config/external_tls/certificate.pem"
-  key_file: "/var/vcap/jobs/nats-tls/config/external_tls/private_key.pem"
-  cipher_suites: \[
-    "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-    "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
-  \]
-  curve_preferences: \[
-    "CurveP384"
-  \]
-  timeout: 5 # seconds
-  verify: true
-\}
-
-cluster \{
-  no_advertise: false
-  host: "10.0.0.1"
-  port: 4225
-  pool_size: -1
-
-  authorization \{
-    user: "my-user"
-    password: "my-password"
-    timeout: 15
-  \}
-
-
-  tls \{
-    ca_file: "/var/vcap/jobs/nats-tls/config/internal_tls/ca.pem"
-    cert_file: "/var/vcap/jobs/nats-tls/config/internal_tls/certificate.pem"
-    key_file: "/var/vcap/jobs/nats-tls/config/internal_tls/private_key.pem"
-    cipher_suites: \[
-      "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-      "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
-    \]
-    curve_preferences: \[
-      "CurveP384"
-    \]
-    timeout: 5 # seconds
-    verify: true
-  \}
-
-
-  routes = \[
-
-  \]
-\}
-}
-
-              expect(rendered_template).to include(expected_template)
+              expected_hash['cluster']['routes'] = []
+              rendered_hash = YAML.load(template.render(merged_manifest_properties, consumes: links, spec: spec))
+              expect(rendered_hash).to eq(expected_hash)
             end
           end
 
           describe 'nats machine ips are provided' do
             before do
               merged_manifest_properties['nats']['machines'] = ['192.0.0.1', '198.5.4.3']
+              expected_hash['cluster']['routes'] = [
+                'nats-route://my-user:my-password@192.0.0.1:4223',
+                'nats-route://my-user:my-password@198.5.4.3:4223'
+              ]
             end
 
             it 'renders the template with the provided manifest properties' do
-              rendered_template = template.render(merged_manifest_properties, consumes: links, spec: spec)
-expected_template =  %{
-net: "10.0.0.1"
-port: 4222
-prof_port: 0
-http: "0.0.0.0:0"
-write_deadline: "2s"
-
-debug: false
-trace: false
-logtime: true
-
-authorization \{
-  user: "my-user"
-  password: "my-password"
-  timeout: 15
-\}
-
-tls \{
-  ca_file: "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem"
-  cert_file: "/var/vcap/jobs/nats-tls/config/external_tls/certificate.pem"
-  key_file: "/var/vcap/jobs/nats-tls/config/external_tls/private_key.pem"
-  cipher_suites: \[
-    "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-    "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
-  \]
-  curve_preferences: \[
-    "CurveP384"
-  \]
-  timeout: 5 # seconds
-  verify: true
-\}
-
-cluster \{
-  no_advertise: false
-  host: "10.0.0.1"
-  port: 4223
-  pool_size: -1
-
-  authorization \{
-    user: "my-user"
-    password: "my-password"
-    timeout: 15
-  \}
-
-  
-  tls \{
-    ca_file: "/var/vcap/jobs/nats-tls/config/internal_tls/ca.pem"
-    cert_file: "/var/vcap/jobs/nats-tls/config/internal_tls/certificate.pem"
-    key_file: "/var/vcap/jobs/nats-tls/config/internal_tls/private_key.pem"
-    cipher_suites: \[
-      "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-      "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
-    \]
-    curve_preferences: \[
-      "CurveP384"
-    \]
-    timeout: 5 # seconds
-    verify: true
-  \}
-  
-
-  routes = \[
-    
-    nats-route://my-user:my-password@192.0.0.1:4223
-    
-    nats-route://my-user:my-password@198.5.4.3:4223
-    
-  \]
-\}
-}
-
-              expect(rendered_template).to include(expected_template)
+              rendered_hash = YAML.load(template.render(merged_manifest_properties, consumes: links, spec: spec))
+              expect(rendered_hash).to eq(expected_hash)
             end
           end
+
           describe 'nats machine ips and nontls_cluster_port are provided' do
             before do
               merged_manifest_properties['nats']['machines'] = ['192.0.0.1', '198.5.4.3']
               merged_manifest_properties['nats']['nontls_cluster_port'] = '4225'
+              expected_hash['cluster']['routes'] = [
+                'nats-route://my-user:my-password@192.0.0.1:4223',
+                'nats-route://my-user:my-password@198.5.4.3:4223',
+                'nats-route://my-user:my-password@192.0.0.1:4225',
+                'nats-route://my-user:my-password@198.5.4.3:4225',
+              ]
             end
 
             it 'renders the template with the provided manifest properties' do
-              rendered_template = template.render(merged_manifest_properties, consumes: links, spec: spec)
-expected_template =  %{
-net: "10.0.0.1"
-port: 4222
-prof_port: 0
-http: "0.0.0.0:0"
-write_deadline: "2s"
-
-debug: false
-trace: false
-logtime: true
-
-authorization \{
-  user: "my-user"
-  password: "my-password"
-  timeout: 15
-\}
-
-tls \{
-  ca_file: "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem"
-  cert_file: "/var/vcap/jobs/nats-tls/config/external_tls/certificate.pem"
-  key_file: "/var/vcap/jobs/nats-tls/config/external_tls/private_key.pem"
-  cipher_suites: \[
-    "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-    "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
-  \]
-  curve_preferences: \[
-    "CurveP384"
-  \]
-  timeout: 5 # seconds
-  verify: true
-\}
-
-cluster \{
-  no_advertise: false
-  host: "10.0.0.1"
-  port: 4223
-  pool_size: -1
-
-  authorization \{
-    user: "my-user"
-    password: "my-password"
-    timeout: 15
-  \}
-
-  
-  tls \{
-    ca_file: "/var/vcap/jobs/nats-tls/config/internal_tls/ca.pem"
-    cert_file: "/var/vcap/jobs/nats-tls/config/internal_tls/certificate.pem"
-    key_file: "/var/vcap/jobs/nats-tls/config/internal_tls/private_key.pem"
-    cipher_suites: \[
-      "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-      "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
-    \]
-    curve_preferences: \[
-      "CurveP384"
-    \]
-    timeout: 5 # seconds
-    verify: true
-  \}
-  
-
-  routes = \[
-    
-    nats-route://my-user:my-password@192.0.0.1:4223
-    
-    nats-route://my-user:my-password@198.5.4.3:4223
-    
-    nats-route://my-user:my-password@192.0.0.1:4225
-    
-    nats-route://my-user:my-password@198.5.4.3:4225
-    
-  \]
-\}
-}
-
-              expect(rendered_template).to include(expected_template)
+              rendered_hash = YAML.load(template.render(merged_manifest_properties, consumes: links, spec: spec))
+              expect(rendered_hash).to eq(expected_hash)
             end
           end
 
@@ -429,48 +216,26 @@ cluster \{
             before do
               merged_manifest_properties['nats']['user'] = nil
               merged_manifest_properties['nats']['password'] = nil
+              expected_hash.delete('authorization')
+              expected_hash['cluster'].delete('authorization')
             end
 
             it 'renders the template without password authentication properties' do
-              rendered_template = template.render(merged_manifest_properties, consumes: links, spec: spec)
-unexpected_authorization = %{
-  authorization \{
-    user: "my-user"
-    password: "my-password"
-    timeout: 15
-  \}
-}
-unexpected_auth_url = %{
-  routes = \[
-
-    nats-route://my-user:my-password@meowmeowmeow.my-host:4223
-
-    nats-route://my-user:my-password@a-b-c-d.my-host:4223
-
-  \]
-}
-
-              expect(rendered_template).not_to include(unexpected_authorization)
-              expect(rendered_template).not_to include(unexpected_auth_url)
+              rendered_hash = YAML.load(template.render(merged_manifest_properties, consumes: links, spec: spec))
+              expect(rendered_hash).to eq(expected_hash)
             end
           end
           
           describe 'password authentication is disabled due to auth_required = false' do
             before do
               merged_manifest_properties['nats']['auth_required'] = false
+              expected_hash.delete('authorization')
+              expected_hash['cluster'].delete('authorization')
             end
   
             it 'renders the template without password authentication properties' do
-              rendered_template = template.render(merged_manifest_properties, consumes: links, spec: spec)
-unexpected_authorization = %{
-  authorization \{
-    user: "my-user"
-    password: "my-password"
-    timeout: 15
-  \}
-}
-  
-              expect(rendered_template).not_to include(unexpected_authorization)
+              rendered_hash = YAML.load(template.render(merged_manifest_properties, consumes: links, spec: spec))
+              expect(rendered_hash).to eq(expected_hash)
             end
           end
         end
