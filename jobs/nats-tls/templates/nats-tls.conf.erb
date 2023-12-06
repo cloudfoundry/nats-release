@@ -45,8 +45,14 @@
   unless nats_peers
     nats_peers = []
     if_link("nats") do |nats_link|
-      nats_peers += nats_link.instances.map do |instance|
-        NatsPeer.new(instance.id, nats_link.p("nats.hostname"), nats_link.p("nats.cluster_port"), nats_link.p("nats.user"), nats_link.p("nats.password"))
+      add_nats_peers = true
+      nats_link.if_p("nats.disable") do |disable|
+        add_nats_peers = !disable
+      end
+      if add_nats_peers
+        nats_peers += nats_link.instances.map do |instance|
+          NatsPeer.new(instance.id, nats_link.p("nats.hostname"), nats_link.p("nats.cluster_port"), nats_link.p("nats.user"), nats_link.p("nats.password"))
+        end
       end
     end
 

@@ -38,6 +38,7 @@ provides:
   - nats.monitor_port
   - nats.cluster_port
   - nats.write_deadline
+  - nats.disable
 
 consumes:
 - name: nats
@@ -119,4 +120,7 @@ properties:
   
   nats.fail_deployment_if_v1:
     description: "Fail the deployment in post-start if nats instances are on v1."
+    default: false
+  nats.disable:
+    description: "Disable this monit job. If this property is set to true, the nats process will not run. Connecting to nats (instead of nats-tls) is deprecated. This nats process will be removed soon. Please migrate to using nats-tls as soon as possible."
     default: false
