@@ -157,6 +157,106 @@ cluster \{
 }
             expect(rendered_template).to include(expected_template)
           end
+
+          describe 'when nats is disabled' do
+            let(:links) do
+              [
+                Link.new(
+                  name: 'nats',
+                  instances: [
+                    LinkInstance.new(id: 'meowmeowmeow'),
+                    LinkInstance.new(id: 'a-b-c-d')
+                  ],
+                  properties: {
+                    'nats' => {
+                      'user' => 'my-user',
+                      'password' => 'nats-password',
+                      'hostname' => 'nats-host',
+                      'port' => 4222,
+                      'cluster_port' => 4223,
+                      'http' => '0.0.0.0:0',
+                      'disable' => true
+                    }
+                  }
+                )
+              ]
+            end
+            it 'does not include nats in the routes' do
+              merged_manifest_properties['nats']['port'] = 4224
+              merged_manifest_properties['nats']['cluster_port'] = 4225
+              rendered_template = template.render(merged_manifest_properties, consumes: links, spec: spec)
+              p rendered_template
+expected_template =  %{
+net: "10.0.0.1"
+port: 4224
+prof_port: 0
+http: "0.0.0.0:0"
+write_deadline: "2s"
+
+debug: false
+trace: false
+logtime: true
+
+authorization \{
+  user: "my-user"
+  password: "my-password"
+  timeout: 15
+\}
+
+tls \{
+  ca_file: "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem"
+  cert_file: "/var/vcap/jobs/nats-tls/config/external_tls/certificate.pem"
+  key_file: "/var/vcap/jobs/nats-tls/config/external_tls/private_key.pem"
+  cipher_suites: \[
+    "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+    "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+  \]
+  curve_preferences: \[
+    "CurveP384"
+  \]
+  timeout: 5 # seconds
+  verify: true
+\}
+
+cluster \{
+  no_advertise: false
+  host: "10.0.0.1"
+  port: 4225
+  pool_size: -1
+
+  authorization \{
+    user: "my-user"
+    password: "my-password"
+    timeout: 15
+  \}
+
+
+  tls \{
+    ca_file: "/var/vcap/jobs/nats-tls/config/internal_tls/ca.pem"
+    cert_file: "/var/vcap/jobs/nats-tls/config/internal_tls/certificate.pem"
+    key_file: "/var/vcap/jobs/nats-tls/config/internal_tls/private_key.pem"
+    cipher_suites: \[
+      "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+      "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+    \]
+    curve_preferences: \[
+      "CurveP384"
+    \]
+    timeout: 5 # seconds
+    verify: true
+  \}
+
+
+  routes = \[
+
+  \]
+\}
+}
+
+              expect(rendered_template).to include(expected_template)
+            end
+          end
+
           describe 'nats machine ips are provided' do
             before do
               merged_manifest_properties['nats']['machines'] = ['192.0.0.1', '198.5.4.3']

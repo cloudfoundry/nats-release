@@ -1,3 +1,4 @@
+<% unless p("nats.disable") %>
 check process nats-wrapper
   with pidfile /var/vcap/sys/run/bpm/nats/nats-wrapper.pid
   start program "/var/vcap/jobs/bpm/bin/bpm start nats -p nats-wrapper"
@@ -6,3 +7,4 @@ check process nats-wrapper
   if totalmem > 500 Mb for 2 cycles then alert
   if totalmem > 3000 Mb then restart
   if failed host <%= spec.address %> port <%= p("nats.port") %> type tcp then alert
+<% end %>
