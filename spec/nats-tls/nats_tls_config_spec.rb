@@ -75,67 +75,67 @@ module Bosh::Template::Test
           'address' => '10.0.0.1'
         }
       end
-       let(:expected_hash) do
-            {
-              'net' => '10.0.0.1',
-              'port' => 4222,
-              'prof_port' => 0,
-              'http' => '0.0.0.0:0',
-              'write_deadline' => '2s',
-              'debug' => false,
-              'trace' => false,
-              'logtime' => true,
-              'authorization' => {
-                'user' => "my-user",
-                'password' => "my-password",
-                'timeout' => 15,
-              },
-              'tls' => {
-                'ca_file' => "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem",
-                'cert_file' => "/var/vcap/jobs/nats-tls/config/external_tls/certificate.pem",
-                'key_file' => "/var/vcap/jobs/nats-tls/config/external_tls/private_key.pem",
-                'cipher_suites' => [
-                  "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-                  "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-                ],
-                'curve_preferences' => [
-                  "CurveP384",
-                ],
-                'timeout' => 5,
-                'verify' => true,
-              },
-              'cluster' => {
-                'no_advertise' => false,
-                'host' => "10.0.0.1",
-                'port' => 4223,
-                'pool_size' => -1,
-                'authorization' => {
-                  'user' => "my-user",
-                  'password' => "my-password",
-                  'timeout' => 15,
-                },
-                'tls' => {
-                  'ca_file' => "/var/vcap/jobs/nats-tls/config/internal_tls/ca.pem",
-                  'cert_file' => "/var/vcap/jobs/nats-tls/config/internal_tls/certificate.pem",
-                  'key_file' => "/var/vcap/jobs/nats-tls/config/internal_tls/private_key.pem",
-                  'cipher_suites' => [
-                    "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-                    "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-                  ],
-                  'curve_preferences' => [
-                    "CurveP384",
-                  ],
-                  'timeout' => 5,
-                  'verify' => true,
-                },
-                'routes' => [
-                 'nats-route://my-user:my-password@meowmeowmeow.my-host:4223',
-                 'nats-route://my-user:my-password@a-b-c-d.my-host:4223',
-                ]
-              },
-              'no_sys_acc' => true,
-            }
-       end
+      let(:expected_hash) do
+           {
+             'net' => '10.0.0.1',
+             'port' => 4222,
+             'prof_port' => 0,
+             'http' => '0.0.0.0:0',
+             'write_deadline' => '2s',
+             'debug' => false,
+             'trace' => false,
+             'logtime' => true,
+             'authorization' => {
+               'user' => "my-user",
+               'password' => "my-password",
+               'timeout' => 15,
+             },
+             'tls' => {
+               'ca_file' => "/var/vcap/jobs/nats-tls/config/external_tls/ca.pem",
+               'cert_file' => "/var/vcap/jobs/nats-tls/config/external_tls/certificate.pem",
+               'key_file' => "/var/vcap/jobs/nats-tls/config/external_tls/private_key.pem",
+               'cipher_suites' => [
+                 "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                 "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+               ],
+               'curve_preferences' => [
+                 "CurveP384",
+               ],
+               'timeout' => 5,
+               'verify' => true,
+             },
+             'cluster' => {
+               'no_advertise' => false,
+               'host' => "10.0.0.1",
+               'port' => 4223,
+               'pool_size' => -1,
+               'authorization' => {
+                 'user' => "my-user",
+                 'password' => "my-password",
+                 'timeout' => 15,
+               },
+               'tls' => {
+                 'ca_file' => "/var/vcap/jobs/nats-tls/config/internal_tls/ca.pem",
+                 'cert_file' => "/var/vcap/jobs/nats-tls/config/internal_tls/certificate.pem",
+                 'key_file' => "/var/vcap/jobs/nats-tls/config/internal_tls/private_key.pem",
+                 'cipher_suites' => [
+                   "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                   "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                 ],
+                 'curve_preferences' => [
+                   "CurveP384",
+                 ],
+                 'timeout' => 5,
+                 'verify' => true,
+               },
+               'routes' => [
+                'nats-route://my-user:my-password@meowmeowmeow.my-host:4223',
+                'nats-route://my-user:my-password@a-b-c-d.my-host:4223',
+               ]
+             },
+             'no_sys_acc' => true,
+           }
+      end
 
       describe 'nats-tls job' do
 
