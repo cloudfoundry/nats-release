@@ -57,10 +57,55 @@ module Bosh::Template::Test
         ]
       end
 
+      let(:expected_hash) do
+           {
+             'net' => '10.0.0.1',
+             'port' => 4222,
+             'prof_port' => 0,
+             'http' => '0.0.0.0:0',
+             'write_deadline' => '2s',
+             'debug' => false,
+             'trace' => false,
+             'logtime' => true,
+             'authorization' => {
+               'user' => "my-user",
+               'password' => "my-password",
+               'timeout' => 15,
+             },
+             'cluster' => {
+               'no_advertise' => true,
+               'host' => "10.0.0.1",
+               'port' => 4223,
+               'authorization' => {
+                 'user' => "my-user",
+                 'password' => "my-password",
+                 'timeout' => 15,
+               },
+               'tls' => {
+                 'ca_file' => "/var/vcap/jobs/nats/config/internal_tls/ca.pem",
+                 'cert_file' => "/var/vcap/jobs/nats/config/internal_tls/certificate.pem",
+                 'key_file' => "/var/vcap/jobs/nats/config/internal_tls/private_key.pem",
+                 'cipher_suites' => [
+                   "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                   "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                 ],
+                 'curve_preferences' => [
+                   "CurveP384",
+                 ],
+                 'timeout' => 5,
+                 'verify' => true,
+               },
+               'routes' => [
+                'nats-route://my-user:my-password@meowmeowmeow.my-host:4223',
+                'nats-route://my-user:my-password@a-b-c-d.my-host:4223',
+               ]
+             },
+             'no_sys_acc' => true,
+           }
+      end
+
       let(:spec) do
-        {
-          'address' => '10.0.0.1'
-        }
+        { 'address' => '10.0.0.1' }
       end
 
       describe 'nats job' do
