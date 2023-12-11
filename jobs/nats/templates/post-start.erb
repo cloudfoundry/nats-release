@@ -1,7 +1,8 @@
 #!/bin/bash
 
-
-/var/vcap/packages/nats-v2-migrate/bin/migrate --config-file /var/vcap/jobs/nats/config/migrator-config.json
-<% if p("nats.fail_deployment_if_v1")%>
-  /var/vcap/packages/nats-v2-migrate/bin/fail-deployment-on-v1 --config-file /var/vcap/jobs/nats/config/migrator-config.json
+<% unless p("nats.disable") %>
+  /var/vcap/packages/nats-v2-migrate/bin/migrate --config-file /var/vcap/jobs/nats/config/migrator-config.json
+  <% if p("nats.fail_deployment_if_v1")%>
+    /var/vcap/packages/nats-v2-migrate/bin/fail-deployment-on-v1 --config-file /var/vcap/jobs/nats/config/migrator-config.json
+  <% end %>
 <% end %>
