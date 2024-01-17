@@ -17,6 +17,7 @@ files:
   - code.cloudfoundry.org/vendor/github.com/nats-io/jwt/v2/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/nats-server/v2/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/nats-server/v2/conf/*.go # gosub
+  - code.cloudfoundry.org/vendor/github.com/nats-io/nats-server/v2/internal/fastrand/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/nats-server/v2/internal/ldap/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/nats-server/v2/logger/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/nats-server/v2/server/*.go # gosub
