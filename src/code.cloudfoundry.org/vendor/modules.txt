@@ -36,7 +36,7 @@ github.com/google/go-cmp/cmp/internal/value
 # github.com/google/pprof v0.0.0-20240130152714-0ed6a68c8d9e
 ## explicit; go 1.19
 github.com/google/pprof/profile
-# github.com/klauspost/compress v1.17.5
+# github.com/klauspost/compress v1.17.6
 ## explicit; go 1.19
 github.com/klauspost/compress/flate
 github.com/klauspost/compress/internal/race
@@ -59,7 +59,7 @@ github.com/nats-io/go-nats/util
 # github.com/nats-io/jwt/v2 v2.5.3
 ## explicit; go 1.18
 github.com/nats-io/jwt/v2
-# github.com/nats-io/nats-server/v2 v2.10.9
+# github.com/nats-io/nats-server/v2 v2.10.10
 ## explicit; go 1.20
 github.com/nats-io/nats-server/v2
 github.com/nats-io/nats-server/v2/conf
@@ -71,6 +71,7 @@ github.com/nats-io/nats-server/v2/server/avl
 github.com/nats-io/nats-server/v2/server/certidp
 github.com/nats-io/nats-server/v2/server/certstore
 github.com/nats-io/nats-server/v2/server/pse
+github.com/nats-io/nats-server/v2/server/stree
 github.com/nats-io/nats-server/v2/server/sysmem
 # github.com/nats-io/nkeys v0.4.7
 ## explicit; go 1.20
@@ -131,7 +132,7 @@ github.com/tedsuo/ifrit
 github.com/tedsuo/ifrit/grouper
 github.com/tedsuo/ifrit/http_server
 github.com/tedsuo/ifrit/sigmon
-# go.step.sm/crypto v0.42.1
+# go.step.sm/crypto v0.43.0
 ## explicit; go 1.20
 go.step.sm/crypto/fingerprint
 go.step.sm/crypto/internal/bcrypt_pbkdf
