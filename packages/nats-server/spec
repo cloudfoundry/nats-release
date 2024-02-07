@@ -26,6 +26,7 @@ files:
   - code.cloudfoundry.org/vendor/github.com/nats-io/nats-server/v2/server/certidp/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/nats-server/v2/server/certstore/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/nats-server/v2/server/pse/*.go # gosub
+  - code.cloudfoundry.org/vendor/github.com/nats-io/nats-server/v2/server/stree/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/nats-server/v2/server/sysmem/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/nkeys/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/nuid/*.go # gosub
