@@ -1,4 +1,4 @@
-# code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240209161148-7a6d04db6b8c
+# code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240216144931-b667c0bc980a
 ## explicit; go 1.20
 code.cloudfoundry.org/cf-networking-helpers/certauthority
 code.cloudfoundry.org/cf-networking-helpers/portauthority
@@ -7,7 +7,7 @@ code.cloudfoundry.org/cf-networking-helpers/portauthority
 code.cloudfoundry.org/lager/v3
 code.cloudfoundry.org/lager/v3/internal/truncate
 code.cloudfoundry.org/lager/v3/lagerflags
-# code.cloudfoundry.org/tlsconfig v0.0.0-20240213144909-765c8d6ec2ff
+# code.cloudfoundry.org/tlsconfig v0.0.0-20240216143505-4f8d9b753d56
 ## explicit; go 1.19
 code.cloudfoundry.org/tlsconfig
 # filippo.io/edwards25519 v1.1.0
@@ -36,8 +36,8 @@ github.com/google/go-cmp/cmp/internal/value
 # github.com/google/pprof v0.0.0-20240207164012-fb44976bdcd5
 ## explicit; go 1.19
 github.com/google/pprof/profile
-# github.com/klauspost/compress v1.17.6
-## explicit; go 1.19
+# github.com/klauspost/compress v1.17.7
+## explicit; go 1.20
 github.com/klauspost/compress/flate
 github.com/klauspost/compress/internal/race
 github.com/klauspost/compress/s2
@@ -56,10 +56,10 @@ github.com/nats-io/gnatsd/server/pse
 github.com/nats-io/go-nats
 github.com/nats-io/go-nats/encoders/builtin
 github.com/nats-io/go-nats/util
-# github.com/nats-io/jwt/v2 v2.5.3
+# github.com/nats-io/jwt/v2 v2.5.4
 ## explicit; go 1.18
 github.com/nats-io/jwt/v2
-# github.com/nats-io/nats-server/v2 v2.10.10
+# github.com/nats-io/nats-server/v2 v2.10.11
 ## explicit; go 1.20
 github.com/nats-io/nats-server/v2
 github.com/nats-io/nats-server/v2/conf
@@ -132,7 +132,7 @@ github.com/tedsuo/ifrit
 github.com/tedsuo/ifrit/grouper
 github.com/tedsuo/ifrit/http_server
 github.com/tedsuo/ifrit/sigmon
-# go.step.sm/crypto v0.43.0
+# go.step.sm/crypto v0.43.1
 ## explicit; go 1.20
 go.step.sm/crypto/fingerprint
 go.step.sm/crypto/internal/bcrypt_pbkdf
