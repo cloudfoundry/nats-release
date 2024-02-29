@@ -1,3 +1,4 @@
+//go:build gnatsd
 // +build gnatsd
 
 package gnatsd
