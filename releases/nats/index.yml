@@ -97,6 +97,8 @@ builds:
     version: "16"
   a2cb9f70-5b0a-4a41-773d-95afaa65f179:
     version: "43"
+  a347dbed-15f3-43cb-6f1d-d3a17d1b093c:
+    version: 56.18.0
   a69f489a-87a5-42da-4543-be53edce25de:
     version: 56.13.0
   a9542d27-32f1-450e-75f9-13e67184499d:
