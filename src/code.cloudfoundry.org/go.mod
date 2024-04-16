@@ -5,9 +5,9 @@ go 1.20
 replace github.com/nats-io/gnatsd => github.com/nats-io/gnatsd v1.4.1
 
 require (
-	code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240415163311-a1954d4d52e2
+	code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240416163356-5f67f0c726df
 	code.cloudfoundry.org/lager/v3 v3.0.3
-	code.cloudfoundry.org/tlsconfig v0.0.0-20240410162701-78a97c114f7f
+	code.cloudfoundry.org/tlsconfig v0.0.0-20240416163159-16b37d67cb91
 	github.com/nats-io/gnatsd v1.4.1
 	github.com/nats-io/go-nats v1.7.2
 	github.com/nats-io/nats-server/v2 v2.10.14
@@ -23,7 +23,7 @@ require (
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
-	github.com/google/pprof v0.0.0-20240415144954-be81aee2d733 // indirect
+	github.com/google/pprof v0.0.0-20240416155748-26353dc0451f // indirect
 	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/nats-io/jwt/v2 v2.5.5 // indirect
@@ -32,7 +32,7 @@ require (
 	github.com/openzipkin/zipkin-go v0.4.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/square/certstrap v1.3.0 // indirect
-	go.step.sm/crypto v0.44.4 // indirect
+	go.step.sm/crypto v0.44.5 // indirect
 	go.uber.org/automaxprocs v1.5.3 // indirect
 	golang.org/x/crypto v0.22.0 // indirect
 	golang.org/x/net v0.24.0 // indirect
