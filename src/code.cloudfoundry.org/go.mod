@@ -5,9 +5,9 @@ go 1.20
 replace github.com/nats-io/gnatsd => github.com/nats-io/gnatsd v1.4.1
 
 require (
-	code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240418163641-9ea5446f592e
+	code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240423163950-4a72c2ffff1c
 	code.cloudfoundry.org/lager/v3 v3.0.3
-	code.cloudfoundry.org/tlsconfig v0.0.0-20240417163319-a2cf10de323a
+	code.cloudfoundry.org/tlsconfig v0.0.0-20240423163804-1b0dcf57fddb
 	github.com/nats-io/gnatsd v1.4.1
 	github.com/nats-io/go-nats v1.7.2
 	github.com/nats-io/nats-server/v2 v2.10.14
@@ -31,7 +31,7 @@ require (
 	github.com/openzipkin/zipkin-go v0.4.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/square/certstrap v1.3.0 // indirect
-	go.step.sm/crypto v0.44.6 // indirect
+	go.step.sm/crypto v0.44.7 // indirect
 	go.uber.org/automaxprocs v1.5.3 // indirect
 	golang.org/x/crypto v0.22.0 // indirect
 	golang.org/x/net v0.24.0 // indirect
