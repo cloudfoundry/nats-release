@@ -31,7 +31,7 @@ require (
 	github.com/openzipkin/zipkin-go v0.4.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/square/certstrap v1.3.0 // indirect
-	go.step.sm/crypto v0.44.7 // indirect
+	go.step.sm/crypto v0.44.8 // indirect
 	go.uber.org/automaxprocs v1.5.3 // indirect
 	golang.org/x/crypto v0.22.0 // indirect
 	golang.org/x/net v0.24.0 // indirect

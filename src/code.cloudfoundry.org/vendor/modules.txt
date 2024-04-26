@@ -129,12 +129,13 @@ github.com/tedsuo/ifrit
 github.com/tedsuo/ifrit/grouper
 github.com/tedsuo/ifrit/http_server
 github.com/tedsuo/ifrit/sigmon
-# go.step.sm/crypto v0.44.7
+# go.step.sm/crypto v0.44.8
 ## explicit; go 1.20
 go.step.sm/crypto/fingerprint
 go.step.sm/crypto/internal/bcrypt_pbkdf
 go.step.sm/crypto/internal/emoji
 go.step.sm/crypto/internal/utils
+go.step.sm/crypto/internal/utils/utfbom
 go.step.sm/crypto/keyutil
 go.step.sm/crypto/pemutil
 go.step.sm/crypto/randutil
