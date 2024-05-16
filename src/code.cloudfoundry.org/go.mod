@@ -5,9 +5,9 @@ go 1.20
 replace github.com/nats-io/gnatsd => github.com/nats-io/gnatsd v1.4.1
 
 require (
-	code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240510183742-bcc81377ff61
+	code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240516170300-a39b7f6cd8b1
 	code.cloudfoundry.org/lager/v3 v3.0.3
-	code.cloudfoundry.org/tlsconfig v0.0.0-20240510172918-c1e19801fe80
+	code.cloudfoundry.org/tlsconfig v0.0.0-20240516170203-d50b3d56ba06
 	github.com/nats-io/gnatsd v1.4.1
 	github.com/nats-io/go-nats v1.7.2
 	github.com/nats-io/nats-server/v2 v2.10.14
