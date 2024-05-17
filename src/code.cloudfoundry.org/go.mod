@@ -10,7 +10,7 @@ require (
 	code.cloudfoundry.org/tlsconfig v0.0.0-20240516170203-d50b3d56ba06
 	github.com/nats-io/gnatsd v1.4.1
 	github.com/nats-io/go-nats v1.7.2
-	github.com/nats-io/nats-server/v2 v2.10.14
+	github.com/nats-io/nats-server/v2 v2.10.15
 	github.com/onsi/ginkgo/v2 v2.17.3
 	github.com/onsi/gomega v1.33.1
 	github.com/tedsuo/ifrit v0.0.0-20230516164442-7862c310ad26
