@@ -1,4 +1,4 @@
-# code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240516170300-a39b7f6cd8b1
+# code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240521170514-dd5883bed6ba
 ## explicit; go 1.20
 code.cloudfoundry.org/cf-networking-helpers/certauthority
 code.cloudfoundry.org/cf-networking-helpers/portauthority
@@ -16,7 +16,7 @@ filippo.io/edwards25519
 filippo.io/edwards25519/field
 # github.com/fsnotify/fsnotify v1.5.4
 ## explicit; go 1.16
-# github.com/go-logr/logr v1.4.1
+# github.com/go-logr/logr v1.4.2
 ## explicit; go 1.18
 github.com/go-logr/logr
 github.com/go-logr/logr/funcr
@@ -30,7 +30,7 @@ github.com/google/go-cmp/cmp/internal/diff
 github.com/google/go-cmp/cmp/internal/flags
 github.com/google/go-cmp/cmp/internal/function
 github.com/google/go-cmp/cmp/internal/value
-# github.com/google/pprof v0.0.0-20240509144519-723abb6459b7
+# github.com/google/pprof v0.0.0-20240521024322-9665fa269a30
 ## explicit; go 1.19
 github.com/google/pprof/profile
 # github.com/klauspost/compress v1.17.8
@@ -56,7 +56,7 @@ github.com/nats-io/go-nats/util
 # github.com/nats-io/jwt/v2 v2.5.7
 ## explicit; go 1.18
 github.com/nats-io/jwt/v2
-# github.com/nats-io/nats-server/v2 v2.10.15
+# github.com/nats-io/nats-server/v2 v2.10.16
 ## explicit; go 1.20
 github.com/nats-io/nats-server/v2
 github.com/nats-io/nats-server/v2/conf
@@ -76,7 +76,7 @@ github.com/nats-io/nkeys
 # github.com/nats-io/nuid v1.0.1
 ## explicit
 github.com/nats-io/nuid
-# github.com/onsi/ginkgo/v2 v2.17.3
+# github.com/onsi/ginkgo/v2 v2.18.0
 ## explicit; go 1.20
 github.com/onsi/ginkgo/v2
 github.com/onsi/ginkgo/v2/config
