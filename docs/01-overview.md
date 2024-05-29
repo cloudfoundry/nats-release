@@ -1,24 +1,10 @@
-# NATS in Cloud Foundry
-<!-- TOC -->
+---
+title: Overview
+expires_at: never
+tags: [nats-release]
+---
 
-- [NATS in Cloud Foundry](#nats-in-cloud-foundry)
-  - [Overview](#overview)
-  - [Architecture](#architecture)
-  - [Communication Flow](#communication-flow)
-    - [Connection Establishment](#connection-establishment)
-    - [Registeration / Unregisteration of the Application Routes in Cloud Foundry](#registeration--unregisteration-of-the-application-routes-in-cloud-foundry)
-  - [NATS Server Configurations](#nats-server-configurations)
-  - [Time Intervals and Timeouts](#time-intervals-and-timeouts)
-    - [NATS Timeouts](#nats-timeouts)
-    - [Gorouter Time Intervals](#gorouter-time-intervals)
-    - [Route Registrar Intervals](#route-registrar-intervals)
-  - [Debugging NATS in Cloud Foundry](#debugging-nats-in-cloud-foundry)
-  - [Docs](#docs)
-
-<!-- /TOC -->
-
-
-## Overview
+# Overview
 
 Cloud Foundry uses NATS as a publish-subscribe messaging system for exchanging routes and metrics configurations between components. The nats-release deploys NATS server as a bosh release to/from which the messages are consumed.
 
@@ -32,7 +18,7 @@ Cloud Foundry uses NATS as a publish-subscribe messaging system for exchanging r
 | [NATS Server](https://github.com/nats-io/nats-server) | Receives the published routes from publishers and conveys then to subscribers.|
 | [NATS Cluster](https://docs.nats.io/nats-server/configuration/clustering)  | The participating NATS Server listens on a cluster port and knows the other NATS Servers which join the cluster.|
 | [Gorouter](https://github.com/cloudfoundry/gorouter) | Subscribes for the messages with subject "router.*". |
-| [Service Discovery Controller](https://github.com/cloudfoundry/cf-networking-release/blob/develop/docs/service-discovery-architecture.md) | Subscribes to route updates from NATS on the internal routes subjects, "service-discovery.register", "service-discovery.unregister" and "service-discovery.greet" |
+| [Service Discovery Controller](https://github.com/cloudfoundry/cf-networking-release/blob/develop/docs/05-service-discovery.md) | Subscribes to route updates from NATS on the internal routes subjects, "service-discovery.register", "service-discovery.unregister" and "service-discovery.greet" |
 | [Metrics Discovery Registrar](https://github.com/cloudfoundry/metrics-discovery-release#metrics-discovery-registrar)  | Publishes scrape configs to CF NATS to be consumed by a Scrape Config Generator.|
 | [Scrape Config Generator](https://github.com/cloudfoundry/metrics-discovery-release#scrape-config-generator)| Subscribes to CF NATS and consumes published metric targets.|
 
