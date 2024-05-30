@@ -1,4 +1,4 @@
-# code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240528171056-466c0f1d1c41
+# code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240530171150-b069076ac7ae
 ## explicit; go 1.20
 code.cloudfoundry.org/cf-networking-helpers/certauthority
 code.cloudfoundry.org/cf-networking-helpers/portauthority
@@ -7,7 +7,7 @@ code.cloudfoundry.org/cf-networking-helpers/portauthority
 code.cloudfoundry.org/lager/v3
 code.cloudfoundry.org/lager/v3/internal/truncate
 code.cloudfoundry.org/lager/v3/lagerflags
-# code.cloudfoundry.org/tlsconfig v0.0.0-20240522170710-79df114af82a
+# code.cloudfoundry.org/tlsconfig v0.0.0-20240530171334-2593348de0c6
 ## explicit; go 1.19
 code.cloudfoundry.org/tlsconfig
 # filippo.io/edwards25519 v1.1.0
@@ -129,7 +129,7 @@ github.com/tedsuo/ifrit
 github.com/tedsuo/ifrit/grouper
 github.com/tedsuo/ifrit/http_server
 github.com/tedsuo/ifrit/sigmon
-# go.step.sm/crypto v0.45.1
+# go.step.sm/crypto v0.46.0
 ## explicit; go 1.20
 go.step.sm/crypto/fingerprint
 go.step.sm/crypto/internal/bcrypt_pbkdf
