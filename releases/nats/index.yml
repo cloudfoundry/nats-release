@@ -25,6 +25,8 @@ builds:
     version: "14"
   3210a87f-34ac-4d82-bf3a-0d72ce34f2cc:
     version: "21"
+  3510919d-b9b9-47bc-5e63-92ce13ef6e50:
+    version: 56.20.0
   3daae9ce-bc01-48f1-7112-0884adb85dad:
     version: 56.9.1
   43138136-900a-499f-9640-643850bc8661:
