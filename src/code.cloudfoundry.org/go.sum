@@ -592,8 +592,8 @@ cloud.google.com/go/workflows v1.7.0/go.mod h1:JhSrZuVZWuiDfKEFxU0/F1PQjmpnpcoIS
 cloud.google.com/go/workflows v1.8.0/go.mod h1:ysGhmEajwZxGn1OhGOGKsTXc5PyxOc0vfKf5Af+to4M=
 cloud.google.com/go/workflows v1.9.0/go.mod h1:ZGkj1aFIOd9c8Gerkjjq7OW7I5+l6cSvT3ujaO/WwSA=
 cloud.google.com/go/workflows v1.10.0/go.mod h1:fZ8LmRmZQWacon9UCX1r/g/DfAXx5VcPALq2CxzdePw=
-code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240604171709-dd2b0e7a5fb1 h1:kdPvTO7seQ29He1b6FvTU/LT5068oTnWnkBPWGp5x7U=
-code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240604171709-dd2b0e7a5fb1/go.mod h1:SN75OU/OLCqF2dHToXpxsMt+YPGPfQyO86CIzpcgXKo=
+code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240605171753-cbd271632a86 h1:LLWVezaf/qx3NhRktmWqq5d7feDOmwjV0SQ2+ZsMcTY=
+code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240605171753-cbd271632a86/go.mod h1:zjnjIpylwqvsoqw2E+AZyqB49lBc13s9b2eoCigndkE=
 code.cloudfoundry.org/lager/v3 v3.0.3 h1:/UTmadZfIaKuT/whEinSxK1mzRfNu1uPfvjFfGqiwzM=
 code.cloudfoundry.org/lager/v3 v3.0.3/go.mod h1:Zn5q1SrIuuHjEUE7xerMKt3ztunrJQCZETAo7rV0CH8=
 code.cloudfoundry.org/tlsconfig v0.0.0-20240604172015-5be76e21ea65 h1:0wXfAs/32wbpMKDGiV3XEHev1l9dLgIPjda+WRwJhCc=

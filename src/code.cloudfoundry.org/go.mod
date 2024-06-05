@@ -5,7 +5,7 @@ go 1.20
 replace github.com/nats-io/gnatsd => github.com/nats-io/gnatsd v1.4.1
 
 require (
-	code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240604171709-dd2b0e7a5fb1
+	code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240605171753-cbd271632a86
 	code.cloudfoundry.org/lager/v3 v3.0.3
 	code.cloudfoundry.org/tlsconfig v0.0.0-20240604172015-5be76e21ea65
 	github.com/nats-io/gnatsd v1.4.1
