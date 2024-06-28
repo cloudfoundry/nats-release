@@ -1,6 +1,8 @@
 module code.cloudfoundry.org
 
-go 1.20
+go 1.21
+
+toolchain go1.22.3
 
 replace github.com/nats-io/gnatsd => github.com/nats-io/gnatsd v1.4.1
 
@@ -10,7 +12,7 @@ require (
 	code.cloudfoundry.org/tlsconfig v0.0.0-20240613173017-075d5b187a0d
 	github.com/nats-io/gnatsd v1.4.1
 	github.com/nats-io/go-nats v1.7.2
-	github.com/nats-io/nats-server/v2 v2.10.16
+	github.com/nats-io/nats-server/v2 v2.10.17
 	github.com/onsi/ginkgo/v2 v2.19.0
 	github.com/onsi/gomega v1.33.1
 	github.com/tedsuo/ifrit v0.0.0-20230516164442-7862c310ad26
