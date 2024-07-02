@@ -592,12 +592,12 @@ cloud.google.com/go/workflows v1.7.0/go.mod h1:JhSrZuVZWuiDfKEFxU0/F1PQjmpnpcoIS
 cloud.google.com/go/workflows v1.8.0/go.mod h1:ysGhmEajwZxGn1OhGOGKsTXc5PyxOc0vfKf5Af+to4M=
 cloud.google.com/go/workflows v1.9.0/go.mod h1:ZGkj1aFIOd9c8Gerkjjq7OW7I5+l6cSvT3ujaO/WwSA=
 cloud.google.com/go/workflows v1.10.0/go.mod h1:fZ8LmRmZQWacon9UCX1r/g/DfAXx5VcPALq2CxzdePw=
-code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240625173540-5af747cc4d50 h1:QfLXXttpKzxD3MDPW7hoR7WzytL10VdQ8MxnisovPBM=
-code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240625173540-5af747cc4d50/go.mod h1:wtuHBlf23/HG1luynwqx5ckWB9W0dmZrK4W5B72LWoY=
+code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240702174257-9a772442b375 h1:jgPc5MuupQq4yV9UFazE+rfX9roNHJuPIv4Wl1taLW0=
+code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240702174257-9a772442b375/go.mod h1:kIgQ5ZKj2aCjxYfJyipEtY2hcPifPIFv7iQLh1678Ss=
 code.cloudfoundry.org/lager/v3 v3.0.3 h1:/UTmadZfIaKuT/whEinSxK1mzRfNu1uPfvjFfGqiwzM=
 code.cloudfoundry.org/lager/v3 v3.0.3/go.mod h1:Zn5q1SrIuuHjEUE7xerMKt3ztunrJQCZETAo7rV0CH8=
-code.cloudfoundry.org/tlsconfig v0.0.0-20240613173017-075d5b187a0d h1:nedO/GTZuf/FlRvrAuXWX9FdBBEd1hWXlhn1bp6li68=
-code.cloudfoundry.org/tlsconfig v0.0.0-20240613173017-075d5b187a0d/go.mod h1:qDYY1KwaNSWV7beH9J/IJR5erYD3bwO4zs+nDbpgbf8=
+code.cloudfoundry.org/tlsconfig v0.0.0-20240702174858-4c0df2f29c62 h1:H2KlKPNBkLBJQ0PK68k0Dwg0MeTMfYwo7/W5tugqYwU=
+code.cloudfoundry.org/tlsconfig v0.0.0-20240702174858-4c0df2f29c62/go.mod h1:cNL1yeXM+mneNQbjPUlN4ETf/pmRfnu4LeX5//irlzo=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 filippo.io/edwards25519 v1.1.0 h1:FNf4tywRC1HmFuKW5xopWpigGjJKiJSV0Cqo0cJWDaA=
 filippo.io/edwards25519 v1.1.0/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4VDT4=
