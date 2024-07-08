@@ -8,7 +8,7 @@ import (
 
 	"code.cloudfoundry.org/tlsconfig"
 
-	nats "github.com/nats-io/go-nats"
+	"github.com/nats-io/nats.go"
 )
 
 // Simple healthcheck app that verifies a connection can be
