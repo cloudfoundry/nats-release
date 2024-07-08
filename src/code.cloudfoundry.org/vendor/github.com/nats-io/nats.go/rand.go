@@ -1,4 +1,4 @@
-// Copyright 2017-2018 The NATS Authors
+// Copyright 2023 The NATS Authors
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -11,17 +11,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build go1.8
+//go:build !go1.20
+// +build !go1.20
 
-package util
+// A Go client for the NATS messaging system (https://nats.io).
+package nats
 
-import "crypto/tls"
+import (
+	"math/rand"
+	"time"
+)
 
-// CloneTLSConfig returns a copy of c.
-func CloneTLSConfig(c *tls.Config) *tls.Config {
-	if c == nil {
-		return &tls.Config{}
-	}
-
-	return c.Clone()
+func init() {
+	// This is not needed since Go 1.20 because now rand.Seed always happens
+	// by default (uses runtime.fastrand64 instead as source).
+	rand.Seed(time.Now().UnixNano())
 }

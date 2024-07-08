@@ -1,4 +1,4 @@
-// Copyright 2012-2018 The NATS Authors
+// Copyright 2012-2023 The NATS Authors
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -21,19 +21,19 @@ import (
 	"time"
 
 	// Default Encoders
-	"github.com/nats-io/go-nats/encoders/builtin"
+	"github.com/nats-io/nats.go/encoders/builtin"
 )
 
 // Encoder interface is for all register encoders
 type Encoder interface {
-	Encode(subject string, v interface{}) ([]byte, error)
-	Decode(subject string, data []byte, vPtr interface{}) error
+	Encode(subject string, v any) ([]byte, error)
+	Decode(subject string, data []byte, vPtr any) error
 }
 
 var encMap map[string]Encoder
 var encLock sync.Mutex
 
-// Indexe names into the Registered Encoders.
+// Indexed names into the Registered Encoders.
 const (
 	JSON_ENCODER    = "json"
 	GOB_ENCODER     = "gob"
@@ -88,29 +88,29 @@ func EncoderForType(encType string) Encoder {
 
 // Publish publishes the data argument to the given subject. The data argument
 // will be encoded using the associated encoder.
-func (c *EncodedConn) Publish(subject string, v interface{}) error {
+func (c *EncodedConn) Publish(subject string, v any) error {
 	b, err := c.Enc.Encode(subject, v)
 	if err != nil {
 		return err
 	}
-	return c.Conn.publish(subject, _EMPTY_, b)
+	return c.Conn.publish(subject, _EMPTY_, nil, b)
 }
 
 // PublishRequest will perform a Publish() expecting a response on the
 // reply subject. Use Request() for automatically waiting for a response
 // inline.
-func (c *EncodedConn) PublishRequest(subject, reply string, v interface{}) error {
+func (c *EncodedConn) PublishRequest(subject, reply string, v any) error {
 	b, err := c.Enc.Encode(subject, v)
 	if err != nil {
 		return err
 	}
-	return c.Conn.publish(subject, reply, b)
+	return c.Conn.publish(subject, reply, nil, b)
 }
 
 // Request will create an Inbox and perform a Request() call
 // with the Inbox reply for the data v. A response will be
-// decoded into the vPtrResponse.
-func (c *EncodedConn) Request(subject string, v interface{}, vPtr interface{}, timeout time.Duration) error {
+// decoded into the vPtr Response.
+func (c *EncodedConn) Request(subject string, v any, vPtr any, timeout time.Duration) error {
 	b, err := c.Enc.Encode(subject, v)
 	if err != nil {
 		return err
@@ -129,8 +129,8 @@ func (c *EncodedConn) Request(subject string, v interface{}, vPtr interface{}, t
 }
 
 // Handler is a specific callback used for Subscribe. It is generalized to
-// an interface{}, but we will discover its format and arguments at runtime
-// and perform the correct callback, including de-marshaling JSON strings
+// an any, but we will discover its format and arguments at runtime
+// and perform the correct callback, including demarshaling encoded data
 // back into the appropriate struct based on the signature of the Handler.
 //
 // Handlers are expected to have one of four signatures.
@@ -150,7 +150,7 @@ func (c *EncodedConn) Request(subject string, v interface{}, vPtr interface{}, t
 // and demarshal it into the given struct, e.g. person.
 // There are also variants where the callback wants either the subject, or the
 // subject and the reply subject.
-type Handler interface{}
+type Handler any
 
 // Dissect the cb Handler's signature
 func argInfo(cb Handler) (reflect.Type, int) {
@@ -234,7 +234,7 @@ func (c *EncodedConn) subscribe(subject, queue string, cb Handler) (*Subscriptio
 		cbValue.Call(oV)
 	}
 
-	return c.Conn.subscribe(subject, queue, natsCB, nil)
+	return c.Conn.subscribe(subject, queue, natsCB, nil, false, nil)
 }
 
 // FlushTimeout allows a Flush operation to have an associated timeout.
@@ -265,5 +265,5 @@ func (c *EncodedConn) Drain() error {
 
 // LastError reports the last error encountered via the Connection.
 func (c *EncodedConn) LastError() error {
-	return c.Conn.err
+	return c.Conn.LastError()
 }

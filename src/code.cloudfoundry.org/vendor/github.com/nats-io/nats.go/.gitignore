@@ -37,3 +37,9 @@ _testmain.go
 .settings/
 
 # bin
+
+# Goland
+.idea
+
+# VS Code
+.vscode 
