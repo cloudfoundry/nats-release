@@ -28,9 +28,12 @@ files:
   - code.cloudfoundry.org/vendor/github.com/google/go-cmp/cmp/internal/flags/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/google/go-cmp/cmp/internal/function/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/google/go-cmp/cmp/internal/value/*.go # gosub
-  - code.cloudfoundry.org/vendor/github.com/nats-io/go-nats/*.go # gosub
-  - code.cloudfoundry.org/vendor/github.com/nats-io/go-nats/encoders/builtin/*.go # gosub
-  - code.cloudfoundry.org/vendor/github.com/nats-io/go-nats/util/*.go # gosub
+  - code.cloudfoundry.org/vendor/github.com/klauspost/compress/flate/*.go # gosub
+  - code.cloudfoundry.org/vendor/github.com/klauspost/compress/flate/*.s # gosub
+  - code.cloudfoundry.org/vendor/github.com/nats-io/nats.go/*.go # gosub
+  - code.cloudfoundry.org/vendor/github.com/nats-io/nats.go/encoders/builtin/*.go # gosub
+  - code.cloudfoundry.org/vendor/github.com/nats-io/nats.go/internal/parser/*.go # gosub
+  - code.cloudfoundry.org/vendor/github.com/nats-io/nats.go/util/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/nkeys/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/nats-io/nuid/*.go # gosub
   - code.cloudfoundry.org/vendor/github.com/onsi/ginkgo/v2/*.go # gosub
