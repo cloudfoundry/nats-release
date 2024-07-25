@@ -1,4 +1,4 @@
-# code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240722180736-46272e4ee24b
+# code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240725181138-d649b26dcf12
 ## explicit; go 1.21
 code.cloudfoundry.org/cf-networking-helpers/certauthority
 code.cloudfoundry.org/cf-networking-helpers/portauthority
@@ -101,7 +101,7 @@ github.com/onsi/ginkgo/v2/internal/parallel_support
 github.com/onsi/ginkgo/v2/internal/testingtproxy
 github.com/onsi/ginkgo/v2/reporters
 github.com/onsi/ginkgo/v2/types
-# github.com/onsi/gomega v1.33.1
+# github.com/onsi/gomega v1.34.0
 ## explicit; go 1.20
 github.com/onsi/gomega
 github.com/onsi/gomega/format
