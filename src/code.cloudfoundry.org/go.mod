@@ -7,7 +7,7 @@ toolchain go1.22.3
 replace github.com/nats-io/gnatsd => github.com/nats-io/gnatsd v1.4.1
 
 require (
-	code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240726181235-5bbb6d45cd6a
+	code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240727181324-1b1a0055393b
 	code.cloudfoundry.org/lager/v3 v3.0.3
 	code.cloudfoundry.org/tlsconfig v0.0.0-20240712175922-ffce9516cec8
 	github.com/nats-io/gnatsd v1.4.1
@@ -24,7 +24,7 @@ require (
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
-	github.com/google/pprof v0.0.0-20240722153945-304e4f0156b8 // indirect
+	github.com/google/pprof v0.0.0-20240727154555-813a5fbdbec8 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/minio/highwayhash v1.0.3 // indirect
 	github.com/nats-io/go-nats v1.7.2 // indirect
