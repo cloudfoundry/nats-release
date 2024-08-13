@@ -1,13 +1,13 @@
-# code.cloudfoundry.org/cf-networking-helpers v0.0.0-20240808182450-b43167c2e534
+# code.cloudfoundry.org/cf-networking-helpers v0.2.0
 ## explicit; go 1.21
 code.cloudfoundry.org/cf-networking-helpers/certauthority
 code.cloudfoundry.org/cf-networking-helpers/portauthority
-# code.cloudfoundry.org/lager/v3 v3.0.3
-## explicit; go 1.19
+# code.cloudfoundry.org/lager/v3 v3.1.0
+## explicit; go 1.20
 code.cloudfoundry.org/lager/v3
 code.cloudfoundry.org/lager/v3/internal/truncate
 code.cloudfoundry.org/lager/v3/lagerflags
-# code.cloudfoundry.org/tlsconfig v0.0.0-20240808182450-b1b581e211a2
+# code.cloudfoundry.org/tlsconfig v0.1.0
 ## explicit; go 1.21
 code.cloudfoundry.org/tlsconfig
 # filippo.io/edwards25519 v1.1.0
@@ -67,7 +67,7 @@ github.com/nats-io/nats-server/v2/server/certstore
 github.com/nats-io/nats-server/v2/server/pse
 github.com/nats-io/nats-server/v2/server/stree
 github.com/nats-io/nats-server/v2/server/sysmem
-# github.com/nats-io/nats.go v1.36.0
+# github.com/nats-io/nats.go v1.37.0
 ## explicit; go 1.20
 github.com/nats-io/nats.go
 github.com/nats-io/nats.go/encoders/builtin
