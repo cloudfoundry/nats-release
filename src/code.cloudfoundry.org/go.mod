@@ -7,9 +7,9 @@ toolchain go1.22.3
 replace github.com/nats-io/gnatsd => github.com/nats-io/gnatsd v1.4.1
 
 require (
-	code.cloudfoundry.org/cf-networking-helpers v0.7.0
+	code.cloudfoundry.org/cf-networking-helpers v0.8.0
 	code.cloudfoundry.org/lager/v3 v3.3.0
-	code.cloudfoundry.org/tlsconfig v0.1.0
+	code.cloudfoundry.org/tlsconfig v0.2.0
 	github.com/nats-io/gnatsd v1.4.1
 	github.com/nats-io/nats-server/v2 v2.10.20
 	github.com/nats-io/nats.go v1.37.0
