@@ -21,6 +21,8 @@ builds:
     version: 56.10.0
   1fa9796c-311f-4675-67a9-450e437da8bb:
     version: 56.2.0
+  23f070e8-98f2-4b6e-41e6-cb7fd7f2380f:
+    version: 56.24.0
   270f3e99-769e-47f9-4ebe-33b4b93c96cd:
     version: 56.8.0
   2af43165-1244-4980-84c6-769c49f3c895:
