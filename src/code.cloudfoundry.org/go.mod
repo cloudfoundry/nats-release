@@ -1,14 +1,14 @@
 module code.cloudfoundry.org
 
-go 1.22
+go 1.22.0
 
 toolchain go1.22.3
 
 replace github.com/nats-io/gnatsd => github.com/nats-io/gnatsd v1.4.1
 
 require (
-	code.cloudfoundry.org/cf-networking-helpers v0.11.0
-	code.cloudfoundry.org/lager/v3 v3.3.0
+	code.cloudfoundry.org/cf-networking-helpers v0.12.0
+	code.cloudfoundry.org/lager/v3 v3.5.0
 	code.cloudfoundry.org/tlsconfig v0.4.0
 	github.com/nats-io/gnatsd v1.4.1
 	github.com/nats-io/nats-server/v2 v2.10.20
@@ -41,7 +41,7 @@ require (
 	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/text v0.18.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
-	golang.org/x/tools v0.24.0 // indirect
+	golang.org/x/tools v0.25.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
