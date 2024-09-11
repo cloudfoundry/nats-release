@@ -50,7 +50,7 @@ github.com/nats-io/gnatsd/server
 github.com/nats-io/gnatsd/server/pse
 # github.com/nats-io/go-nats v1.7.2
 ## explicit
-# github.com/nats-io/jwt/v2 v2.5.8
+# github.com/nats-io/jwt/v2 v2.6.0
 ## explicit; go 1.18
 github.com/nats-io/jwt/v2
 # github.com/nats-io/nats-server/v2 v2.10.20
