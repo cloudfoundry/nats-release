@@ -201,6 +201,7 @@ func NewNATSSession(binPath string, configPath string) (*NATSSession, error) {
 }
 
 func (s *NATSSession) Signal(signal os.Signal) {
+	// #nosec G104 - ignore errors signaling the proces. it's ok if it's already shutdown
 	s.command.Process.Signal(signal)
 }
 
@@ -231,6 +232,7 @@ func (s *NATSSession) ExitCode() int {
 }
 
 func (s *NATSSession) waitForExit(exited chan<- struct{}) {
+	// #nosec G104 - before calling waitForExit we check to ensure the process started, and we check exit code further down.
 	s.command.Wait()
 	status := s.command.ProcessState.Sys().(syscall.WaitStatus)
 	s.lock.Lock()
@@ -269,11 +271,13 @@ func (s *httpServer) Info(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		s.logger.Error("error-during-marshal", err)
+		// #nosec G104 - don't handle error writing http response. at best, we could log it and be susceptible to DoS's filling up disks with logs
 		w.Write(nil)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
+	// #nosec G104 - don't handle error writing http response. at best, we could log it and be susceptible to DoS's filling up disks with logs
 	w.Write(jsonResponse)
 }
 
@@ -283,6 +287,7 @@ func (s *httpServer) Migrate(w http.ResponseWriter, req *http.Request) {
 	defer s.migrateEndpointHitMux.Unlock()
 	if s.migrateEndpointHit {
 		w.WriteHeader(http.StatusConflict)
+		// #nosec G104 - don't handle error writing http response. at best, we could log it and be susceptible to DoS's filling up disks with logs
 		w.Write(nil)
 		return
 	}
@@ -296,10 +301,12 @@ func (s *httpServer) Migrate(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		s.logger.Error("migration-failed", err)
+		// #nosec G104 - don't handle error writing http response. at best, we could log it and be susceptible to DoS's filling up disks with logs
 		w.Write(nil)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
+	// #nosec G104 - don't handle error writing http response. at best, we could log it and be susceptible to DoS's filling up disks with logs
 	w.Write(nil)
 }
