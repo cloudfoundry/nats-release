@@ -41,7 +41,7 @@ github.com/klauspost/compress/s2
 # github.com/minio/highwayhash v1.0.3
 ## explicit; go 1.15
 github.com/minio/highwayhash
-# github.com/nats-io/gnatsd v1.4.1
+# github.com/nats-io/gnatsd v1.4.1 => github.com/nats-io/gnatsd v1.4.1
 ## explicit
 github.com/nats-io/gnatsd
 github.com/nats-io/gnatsd/conf
@@ -243,3 +243,4 @@ google.golang.org/protobuf/runtime/protoimpl
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
+# github.com/nats-io/gnatsd => github.com/nats-io/gnatsd v1.4.1
