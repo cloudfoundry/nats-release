@@ -3,11 +3,6 @@
 This repository is a [BOSH](https://github.com/cloudfoundry/bosh)
 release for deploying [NATS](https://nats.io/).
 
-# Docs
-
--   [Overview](./docs/01-overview.md)
--   [BOSH Jobs](./docs/02-bosh-jobs.md)
-
 # Contributing
 
 See the [Contributing.md](./.github/CONTRIBUTING.md) for more
@@ -18,6 +13,11 @@ information on how to contribute.
 This repository is maintained by [App Runtime
 Platform](https://github.com/cloudfoundry/community/blob/main/toc/working-groups/app-runtime-platform.md)
 under `Networking` area.
+
+# Docs
+
+-   [Overview](./docs/01-overview.md)
+-   [BOSH Jobs](./docs/02-bosh-jobs.md)
 
 > \[!IMPORTANT\]
 >
