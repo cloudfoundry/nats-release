@@ -85,6 +85,7 @@ module Bosh::Template::Test
              'debug' => false,
              'trace' => false,
              'logtime' => true,
+             'log_file' => '/var/vcap/sys/log/nats-tls/nats.log',
              'authorization' => {
                'user' => "my-user",
                'password' => "my-password",
