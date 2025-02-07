@@ -81,6 +81,7 @@ write_deadline: "<%= p("nats.write_deadline") %>"
 debug: <%= p("nats.debug") %>
 trace: <%= p("nats.trace") %>
 logtime: true
+log_file: "/var/vcap/sys/log/nats-tls/nats.log"
 
 <%- if nats_auth_required and nats_user and nats_password -%>
 authorization: {

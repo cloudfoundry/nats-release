@@ -187,9 +187,6 @@ func NewNATSSession(binPath string, configPath string) (*NATSSession, error) {
 		exitCode: -1,
 	}
 
-	session.command.Stdout = os.Stdout
-	session.command.Stderr = os.Stderr
-
 	err := session.command.Start()
 	if err != nil {
 		return nil, err

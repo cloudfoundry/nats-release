@@ -55,6 +55,7 @@ write_deadline: "<%= p("nats.write_deadline") %>"
 debug: <%= p("nats.debug") %>
 trace: <%= p("nats.trace") %>
 logtime: true
+log_file: "/var/vcap/sys/log/nats/nats.log"
 
 authorization: {
   user: "<%= p("nats.user") %>",
