@@ -68,6 +68,14 @@ func main() {
 	sm := http.NewServeMux()
 	sm.HandleFunc("/info", httpServer.Info)
 	sm.HandleFunc("/migrate", httpServer.Migrate)
+	sm.HandleFunc("POST /shutdown-gracefully", func(w http.ResponseWriter, r *http.Request) {
+		logger.Info("graceful-shutdown-triggered")
+		w.WriteHeader(http.StatusOK)
+		// #nosec G104 - don't handle error writing http response. at best, we could log it and be susceptible to DoS's filling up disks with logs
+		w.Write(nil)
+		syscall.Kill(os.Getpid(), syscall.SIGINT) // SIGINT stops the nats server gracefully
+		return
+	})
 
 	migrateServer := http_server.NewTLSServer(fmt.Sprintf("0.0.0.0:%d", cfg.NATSMigratePort), sm, tlsConfig)
 

@@ -16,6 +16,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
 
 	"code.cloudfoundry.org/cf-networking-helpers/certauthority"
@@ -446,6 +447,35 @@ var _ = Describe("NATS Wrapper", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(resp.StatusCode).To(Equal(409))
 			})
+		})
+	})
+
+	Describe("/shutdown-gracefully", func() {
+
+		BeforeEach(func() {
+			cfg = config.Config{
+				Bootstrap:          true,
+				NATSMigratePort:    int(natsMigratorPort),
+				Address:            "127.0.0.1",
+				NATSPort:           int(natsPort),
+				NATSInstances:      []string{},
+				NATSMigrateServers: []string{},
+				NATSV1BinPath:      natsV1File,
+				NATSV2BinPath:      natsV2File,
+			}
+			GenerateCerts(&cfg)
+			StartServer(cfg)
+			client = CreateTLSClient(cfg)
+		})
+
+		It("sends a signal to NATS to shutdown", func() {
+			resp, err := client.Post(fmt.Sprintf("https://%s/shutdown-gracefully", address), "application/json", nil)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(resp.StatusCode).To(Equal(200))
+			Eventually(session).Should(gbytes.Say("graceful-shutdown-triggered"))
+			Eventually(session).Should(gbytes.Say("signalled-nats"))
+			// the nats in this test is fake so it doesn't actually exit
+			// which means that wrapper doesn't shut down in this test
 		})
 	})
 })
