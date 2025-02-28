@@ -39,6 +39,7 @@ provides:
   - nats.cluster_port
   - nats.write_deadline
   - nats.disable
+  - nats.migrate_server.port
 
 consumes:
 - name: nats

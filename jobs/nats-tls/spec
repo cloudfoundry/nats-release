@@ -40,6 +40,7 @@ provides:
   - nats.cluster_port
   - nats.external.tls.ca
   - nats.write_deadline
+  - nats.migrate_server.port
 
 consumes:
 - name: nats
