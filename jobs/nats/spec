@@ -40,6 +40,9 @@ provides:
   - nats.write_deadline
   - nats.disable
   - nats.migrate_server.port
+  - nats.migrate_server.tls.ca:
+  - nats.migrate_server.tls.certificate:
+  - nats.migrate_server.tls.private_key:
 
 consumes:
 - name: nats
