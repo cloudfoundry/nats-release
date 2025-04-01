@@ -59,7 +59,7 @@ func (runner *NATSRunner) Start(version ...string) {
 		Expect(err).NotTo(HaveOccurred())
 		cmd = exec.Command(gnatsdBin, "-p", strconv.Itoa(runner.port))
 	} else {
-		natsServerBin, err := gexec.Build("github.com/nats-io/nats-server/v2", "-buildvcs=false")
+		natsServerBin, err := exec.LookPath("nats-server")
 		Expect(err).NotTo(HaveOccurred())
 		cmd = exec.Command(natsServerBin, "-p", strconv.Itoa(runner.port))
 	}

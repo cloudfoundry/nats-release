@@ -30,11 +30,6 @@ github.com/google/go-cmp/cmp/internal/diff
 github.com/google/go-cmp/cmp/internal/flags
 github.com/google/go-cmp/cmp/internal/function
 github.com/google/go-cmp/cmp/internal/value
-# github.com/google/go-tpm v0.9.3
-## explicit; go 1.22
-github.com/google/go-tpm/legacy/tpm2
-github.com/google/go-tpm/tpmutil
-github.com/google/go-tpm/tpmutil/tbs
 # github.com/google/pprof v0.0.0-20250317173921-a4b03ec1a45e
 ## explicit; go 1.23
 github.com/google/pprof/profile
@@ -42,11 +37,6 @@ github.com/google/pprof/profile
 ## explicit; go 1.22
 github.com/klauspost/compress/flate
 github.com/klauspost/compress/internal/le
-github.com/klauspost/compress/internal/race
-github.com/klauspost/compress/s2
-# github.com/minio/highwayhash v1.0.3
-## explicit; go 1.15
-github.com/minio/highwayhash
 # github.com/nats-io/gnatsd v1.4.1 => github.com/nats-io/gnatsd v1.4.1
 ## explicit
 github.com/nats-io/gnatsd
@@ -56,26 +46,6 @@ github.com/nats-io/gnatsd/server
 github.com/nats-io/gnatsd/server/pse
 # github.com/nats-io/go-nats v1.7.2
 ## explicit
-# github.com/nats-io/jwt/v2 v2.7.3
-## explicit; go 1.22
-github.com/nats-io/jwt/v2
-# github.com/nats-io/nats-server/v2 v2.11.0
-## explicit; go 1.23.0
-github.com/nats-io/nats-server/v2
-github.com/nats-io/nats-server/v2/conf
-github.com/nats-io/nats-server/v2/internal/fastrand
-github.com/nats-io/nats-server/v2/internal/ldap
-github.com/nats-io/nats-server/v2/logger
-github.com/nats-io/nats-server/v2/server
-github.com/nats-io/nats-server/v2/server/avl
-github.com/nats-io/nats-server/v2/server/certidp
-github.com/nats-io/nats-server/v2/server/certstore
-github.com/nats-io/nats-server/v2/server/gsl
-github.com/nats-io/nats-server/v2/server/pse
-github.com/nats-io/nats-server/v2/server/stree
-github.com/nats-io/nats-server/v2/server/sysmem
-github.com/nats-io/nats-server/v2/server/thw
-github.com/nats-io/nats-server/v2/server/tpm
 # github.com/nats-io/nats.go v1.40.1
 ## explicit; go 1.23.0
 github.com/nats-io/nats.go
@@ -153,26 +123,17 @@ go.step.sm/crypto/keyutil
 go.step.sm/crypto/pemutil
 go.step.sm/crypto/randutil
 go.step.sm/crypto/x25519
-# go.uber.org/automaxprocs v1.6.0
-## explicit; go 1.20
-go.uber.org/automaxprocs/internal/cgroups
-go.uber.org/automaxprocs/internal/runtime
-go.uber.org/automaxprocs/maxprocs
 # golang.org/x/crypto v0.36.0
 ## explicit; go 1.23.0
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blowfish
 golang.org/x/crypto/chacha20
-golang.org/x/crypto/chacha20poly1305
-golang.org/x/crypto/cryptobyte
-golang.org/x/crypto/cryptobyte/asn1
 golang.org/x/crypto/curve25519
 golang.org/x/crypto/internal/alias
 golang.org/x/crypto/internal/poly1305
 golang.org/x/crypto/nacl/box
 golang.org/x/crypto/nacl/secretbox
-golang.org/x/crypto/ocsp
 golang.org/x/crypto/pbkdf2
 golang.org/x/crypto/salsa20/salsa
 golang.org/x/crypto/scrypt
@@ -212,9 +173,6 @@ golang.org/x/text/internal/utf8internal
 golang.org/x/text/language
 golang.org/x/text/runes
 golang.org/x/text/transform
-# golang.org/x/time v0.11.0
-## explicit; go 1.23.0
-golang.org/x/time/rate
 # golang.org/x/tools v0.31.0
 ## explicit; go 1.23.0
 golang.org/x/tools/cover

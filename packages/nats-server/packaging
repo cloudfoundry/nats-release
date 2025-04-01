@@ -1,16 +1,9 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e
 
-mkdir -p ${BOSH_INSTALL_TARGET}/src
-mv * ${BOSH_INSTALL_TARGET}/src
-mv ${BOSH_INSTALL_TARGET}/src .
+mkdir -p ${BOSH_INSTALL_TARGET}/bin
 
-export GOBIN=${BOSH_INSTALL_TARGET}/bin
-mkdir -p "${GOBIN}"
-
-source /var/vcap/packages/golang-*-linux/bosh/compile.env
-
-pushd "src/code.cloudfoundry.org"
-  go build -o "${GOBIN}/nats-server" github.com/nats-io/nats-server/v2
-popd
+tar xzf nats-server-gh-release/nats-server-v*-linux-amd64.tar.gz
+cp nats-server-v*-linux-amd64/nats-server ${BOSH_INSTALL_TARGET}/bin/nats-server
+chmod +x ${BOSH_INSTALL_TARGET}/bin/nats-server
