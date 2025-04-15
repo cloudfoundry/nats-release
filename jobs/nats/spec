@@ -86,8 +86,8 @@ properties:
     description: "Port for pprof. 0 means disabled."
     default: 0
   nats.no_advertise:
-    description: "When configured to true, this nats server will not be advertised to any nats clients. This is defaulted to false for backwards compatability."
-    default: false
+    description: "When configured to true, this nats server will not be advertised to any nats clients."
+    default: true
   nats.write_deadline:
     description: "Maximum number of seconds the server will block when writing. Once this threshold is exceeded the connection will be closed and the client will be considered as Slow Consumer."
     default: 2s
