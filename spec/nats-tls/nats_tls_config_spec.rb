@@ -248,12 +248,12 @@ module Bosh::Template::Test
             expected_template = {
               'processes' => [
                 {
-                  'name' => 'nats-tls-wrapper',
+                  'name' => 'nats',
                   'limits' => {
                     'open_files' => 100000
                   },
-                  'executable' => '/var/vcap/packages/nats-v2-migrate/bin/nats-wrapper',
-                  'args' => ['--config-file', '/var/vcap/jobs/nats-tls/config/migrator-config.json']
+                  'executable' => '/var/vcap/packages/nats-server/bin/nats-server',
+                  'args' => ['-c', '/var/vcap/jobs/nats-tls/config/nats-tls.conf']
                 },
                 {
                   'name' => 'healthcheck',
@@ -294,12 +294,12 @@ module Bosh::Template::Test
               expected_template = {
                 'processes' => [
                   {
-                    'name' => 'nats-tls-wrapper',
+                    'name' => 'nats',
                     'limits' => {
                       'open_files' => 100000
                     },
-                    'executable' => '/var/vcap/packages/nats-v2-migrate/bin/nats-wrapper',
-                    'args' => ['--config-file', '/var/vcap/jobs/nats-tls/config/migrator-config.json']
+                    'executable' => '/var/vcap/packages/nats-server/bin/nats-server',
+                    'args' => ['-c', '/var/vcap/jobs/nats-tls/config/nats-tls.conf']
                   },
                   {
                     'name' => 'healthcheck',

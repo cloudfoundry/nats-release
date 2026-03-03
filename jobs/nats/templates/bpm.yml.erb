@@ -1,9 +1,9 @@
 ---
 processes:
-- name: nats-wrapper
+- name: nats
   limits:
     open_files: 100000
-  executable: /var/vcap/packages/nats-v2-migrate/bin/nats-wrapper
+  executable: /var/vcap/packages/nats-server/bin/nats-server
   args:
-  - --config-file
-  - "/var/vcap/jobs/nats/config/migrator-config.json"
+  - -c
+  - "/var/vcap/jobs/nats/config/nats.conf"

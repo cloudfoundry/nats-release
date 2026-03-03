@@ -7,7 +7,6 @@ templates:
   nats-tls.conf.erb: config/nats-tls.conf
   post-start.erb: bin/post-start
   bpm.yml.erb: config/bpm.yml
-  migrator-config.json.erb: config/migrator-config.json
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
@@ -22,10 +21,8 @@ templates:
   client_tls/private_key.pem.erb: config/client_tls/private_key.pem
 
 packages:
-  - gnatsd
   - nats-server
   - nats-tls-healthcheck
-  - nats-v2-migrate
   - pid_utils
 
 provides:
@@ -40,7 +37,6 @@ provides:
   - nats.cluster_port
   - nats.external.tls.ca
   - nats.write_deadline
-  - nats.migrate_server.port
 
 consumes:
 - name: nats
@@ -120,13 +116,6 @@ properties:
     description: "The PEM-encoded certificate to use for verifying the TLS connection to the server (used for local healthchecks)."
   nats.client.tls.private_key:
     description: "The PEM-encoded private key to use for verifying the TLS connection to the server (used for local healthchecks)."
-
-  nats.migrate_server.port:
-    description: "Port for endpoint to migrate nats job to nats-server v2. To be removed in a future release."
-    default: 4243
-  nats.fail_deployment_if_v1:
-    description: "Fail the deployment in post-start if nats instances are on v1."
-    default: false
 
   nats.mem_limit.alert:
     description: "Raise alert if total memory consumed by nats is larger than this. Format: <number> <B|KB|MB|GB|%>"

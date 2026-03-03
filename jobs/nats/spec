@@ -7,24 +7,13 @@ templates:
   nats.conf.erb: config/nats.conf
   post-start.erb: bin/post-start
   bpm.yml.erb: config/bpm.yml
-  migrator-config.json.erb: config/migrator-config.json
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
   internal_tls/private_key.pem.erb: config/internal_tls/private_key.pem
 
-  migrate_server_tls/ca.pem.erb: config/migrate_server_tls/ca.pem
-  migrate_server_tls/certificate.pem.erb: config/migrate_server_tls/certificate.pem
-  migrate_server_tls/private_key.pem.erb: config/migrate_server_tls/private_key.pem
-
-  migrate_client_tls/ca.pem.erb: config/migrate_client_tls/ca.pem
-  migrate_client_tls/certificate.pem.erb: config/migrate_client_tls/certificate.pem
-  migrate_client_tls/private_key.pem.erb: config/migrate_client_tls/private_key.pem
-
 packages:
-  - gnatsd
   - nats-server
-  - nats-v2-migrate
   - pid_utils
 
 provides:
@@ -39,10 +28,6 @@ provides:
   - nats.cluster_port
   - nats.write_deadline
   - nats.disable
-  - nats.migrate_server.port
-  - nats.migrate_client.tls.ca
-  - nats.migrate_client.tls.certificate
-  - nats.migrate_client.tls.private_key
 
 consumes:
 - name: nats
@@ -105,26 +90,6 @@ properties:
   nats.internal.tls.private_key:
     description: "Private key for cluster-internal traffic. In PEM format."
 
-  nats.migrate_server.port:
-    description: "Port for endpoint to migrate nats job to nats-server v2. To be removed in a future release."
-    default: 4242
-  nats.migrate_server.tls.ca:
-    description: "Certificate of the CA for migrate server. In PEM format."
-  nats.migrate_server.tls.certificate:
-    description: "Certificate for migrate server. In PEM format."
-  nats.migrate_server.tls.private_key:
-    description: "Private key for migrate server. In PEM format."
-
-  nats.migrate_client.tls.ca:
-    description: "Certificate of the CA for verifying the TLS connection to the migrate server. In PEM format."
-  nats.migrate_client.tls.certificate:
-    description: "The PEM-encoded certificate to use for verifying the TLS connection to the migrate server (used for local healthchecks)."
-  nats.migrate_client.tls.private_key:
-    description: "The PEM-encoded private key to use for verifying the TLS connection to the migrate server (used for local healthchecks)."
-  
-  nats.fail_deployment_if_v1:
-    description: "Fail the deployment in post-start if nats instances are on v1."
-    default: false
   nats.disable:
     description: "Disable this monit job. If this property is set to true, the nats process will not run. Connecting to nats (instead of nats-tls) is deprecated. This nats process will be removed soon. Please migrate to using nats-tls as soon as possible."
     default: false
