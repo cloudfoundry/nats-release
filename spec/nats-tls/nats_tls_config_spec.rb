@@ -248,7 +248,7 @@ module Bosh::Template::Test
             expected_template = {
               'processes' => [
                 {
-                  'name' => 'nats',
+                  'name' => 'nats-tls-wrapper',
                   'limits' => {
                     'open_files' => 100000
                   },
@@ -294,7 +294,7 @@ module Bosh::Template::Test
               expected_template = {
                 'processes' => [
                   {
-                    'name' => 'nats',
+                    'name' => 'nats-tls-wrapper',
                     'limits' => {
                       'open_files' => 100000
                     },
