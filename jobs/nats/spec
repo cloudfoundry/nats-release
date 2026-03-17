@@ -6,6 +6,7 @@ description: "NATS server providing a publish-subscribe messaging system for Clo
 templates:
   nats.conf.erb: config/nats.conf
   bpm.yml.erb: config/bpm.yml
+  nats-v2-wrapper-config.json.erb: config/nats-v2-wrapper-config.json
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
@@ -13,6 +14,7 @@ templates:
 
 packages:
   - nats-server
+  - nats-v2-wrapper
   - pid_utils
 
 provides:
@@ -27,6 +29,10 @@ provides:
   - nats.cluster_port
   - nats.write_deadline
   - nats.disable
+  - nats.v2_wrapper.port
+  - nats.internal.tls.ca
+  - nats.internal.tls.certificate
+  - nats.internal.tls.private_key
 
 consumes:
 - name: nats
@@ -92,3 +98,7 @@ properties:
   nats.disable:
     description: "Disable this monit job. If this property is set to true, the nats process will not run. Connecting to nats (instead of nats-tls) is deprecated. This nats process will be removed soon. Please migrate to using nats-tls as soon as possible."
     default: false
+
+  nats.v2_wrapper.port:
+    description: "Port for endpoint to restart nats job."
+    default: 4242

@@ -3,14 +3,35 @@ module code.cloudfoundry.org
 go 1.25.0
 
 require (
+	code.cloudfoundry.org/cf-networking-helpers v0.79.0
+	code.cloudfoundry.org/lager/v3 v3.64.0
 	code.cloudfoundry.org/tlsconfig v0.48.0
 	github.com/nats-io/nats.go v1.49.0
+	github.com/onsi/ginkgo/v2 v2.28.1
+	github.com/onsi/gomega v1.39.1
+	github.com/tedsuo/ifrit v0.0.0-20230516164442-7862c310ad26
 )
 
 require (
+	filippo.io/edwards25519 v1.2.0 // indirect
+	github.com/Masterminds/semver/v3 v3.4.0 // indirect
+	github.com/go-logr/logr v1.4.3 // indirect
+	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
+	github.com/google/go-cmp v0.7.0 // indirect
+	github.com/google/pprof v0.0.0-20260302011040-a15ffb7f9dcc // indirect
 	github.com/klauspost/compress v1.18.5 // indirect
 	github.com/nats-io/nkeys v0.4.15 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
+	github.com/openzipkin/zipkin-go v0.4.3 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+	github.com/square/certstrap v1.3.0 // indirect
+	go.step.sm/crypto v0.77.1 // indirect
+	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.49.0 // indirect
+	golang.org/x/mod v0.34.0 // indirect
+	golang.org/x/net v0.52.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.42.0 // indirect
+	golang.org/x/text v0.35.0 // indirect
+	golang.org/x/tools v0.43.0 // indirect
 )

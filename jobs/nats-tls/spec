@@ -6,6 +6,7 @@ description: "TLS-secured NATS server providing a publish-subscribe messaging sy
 templates:
   nats-tls.conf.erb: config/nats-tls.conf
   bpm.yml.erb: config/bpm.yml
+  nats-v2-wrapper-config.json.erb: config/nats-v2-wrapper-config.json
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem
@@ -21,6 +22,7 @@ templates:
 
 packages:
   - nats-server
+  - nats-v2-wrapper
   - nats-tls-healthcheck
   - pid_utils
 
@@ -36,6 +38,10 @@ provides:
   - nats.cluster_port
   - nats.external.tls.ca
   - nats.write_deadline
+  - nats.v2_wrapper.port
+  - nats.internal.tls.ca
+  - nats.internal.tls.certificate
+  - nats.internal.tls.private_key
 
 consumes:
 - name: nats
@@ -122,3 +128,7 @@ properties:
   nats.mem_limit.restart:
     description: "Restart nats if total memory consumed is larger than this. Format: <number> <B|KB|MB|GB|%>"
     default: "3000 MB"
+
+  nats.v2_wrapper.port:
+    description: "Port for endpoint to restart nats job."
+    default: 4242

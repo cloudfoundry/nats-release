@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -ex
+
+# Create src directory structure expected by Go
+mkdir -p ${BOSH_INSTALL_TARGET}/src
+mv * ${BOSH_INSTALL_TARGET}/src
+mv ${BOSH_INSTALL_TARGET}/src .
+
+export GOBIN=${BOSH_INSTALL_TARGET}/bin
+mkdir -p "${GOBIN}"
+
+# Use the standard golang compile environment
+source /var/vcap/packages/golang-*-linux/bosh/compile.env
+
+pushd "src/code.cloudfoundry.org"
+  # Build with vendor support
+  go build -mod=vendor -o "${GOBIN}/nats-wrapper" code.cloudfoundry.org/nats-v2-wrapper/nats-wrapper
+popd

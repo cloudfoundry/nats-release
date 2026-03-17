@@ -1,0 +1,13 @@
+---
+name: nats-v2-wrapper
+
+dependencies:
+- golang-1.26-linux
+
+files:
+- code.cloudfoundry.org/nats-v2-wrapper/config/*.go
+- code.cloudfoundry.org/nats-v2-wrapper/nats-wrapper/*.go
+- code.cloudfoundry.org/go.mod
+- code.cloudfoundry.org/go.sum
+- code.cloudfoundry.org/vendor/**
+- code.cloudfoundry.org/staticcheck.conf
