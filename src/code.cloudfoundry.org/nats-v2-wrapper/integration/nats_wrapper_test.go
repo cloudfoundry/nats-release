@@ -1,3 +1,8 @@
+// @AI-Generated
+// Generated in whole or in part by Cursor with a mix of different LLM models (Auto select mode)
+// Description:
+// 2026-04-06: Fix vet failure (undefined natsRestartPort), assign natsWrapperPort from claimed port block, Eventually read mock output (race after Start).
+
 package integration
 
 import (
@@ -11,6 +16,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -24,12 +30,12 @@ import (
 )
 
 var (
-	cfgFile                                                      *os.File
-	cfg                                                          config.Config
-	address                                                      string
-	session                                                      *gexec.Session
-	certDepoDir                                                  string
-	client                                                       http.Client
+	cfgFile                                                     *os.File
+	cfg                                                         config.Config
+	address                                                     string
+	session                                                     *gexec.Session
+	certDepoDir                                                 string
+	client                                                      http.Client
 	outputFile, natsV2File                                      string
 	natsPort, natsWrapperPort, natsRunnerPort1, natsRunnerPort2 uint16
 )
@@ -133,7 +139,7 @@ var _ = Describe("NATS Wrapper", func() {
 		Expect(err).NotTo(HaveOccurred())
 		natsPort, err = allocator.ClaimPorts(4)
 		Expect(err).NotTo(HaveOccurred())
-		natsRestartPort = natsPort + 1
+		natsWrapperPort = natsPort + 1
 		natsRunnerPort1 = natsPort + 2
 		natsRunnerPort2 = natsPort + 3
 
