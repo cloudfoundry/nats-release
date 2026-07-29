@@ -7,6 +7,9 @@ templates:
   nats-tls.conf.erb: config/nats-tls.conf
   bpm.yml.erb: config/bpm.yml
   nats-v2-wrapper-config.json.erb: config/nats-v2-wrapper-config.json
+  healthcheck-config.json.erb:
+    path: config/healthcheck-config.json
+    mode: "0600"
 
   internal_tls/ca.pem.erb: config/internal_tls/ca.pem
   internal_tls/certificate.pem.erb: config/internal_tls/certificate.pem

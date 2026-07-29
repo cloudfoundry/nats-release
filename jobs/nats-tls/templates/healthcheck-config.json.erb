@@ -1,0 +1,15 @@
+<%=
+  config = {
+    'address'            => spec.address,
+    'port'               => p('nats.port').to_s,
+    'server_ca'          => '/var/vcap/jobs/nats-tls/config/external_tls/ca.pem',
+    'server_hostname'    => p('nats.hostname'),
+    'client_certificate' => '/var/vcap/jobs/nats-tls/config/client_tls/certificate.pem',
+    'client_private_key' => '/var/vcap/jobs/nats-tls/config/client_tls/private_key.pem'
+  }
+
+  if_p('nats.user') { |v| config['user'] = v }
+  if_p('nats.password') { |v| config['password'] = v }
+
+  JSON.generate(config)
+%>
