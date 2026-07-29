@@ -259,71 +259,14 @@ module Bosh::Template::Test
                   'name' => 'healthcheck',
                   'executable' => '/var/vcap/packages/nats-tls-healthcheck/bin/nats-tls-healthcheck',
                   'args' => [
-                    '--address',
-                    '10.0.0.1',
-                    '--port',
-                    4222,
-                    '--server-ca',
-                    '/var/vcap/jobs/nats-tls/config/external_tls/ca.pem',
-                    '--server-hostname',
-                    'my-host',
-                    '--client-certificate',
-                    '/var/vcap/jobs/nats-tls/config/client_tls/certificate.pem',
-                    '--client-private-key',
-                    '/var/vcap/jobs/nats-tls/config/client_tls/private_key.pem',
-                    '--user',
-                    'my-user',
-                    '--password',
-                    'my-password'
+                    '--config-file',
+                    '/var/vcap/jobs/nats-tls/config/healthcheck-config.json'
                   ]
                 }
               ]
             }
 
             expect(rendered_template).to eq(expected_template)
-          end
-
-          describe 'password authentication is disabled' do
-            before do
-              merged_manifest_properties['nats']['user'] = nil
-              merged_manifest_properties['nats']['password'] = nil
-            end
-
-            it 'renders the template without password authentication properties' do
-              rendered_template = YAML.load(template.render(merged_manifest_properties, consumes: links, spec: spec))
-              expected_template = {
-                'processes' => [
-                  {
-                    'name' => 'nats-tls-wrapper',
-                    'limits' => {
-                      'open_files' => 100000
-                    },
-                    'executable' => '/var/vcap/packages/nats-v2-wrapper/bin/nats-wrapper',
-                    'args' => ['-config-file', '/var/vcap/jobs/nats-tls/config/nats-v2-wrapper-config.json']
-                  },
-                  {
-                    'name' => 'healthcheck',
-                    'executable' => '/var/vcap/packages/nats-tls-healthcheck/bin/nats-tls-healthcheck',
-                    'args' => [
-                      '--address',
-                      '10.0.0.1',
-                      '--port',
-                      4222,
-                      '--server-ca',
-                      '/var/vcap/jobs/nats-tls/config/external_tls/ca.pem',
-                      '--server-hostname',
-                      'my-host',
-                      '--client-certificate',
-                      '/var/vcap/jobs/nats-tls/config/client_tls/certificate.pem',
-                      '--client-private-key',
-                      '/var/vcap/jobs/nats-tls/config/client_tls/private_key.pem',
-                    ]
-                  }
-                ]
-              }
-
-              expect(rendered_template).to eq(expected_template)
-            end
           end
         end
 
