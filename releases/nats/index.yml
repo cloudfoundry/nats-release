@@ -3,6 +3,8 @@ builds:
     version: "19"
   032e2bb8-25c4-4af1-9722-a0d7de6a729d:
     version: "9"
+  0600f03a-1127-48ab-648a-85f90cac7bef:
+    version: 57.20.0
   0687538e-55aa-4054-47d1-8e00a051de11:
     version: 56.55.0
   0c1d6a0d-2dbb-42d8-5b07-0f33de6b6653:
