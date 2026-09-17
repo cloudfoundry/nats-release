@@ -2,7 +2,7 @@
 name: nats-v2-wrapper
 
 dependencies:
-- golang-1.26-linux
+- golang-1.27-linux
 
 files:
 - code.cloudfoundry.org/nats-v2-wrapper/config/*.go
