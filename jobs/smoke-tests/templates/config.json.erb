@@ -2,43 +2,6 @@
   require 'json'
   config_json = {}
 
-  nats_hosts = nil
-  if_p("nats.hostname") { |hostname| nats_hosts = hostname }
-  unless nats_hosts
-    if_p("nats.machines") { |ips| nats_hosts = ips }
-  end
-  nats_user = nil
-  if_p("nats.user") { |user| nats_user = user }
-  nats_password = nil
-  if_p("nats.password") { |password| nats_password = password }
-  nats_port = nil
-  if_p("nats.port") { |port| nats_port = port }
-
-  if_link('nats') do |nats_link|
-    unless nats_hosts
-      nats_link.if_p("nats.hostname") do |hostname|
-        nats_hosts = [hostname]
-      end
-    end
-
-    unless nats_hosts
-      nats_hosts = nats_link.instances.map(&:address)
-    end
-
-    unless nats_user
-      nats_user = nats_link.p("nats.user")
-    end
-
-    unless nats_password
-      nats_password = nats_link.p("nats.password")
-    end
-
-    unless nats_port
-      nats_port = nats_link.p("nats.port")
-    end
-  end
-  nats_hosts ||= []
-
   nats_tls_hosts = nil
   nats_tls_user = nil
   nats_tls_password = nil
@@ -57,12 +20,6 @@
   end
 
   config_json = {
-    "NonTLS" => {
-      "Hosts" => nats_hosts,
-      "Port" => nats_port,
-      "User" => nats_user,
-      "Password" => nats_password
-    },
     "TLS" => {
       "Hosts" => nats_tls_hosts,
       "Port" => nats_tls_port,

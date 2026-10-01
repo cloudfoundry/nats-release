@@ -45,9 +45,6 @@ provides:
   - nats.internal.tls.private_key
 
 consumes:
-- name: nats
-  type: nats
-  optional: true
 - name: nats-tls
   type: nats-tls
   optional: true
@@ -69,8 +66,6 @@ properties:
   nats.cluster_port:
     description: "The port for the NATS servers to communicate with other servers in the cluster."
     default: 4225
-  nats.nontls_cluster_port:
-    description: "The port for the NATS servers to communicate with other servers in the cluster. No default but usually 4223."
   nats.authorization_timeout:
     description: "After accepting a connection, wait up to this many seconds for credentials."
     default: 15
