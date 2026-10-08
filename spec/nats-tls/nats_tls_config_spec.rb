@@ -51,7 +51,7 @@ module Bosh::Template::Test
       let(:links) do
         [
           Link.new(
-            name: 'nats',
+            name: 'nats-tls',
             instances: [
               LinkInstance.new(id: 'meowmeowmeow'),
               LinkInstance.new(id: 'a-b-c-d')
@@ -149,60 +149,12 @@ module Bosh::Template::Test
             expect(rendered_hash).to eq(expected_hash)
           end
 
-          describe 'when nats is disabled' do
-            let(:links) do
-              [
-                Link.new(
-                  name: 'nats',
-                  instances: [
-                    LinkInstance.new(id: 'meowmeowmeow'),
-                    LinkInstance.new(id: 'a-b-c-d')
-                  ],
-                  properties: {
-                    'nats' => {
-                      'user' => 'my-user',
-                      'password' => 'nats-password',
-                      'hostname' => 'nats-host',
-                      'port' => 4222,
-                      'cluster_port' => 4223,
-                      'http' => '0.0.0.0:0',
-                      'disable' => true
-                    }
-                  }
-                )
-              ]
-            end
-            it 'does not include nats in the routes' do
-              expected_hash['cluster']['routes'] = []
-              rendered_hash = YAML.load(template.render(merged_manifest_properties, consumes: links, spec: spec))
-              expect(rendered_hash).to eq(expected_hash)
-            end
-          end
-
           describe 'nats machine ips are provided' do
             before do
               merged_manifest_properties['nats']['machines'] = ['192.0.0.1', '198.5.4.3']
               expected_hash['cluster']['routes'] = [
                 'nats-route://my-user:my-password@192.0.0.1:4223',
                 'nats-route://my-user:my-password@198.5.4.3:4223'
-              ]
-            end
-
-            it 'renders the template with the provided manifest properties' do
-              rendered_hash = YAML.load(template.render(merged_manifest_properties, consumes: links, spec: spec))
-              expect(rendered_hash).to eq(expected_hash)
-            end
-          end
-
-          describe 'nats machine ips and nontls_cluster_port are provided' do
-            before do
-              merged_manifest_properties['nats']['machines'] = ['192.0.0.1', '198.5.4.3']
-              merged_manifest_properties['nats']['nontls_cluster_port'] = '4225'
-              expected_hash['cluster']['routes'] = [
-                'nats-route://my-user:my-password@192.0.0.1:4223',
-                'nats-route://my-user:my-password@198.5.4.3:4223',
-                'nats-route://my-user:my-password@192.0.0.1:4225',
-                'nats-route://my-user:my-password@198.5.4.3:4225',
               ]
             end
 

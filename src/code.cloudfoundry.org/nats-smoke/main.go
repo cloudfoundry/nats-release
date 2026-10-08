@@ -17,12 +17,6 @@ import (
 const wantedMessageCount = 10
 
 type config struct {
-	NonTLS struct {
-		Hosts    []string
-		User     string
-		Password string
-		Port     int
-	}
 	TLS struct {
 		Hosts       []string
 		User        string
@@ -62,15 +56,7 @@ func main() {
 		defer tlsConnection.Close()
 	}
 
-	plaintextConnection, err := plaintextConnection(c)
-	if err != nil {
-		log.Fatalf("failed to connect to non-tls cluster: %v\n", err)
-	}
-	if plaintextConnection != nil {
-		defer plaintextConnection.Close()
-	}
-
-	conns := createConnPermutations(plaintextConnection, tlsConnection)
+	conns := createConnPermutations(tlsConnection)
 
 ConnPermutations:
 	for _, conn := range conns {
@@ -146,33 +132,8 @@ func tlsConnection(c config) (*nats.Conn, error) {
 	return nats.Connect(strings.Join(servers, ","), nats.Secure(tlsConfig))
 }
 
-func plaintextConnection(c config) (*nats.Conn, error) {
-	if len(c.NonTLS.Hosts) == 0 {
-		log.Println("Detected no non-TLS hosts")
-		return nil, nil
-	}
-
-	var servers []string
-	for _, host := range c.NonTLS.Hosts {
-		servers = append(servers, fmt.Sprintf("nats://%s:%s@%s:%d", c.NonTLS.User, c.NonTLS.Password, host, c.NonTLS.Port))
-	}
-
-	return nats.Connect(strings.Join(servers, ","))
-}
-
-func createConnPermutations(plaintextConnection, tlsConnection *nats.Conn) []pubSubConnection {
-	conns := make([]pubSubConnection, 0, 4)
-
-	if plaintextConnection != nil {
-		log.Println("Testing plaintext connections")
-		conns = append(
-			conns,
-			pubSubConnection{
-				pub: plaintextConnection,
-				sub: plaintextConnection,
-			},
-		)
-	}
+func createConnPermutations(tlsConnection *nats.Conn) []pubSubConnection {
+	conns := make([]pubSubConnection, 0, 1)
 
 	if tlsConnection != nil {
 		log.Println("Testing TLS connections")
@@ -181,21 +142,6 @@ func createConnPermutations(plaintextConnection, tlsConnection *nats.Conn) []pub
 			pubSubConnection{
 				pub: tlsConnection,
 				sub: tlsConnection,
-			},
-		)
-	}
-
-	if plaintextConnection != nil && tlsConnection != nil {
-		log.Println("Testing combinations of plaintext and TLS connections")
-		conns = append(
-			conns,
-			pubSubConnection{
-				pub: plaintextConnection,
-				sub: tlsConnection,
-			},
-			pubSubConnection{
-				pub: tlsConnection,
-				sub: plaintextConnection,
 			},
 		)
 	}

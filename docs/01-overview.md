@@ -52,9 +52,9 @@ The picture illustrates the communication flow described above.
 
 ## NATS Server Configurations
 
-The nats-release currently offers two NATS jobs that can be colocated: a plain-text one (nats), which will be removed when all Cloud Foundry NATS clients are upgraded to use TLS, and a TLS one (nats-tls). The release guarantees that the non-tls clients (e.g. Gorouter) don't attempt to connect to the tls servers by setting the default value for `no_advertise` flag in nats-tls job to [`true`](https://github.com/cloudfoundry/nats-release/blob/a626be571d06b81004b247d58f5abf74a143346e/jobs/nats-tls/spec#L74). In this case the NATS Server configured by nats-tls job will not advertise its client IP to the other cluster participants. Only clients (e.g. Route Emitter) which know the tls server from their configuration will attempt to connect to it.
+The nats-release offers a single NATS job (nats-tls) which serves TLS traffic for the server's external communication (communication with clients). The default value for the `no_advertise` flag in the nats-tls job is [`true`](https://github.com/cloudfoundry/nats-release/blob/a626be571d06b81004b247d58f5abf74a143346e/jobs/nats-tls/spec#L74), so the NATS Server configured by the nats-tls job does not advertise its client IP to the other cluster participants. Only clients (e.g. Route Emitter) which know the tls server from their configuration will attempt to connect to it.
 
-Aside from choosing to run nats or nats-tls jobs which will accordingly enable or disable TLS for the server external traffic (communication with clients), the release also allows you to enable authenticated TLS for NATS cluster-internal traffic by setting the property [`nats.internal.tls.enabled`](https://github.com/cloudfoundry/nats-release/blob/a626be571d06b81004b247d58f5abf74a143346e/jobs/nats-tls/spec#L83) to `true`.
+The release also allows you to enable authenticated TLS for NATS cluster-internal traffic by setting the property [`nats.internal.tls.enabled`](https://github.com/cloudfoundry/nats-release/blob/a626be571d06b81004b247d58f5abf74a143346e/jobs/nats-tls/spec#L83) to `true`.
 
 The release also allow configuring a monitoring port at which the [monitoring endpoints](https://docs.nats.io/nats-server/configuration/monitoring#monitoring-endpoints) could be reached.
 
