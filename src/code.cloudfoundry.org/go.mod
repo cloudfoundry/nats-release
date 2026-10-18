@@ -3,9 +3,9 @@ module code.cloudfoundry.org
 go 1.26.0
 
 require (
-	code.cloudfoundry.org/cf-networking-helpers v0.100.0
-	code.cloudfoundry.org/lager/v3 v3.90.0
-	code.cloudfoundry.org/tlsconfig v0.68.0
+	code.cloudfoundry.org/cf-networking-helpers v0.101.0
+	code.cloudfoundry.org/lager/v3 v3.91.0
+	code.cloudfoundry.org/tlsconfig v0.69.0
 	github.com/nats-io/nats.go v1.54.0
 	github.com/onsi/ginkgo/v2 v2.33.1
 	github.com/onsi/gomega v1.44.0
@@ -18,8 +18,8 @@ require (
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/google/pprof v0.0.0-20261008003335-7bae8d8c4c9e // indirect
-	github.com/klauspost/compress v1.20.1 // indirect
+	github.com/google/pprof v0.0.0-20261016150608-1facf8f91b50 // indirect
+	github.com/klauspost/compress v1.20.3 // indirect
 	github.com/nats-io/nkeys v0.4.16 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/openzipkin/zipkin-go v0.4.3 // indirect
