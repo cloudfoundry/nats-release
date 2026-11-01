@@ -4,8 +4,8 @@ go 1.27.3
 
 require (
 	code.cloudfoundry.org/cf-networking-helpers v0.101.0
-	code.cloudfoundry.org/lager/v3 v3.92.0
-	code.cloudfoundry.org/tlsconfig v0.69.0
+	code.cloudfoundry.org/lager/v3 v3.93.0
+	code.cloudfoundry.org/tlsconfig v0.70.0
 	github.com/nats-io/nats.go v1.55.0
 	github.com/onsi/ginkgo/v2 v2.33.1
 	github.com/onsi/gomega v1.44.0
@@ -18,18 +18,18 @@ require (
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/google/pprof v0.0.0-20261016150608-1facf8f91b50 // indirect
+	github.com/google/pprof v0.0.0-20261026192309-dbd0ed30aa88 // indirect
 	github.com/klauspost/compress v1.20.3 // indirect
 	github.com/nats-io/nkeys v0.4.16 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/openzipkin/zipkin-go v0.4.3 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/square/certstrap v1.4.1 // indirect
-	go.step.sm/crypto v0.91.0 // indirect
-	go.yaml.in/yaml/v3 v3.0.5 // indirect
+	go.step.sm/crypto v0.91.1 // indirect
+	go.yaml.in/yaml/v3 v3.0.6 // indirect
 	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/mod v0.42.0 // indirect
-	golang.org/x/net v0.61.0 // indirect
+	golang.org/x/net v0.62.0 // indirect
 	golang.org/x/sync v0.24.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
